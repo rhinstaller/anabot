@@ -20,11 +20,6 @@ def default_handler(element, node):
     for child in element.xpathEval("./*"):
         handle_step(child, node)
 
-@handle_action('text')
-@handle_action('comment')
-def noop_handler(element, node):
-    pass
-
 @handle_action(None)
 def unimplemented_handler(element, node):
     print 'Unhandled element: %s' % element.name
@@ -43,7 +38,7 @@ def welcome_handler(element, node):
 
 @handle_action('/installation/welcome/language')
 def welcome_language_handler(element, node):
-    lang = str(element.properties.content)
+    lang = str(element.xpathEval("./@value")[0].getContent())
     gui_lang_search = waiton(node, GenericPredicate(roleName="text"))
     gui_lang_search.typeText(lang)
     time.sleep(1)
@@ -52,7 +47,18 @@ def welcome_language_handler(element, node):
 
 @handle_action('/installation/welcome/locality')
 def welcome_language_handler(element, node):
-    pass
+    locality = str(element.xpathEval("./@value")[0].getContent())
+    gui_locality = waiton(node,
+                          GenericPredicate(roleName="table cell",
+                                           name=".* (%s)" % locality))
+    gui_locality_first = waiton(node,
+                                GenericPredicate(roleName="table cell",
+                                                 name=".* (.*)"))
+    gui_locality_first.click()
+    time.sleep(1)
+    while not gui_locality.selected:
+        gui_locality_first.parent.keyCombo("Down")
+        time.sleep(1)
 
 if __name__ == "__main__":
     import os
