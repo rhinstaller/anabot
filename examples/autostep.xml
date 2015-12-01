@@ -1,0 +1,80 @@
+<!-- kazda akce bude mit implicitne policy="should_pass", pujde nastavit i should_fail, may_fail a just_check -->
+<!-- kazdy dialog ma moznost accept, reject nebo jina volba -->
+<installation>
+  <welcome>
+    <language value="English" />
+    <locality value="United States" />
+  </welcome>
+  <hub>
+    <datetime>
+      <region value="Americas" />
+      <city value="New York" />
+      <ntp>
+	<enabled value="true" />
+	<server hostname="*" action="delete" />
+	<server hostname="*" action="disable" />
+	<server hostname="0.rhel.pool.ntp.org" action="disable" />
+	<server hostname="clock.corp.redhat.com" action="add" />
+	<server hostname="test.clock.corp.redhat.com" action="add" />
+	<server hostname="test.clock.corp.redhat.com" action="disable" />
+      </ntp>
+      <time>
+	<hours value="08" />
+	<minutes value="09" />
+	<format value="AM/PM" />
+	<ampm value="AM" />
+      </time>
+      <date>
+	<month value="11" />
+	<day value="18" />
+	<year value="2015" />
+      </date>
+    </datetime>
+    <keyboard>
+      <layout name="English (US)" action="add,remove,move up,move down,show" />
+      <!-- test layout ??? -->
+      <test action="set" value="" />
+      <test action="type" value="qwerty" />
+      <test value="qwerty" policy="just_check" />
+      <!-- layout switching -->
+      <switchoptions>
+	<shortcut name="Alt+Shift" action="enable" />
+      </switchoptions>
+    </keyboard>
+    <langsupport>
+      <language name="English">
+	<locality name="Denmark" action="enable" />
+      </language>
+    </langsupport>
+    <installsource>
+      <!-- set_type(autodetect, ISO file, network) -->
+      <!-- verify media -->
+      <!-- select_iso -->
+      <!-- select_proto, set_url
+	   enable mirrorlist
+	   proxy setup -->
+      <!-- additional repo
+	   set_name
+	   set_proto, set_url
+	   enable mirror list
+	   proxy url
+	   username
+	   password
+	   select_repo
+	   add
+	   remove
+	   revert
+      -->
+    </installsource>
+    <packageset>
+      <environment name="Minimal Install" />
+      <addon name="Debugging Tools" action="enable" />
+    </packageset>
+    <partitioning />
+    <network />
+  </hub>
+  <addons>
+    <openscap />
+    <kdump />
+  </addons>
+</installation>
