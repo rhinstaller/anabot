@@ -2,6 +2,9 @@
 
 import os, time
 
+class TimeoutError(Exception):
+    pass
+
 def waiton(node, predicates, timeout=7, make_screenshot=True):
     "wait unless items show on the screen"
     count = 0
