@@ -1,0 +1,27 @@
+Disclaimer:
+Currently, it is possible only to start GUI test manually.
+The code is only in proof of concept stage right now.
+
+Prepare updates.img with test:
+$ ./make_updates.sh ~/public_html/dogtail.img
+
+Start anaconda with prepared updates.img:
+append on kernel cmdline:
+updates=http://myhost.example.com/~myuser/dogtail.img graphical console=tty0 console=ttyS0
+
+Start test via serial console:
+ * swith to shell: ctrl-b ctrl-n
+ * $ cd /opt
+ * $ ./prepare.sh
+ * $ ./test.sh
+
+If something went wrong, you can still put manually anaconda to desired state via GUI and then prepare again updates.img on your system:
+$ ./make_updates.sh ~/public_html/dogtail.img
+Then on serial console of system run:
+$ ./get_update.sh
+And start test:
+$ ./test.sh
+
+
+It's currently not possible to specify or fetch test description (xml) from any other location then updates.img.
+If you want, it's just few lines of code and pull requests are welcome.
