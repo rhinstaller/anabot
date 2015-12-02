@@ -139,12 +139,56 @@ def hub_partitioning_handler_reclaim_delete_all(element, node):
                                                       name="Delete all"))
     delete_all_button.click()
 
+@handle_action('/installation/configuration')
+def hub_configuration_handler(element, node):
+    default_handler(element, node)
+    print "WAITING FOR REBOOT"
+    reboot_button = waiton(node, GenericPredicate(roleName="push button",
+                                                  name="Reboot"),
+                           timeout=float("inf"))
+    reboot_button.click()    
+
+@handle_action('/installation/configuration/root_password')
+def configuration_root_password_handler(element, node):
+    root_password_spoke = waiton(node,
+                                 GenericPredicate(roleName="spoke selector",
+                                                  name="ROOT PASSWORD"))
+    root_password_spoke.click()
+    default_handler(element, node)
+    root_password_panel = waiton(node,
+                                 GenericPredicate(roleName="panel",
+                                                  name="ROOT PASSWORD"))
+    root_password_done = waiton(root_password_panel,
+                                GenericPredicate(roleName="push button",
+                                                 name="_Done"))
+    root_password_done.click()
+
+@handle_action('/installation/configuration/root_password/password')
+def configuration_root_password_handler(element, node):
+    value = get_attr(element, "value")
+    password_entry = waiton(node,
+                            GenericPredicate(roleName="password text",
+                                             name="Password"))
+    password_entry.click()
+    password_entry.typeText(value)
+
+@handle_action('/installation/configuration/root_password/confirm_password')
+def configuration_root_password_handler(element, node):
+    value = get_attr(element, "value")
+    password_entry = waiton(node,
+                            GenericPredicate(roleName="password text",
+                                             name="Confirm Password"))
+    password_entry.click()
+    password_entry.typeText(value)
+
 if __name__ == "__main__":
     import os
     os.environ["DISPLAY"] = ":1"
 
     import dogtail.utils
     dogtail.utils.enableA11y()
+    import dogtail.config
+    dogtail.config.config.typingDelay = 1
     from dogtail.predicate import GenericPredicate
     import dogtail.tree
     anaconda = dogtail.tree.root.child(roleName="application", name="anaconda")
