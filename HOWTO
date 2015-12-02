@@ -13,14 +13,14 @@ Start test via serial console:
  * swith to shell: ctrl-b n
  * $ cd /opt
  * $ ./prepare.sh
- * $ ./test.sh
+ * $ ./test.py
 
 If something went wrong, you can still put manually anaconda to desired state via GUI and then prepare again updates.img on your system:
 $ ./make_updates.sh ~/public_html/dogtail.img
 Then on serial console of system run:
 $ ./get_update.sh
 And start test:
-$ ./test.sh
+$ ./test.py
 
 
 It's currently not possible to specify or fetch test description (xml) from any other location then updates.img.
