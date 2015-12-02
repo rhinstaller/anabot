@@ -3,7 +3,7 @@
 import libxml2, sys
 import time
 
-from functions import waiton, screenshot, TimeoutError
+from functions import waiton, waiton_all, screenshot, TimeoutError, get_attr
 
 ACTIONS = {}
 
@@ -38,7 +38,7 @@ def welcome_handler(element, node):
 
 @handle_action('/installation/welcome/language')
 def welcome_language_handler(element, node):
-    lang = str(element.xpathEval("./@value")[0].getContent())
+    lang = get_attr(element, "value")
     gui_lang_search = waiton(node, GenericPredicate(roleName="text"))
     gui_lang_search.typeText(lang)
     time.sleep(1)
@@ -47,7 +47,7 @@ def welcome_language_handler(element, node):
 
 @handle_action('/installation/welcome/locality')
 def welcome_language_handler(element, node):
-    locality = str(element.xpathEval("./@value")[0].getContent())
+    locality = get_attr(element, "value")
     gui_locality = waiton(node,
                           GenericPredicate(roleName="table cell",
                                            name=".* (%s)" % locality))
@@ -59,6 +59,85 @@ def welcome_language_handler(element, node):
     while not gui_locality.selected:
         gui_locality_first.parent.keyCombo("Down")
         time.sleep(1)
+
+@handle_action('/installation/hub')
+def hub_handler(element, node):
+    default_handler(element, node)
+    begin_button = waiton(node,
+                          GenericPredicate(roleName="push button",
+                                           name="Begin Installation"))
+    begin_button.click()
+
+@handle_action('/installation/hub/partitioning')
+def hub_partitioning_handler(element, node):
+    partitioning_spoke = waiton(node,
+                                GenericPredicate(roleName="spoke selector",
+                                                 name="INSTALLATION DESTINATION"))
+    partitioning_spoke.click()
+    default_handler(element, node)
+
+@handle_action('/installation/hub/partitioning/disk')
+def hub_partitioning_handler_disk(element, node):
+    name = get_attr(element, "name")
+    action = get_attr(element, "action", "select")
+    disks = waiton_all(node,
+                       GenericPredicate(roleName="disk overview"))
+    if name != "*":
+        disks = [ disk for disk in disks if disk.children[0].children[3].text == name ]
+    for disk in disks:
+        if action == "select" and True:
+            disk.click()
+        elif action == "deselect" and True:
+            disk.click()
+
+@handle_action('/installation/hub/partitioning/mode')
+def hub_partitioning_handler_additional_space(element, node):
+    mode = get_attr(element, "mode")
+    if mode == "default":
+        return
+    if mode == "automatic":
+        radio = waiton(node,
+                       GenericPredicate(roleName="radio button",
+                                        name="Automatically configure partitioning."))
+    if mode == "manual":
+        radio = waiton(node,
+                       GenericPredicate(roleName="radio button",
+                                        name="I will configure partitioning."))
+    if not radio.checked:
+        radio.click()
+
+@handle_action('/installation/hub/partitioning/additional_space')
+def hub_partitioning_handler_additional_space(element, node):
+    action = get_attr(element, "action", "enable")
+    additional_checkbox = waiton(node,
+                                 GenericPredicate(roleName="check box",
+                                                  name="I would like to make additional space available."))
+    if (action == "enable") != additional_checkbox.checked:
+        additional_checkbox.click()
+
+@handle_action('/installation/hub/partitioning/done')
+def hub_partitioning_handler_done(element, node):
+    destination_panel = waiton(node,
+                               GenericPredicate(roleName="panel",
+                                                name="INSTALLATION DESTINATION"))
+    done_button = waiton(destination_panel,
+                         GenericPredicate(roleName="push button",
+                                          name="_Done"))
+    done_button.click()
+
+@handle_action('/installation/hub/partitioning/reclaim')
+def hub_partitioning_handler_reclaim(element, node):
+    # TODO action=reclaim/cancel
+    default_handler(element, node)
+    reclaim_button = waiton(node, GenericPredicate(roleName="push button",
+                                                   name="Reclaim space"))
+    reclaim_button.click()
+
+@handle_action('/installation/hub/partitioning/reclaim/delete_all')
+def hub_partitioning_handler_reclaim_delete_all(element, node):
+    delete_all_button = waiton(node, GenericPredicate(roleName="push button",
+                                                      name="Delete all"))
+    delete_all_button.click()
 
 if __name__ == "__main__":
     import os
