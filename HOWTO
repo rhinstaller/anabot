@@ -10,7 +10,7 @@ append on kernel cmdline:
 updates=http://myhost.example.com/~myuser/dogtail.img graphical console=tty0 console=ttyS0
 
 Start test via serial console:
- * swith to shell: ctrl-b ctrl-n
+ * swith to shell: ctrl-b n
  * $ cd /opt
  * $ ./prepare.sh
  * $ ./test.sh
