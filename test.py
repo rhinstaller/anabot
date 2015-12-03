@@ -75,7 +75,7 @@ def welcome_language_handler(element, app_node, local_node):
     gui_lang.click()
 
 @handle_action('/installation/welcome/locality')
-def welcome_language_handler(element, app_node, local_node):
+def welcome_locality_handler(element, app_node, local_node):
     locality = get_attr(element, "value")
     gui_locality = getnode(app_node, "table cell", ".* (%s)" % locality)
     gui_locality_first = getnode(app_node, "table cell", ".* (.*)")
@@ -84,6 +84,12 @@ def welcome_language_handler(element, app_node, local_node):
     while not gui_locality.selected:
         gui_locality_first.parent.keyCombo("Down")
         time.sleep(1)
+
+@handle_check('/installation/welcome/locality')
+def welcome_locality_check(element, app_node, local_node):
+    locality = get_attr(element, "value")
+    gui_locality = getnode(app_node, "table cell", ".* ({0})".format(locality))
+    return gui_locality.selected
 
 @handle_action('/installation/hub')
 def hub_handler(element, app_node, local_node):
