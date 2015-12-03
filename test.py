@@ -3,6 +3,8 @@
 import libxml2, sys
 import time, re
 
+from fnmatch import fnmatchcase
+
 from functions import waiton, waiton_all, screenshot, TimeoutError, get_attr, getnode, getnodes
 
 ACTIONS = {}
@@ -74,12 +76,13 @@ def hub_partitioning_handler_disk(element, node):
     name = get_attr(element, "name")
     action = get_attr(element, "action", "select")
     disks = getnodes(node, node_type="disk overview")
-    if name != "*":
-        disks = [ disk for disk in disks if disk.children[0].children[3].text == name ]
+    disks = [ disk for disk in disks if fnmatchcase(disk.children[0].children[3].text, name) ]
     for disk in disks:
-        if action == "select" and True:
+        # selected disk has icon without name
+        icon = getnode(disk, node_type="icon")
+        if action == "select" and icon.name == "Hard Disk":
             disk.click()
-        elif action == "deselect" and True:
+        elif action == "deselect" and icon.name == "":
             disk.click()
 
 @handle_action('/installation/hub/partitioning/mode')
