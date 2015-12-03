@@ -3,6 +3,9 @@
 import os, time
 import libxml2
 
+import dogtail
+from dogtail.predicate import GenericPredicate
+
 class TimeoutError(Exception):
     pass
 
@@ -21,7 +24,7 @@ def waiton(node, predicates, timeout=7, make_screenshot=True):
                 return found
         time.sleep(1)
     screenshot()
-    raise TimeoutError("None predicate matches within timeout period")
+    raise TimeoutError("No predicate matches within timeout period")
 
 def waiton_all(node, predicates, timeout=7, make_screenshot=True):
     "wait unless items show on the screen"
@@ -39,7 +42,27 @@ def waiton_all(node, predicates, timeout=7, make_screenshot=True):
                 return found
         time.sleep(1)
     screenshot()
-    raise TimeoutError("None predicate matches within timeout period")
+    raise TimeoutError("No predicate matches within timeout period")
+
+def getnode(parent, node_type=None, node_name=None, timeout=None):
+    predicates = {}
+    if node_type is not None:
+        predicates['roleName'] = node_type
+    if node_name is not None:
+        predicates['name'] = node_name
+    if timeout is not None:
+        return waiton(parent, GenericPredicate(**predicates), timeout)
+    return waiton(parent, GenericPredicate(**predicates))
+
+def getnodes(parent, node_type=None, node_name=None, timeout=None):
+    predicates = {}
+    if node_type is not None:
+        predicates['roleName'] = node_type
+    if node_name is not None:
+        predicates['name'] = node_name
+    if timeout is not None:
+        return waiton_all(parent, GenericPredicate(**predicates), timeout)
+    return waiton_all(parent, GenericPredicate(**predicates))
 
 def screenshot(wait=None):
     if wait is not None:
