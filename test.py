@@ -3,7 +3,7 @@
 import libxml2, sys
 import time
 
-from functions import waiton, waiton_all, screenshot, TimeoutError, get_attr
+from functions import waiton, waiton_all, screenshot, TimeoutError, get_attr, getnode, getnodes
 
 ACTIONS = {}
 
@@ -32,28 +32,23 @@ def installation_handler(element, node):
 @handle_action('/installation/welcome')
 def welcome_handler(element, node):
     default_handler(element, node)
-    welcome = waiton(node, GenericPredicate(roleName="panel", name="WELCOME"))
-    print 'CLICKING CONTINUE'
-    welcome.child(roleName="push button", name="_Continue").click()
+    welcome = getnode(node, "panel", "WELCOME")
+    getnode(welcome, "push button", "_Continue").click()
 
 @handle_action('/installation/welcome/language')
 def welcome_language_handler(element, node):
     lang = get_attr(element, "value")
-    gui_lang_search = waiton(node, GenericPredicate(roleName="text"))
+    welcome = getnode(node, "panel", "WELCOME")
+    gui_lang_search = getnode(welcome, node_type="text")
     gui_lang_search.typeText(lang)
-    time.sleep(1)
-    gui_lang = waiton(node, GenericPredicate(roleName="table cell", name=lang))
+    gui_lang = getnode(node, "table cell", lang)
     gui_lang.click()
 
 @handle_action('/installation/welcome/locality')
 def welcome_language_handler(element, node):
     locality = get_attr(element, "value")
-    gui_locality = waiton(node,
-                          GenericPredicate(roleName="table cell",
-                                           name=".* (%s)" % locality))
-    gui_locality_first = waiton(node,
-                                GenericPredicate(roleName="table cell",
-                                                 name=".* (.*)"))
+    gui_locality = getnode(node, "table cell", ".* (%s)" % locality)
+    gui_locality_first = getnode(node, "table cell", ".* (.*)")
     gui_locality_first.click()
     time.sleep(1)
     while not gui_locality.selected:
@@ -63,25 +58,20 @@ def welcome_language_handler(element, node):
 @handle_action('/installation/hub')
 def hub_handler(element, node):
     default_handler(element, node)
-    begin_button = waiton(node,
-                          GenericPredicate(roleName="push button",
-                                           name="Begin Installation"))
+    begin_button = getnode(node, "push button", "Begin Installation")
     begin_button.click()
 
 @handle_action('/installation/hub/partitioning')
 def hub_partitioning_handler(element, node):
-    partitioning_spoke = waiton(node,
-                                GenericPredicate(roleName="spoke selector",
-                                                 name="INSTALLATION DESTINATION"))
-    partitioning_spoke.click()
+    partitioning = getnode(node, "spoke selector", "INSTALLATION DESTINATION")
+    partitioning.click()
     default_handler(element, node)
 
 @handle_action('/installation/hub/partitioning/disk')
 def hub_partitioning_handler_disk(element, node):
     name = get_attr(element, "name")
     action = get_attr(element, "action", "select")
-    disks = waiton_all(node,
-                       GenericPredicate(roleName="disk overview"))
+    disks = getnodes(node, node_type="disk overview")
     if name != "*":
         disks = [ disk for disk in disks if disk.children[0].children[3].text == name ]
     for disk in disks:
@@ -96,88 +86,65 @@ def hub_partitioning_handler_additional_space(element, node):
     if mode == "default":
         return
     if mode == "automatic":
-        radio = waiton(node,
-                       GenericPredicate(roleName="radio button",
-                                        name="Automatically configure partitioning."))
+        radio_text = "Automatically configure partitioning."
     if mode == "manual":
-        radio = waiton(node,
-                       GenericPredicate(roleName="radio button",
-                                        name="I will configure partitioning."))
+        radio_text = "I will configure partitioning."
+    radio = getnode(node, "radio button", radio_text)
     if not radio.checked:
         radio.click()
 
 @handle_action('/installation/hub/partitioning/additional_space')
 def hub_partitioning_handler_additional_space(element, node):
     action = get_attr(element, "action", "enable")
-    additional_checkbox = waiton(node,
-                                 GenericPredicate(roleName="check box",
-                                                  name="I would like to make additional space available."))
+    additional_checkbox = getnode(node, "check box", "I would like to make additional space available.")
     if (action == "enable") != additional_checkbox.checked:
         additional_checkbox.click()
 
 @handle_action('/installation/hub/partitioning/done')
 def hub_partitioning_handler_done(element, node):
-    destination_panel = waiton(node,
-                               GenericPredicate(roleName="panel",
-                                                name="INSTALLATION DESTINATION"))
-    done_button = waiton(destination_panel,
-                         GenericPredicate(roleName="push button",
-                                          name="_Done"))
+    destination_panel = getnode(node, "panel", "INSTALLATION DESTINATION")
+    done_button = getnode(destination_panel, "push button", "_Done")
     done_button.click()
 
 @handle_action('/installation/hub/partitioning/reclaim')
 def hub_partitioning_handler_reclaim(element, node):
     # TODO action=reclaim/cancel
     default_handler(element, node)
-    reclaim_button = waiton(node, GenericPredicate(roleName="push button",
-                                                   name="Reclaim space"))
+    reclaim_button = getnode(node, "push button", "Reclaim space")
     reclaim_button.click()
 
 @handle_action('/installation/hub/partitioning/reclaim/delete_all')
 def hub_partitioning_handler_reclaim_delete_all(element, node):
-    delete_all_button = waiton(node, GenericPredicate(roleName="push button",
-                                                      name="Delete all"))
+    delete_all_button = getnode(node, "push button", "Delete all")
     delete_all_button.click()
 
 @handle_action('/installation/configuration')
 def hub_configuration_handler(element, node):
     default_handler(element, node)
     print "WAITING FOR REBOOT"
-    reboot_button = waiton(node, GenericPredicate(roleName="push button",
-                                                  name="Reboot"),
-                           timeout=float("inf"))
+    reboot_button = getnode(node, "push button", "Reboot", timeout=float("inf"))
     reboot_button.click()    
 
 @handle_action('/installation/configuration/root_password')
 def configuration_root_password_handler(element, node):
-    root_password_spoke = waiton(node,
-                                 GenericPredicate(roleName="spoke selector",
-                                                  name="ROOT PASSWORD"))
+    root_password_spoke = getnode(node, "spoke selector", "ROOT PASSWORD")
     root_password_spoke.click()
     default_handler(element, node)
-    root_password_panel = waiton(node,
-                                 GenericPredicate(roleName="panel",
-                                                  name="ROOT PASSWORD"))
-    root_password_done = waiton(root_password_panel,
-                                GenericPredicate(roleName="push button",
-                                                 name="_Done"))
+    root_password_panel = getnode(node, "panel", "ROOT PASSWORD")
+    root_password_done = getnode(root_password_panel, "push button", "_Done")
     root_password_done.click()
 
 @handle_action('/installation/configuration/root_password/password')
 def configuration_root_password_handler(element, node):
     value = get_attr(element, "value")
-    password_entry = waiton(node,
-                            GenericPredicate(roleName="password text",
-                                             name="Password"))
+    password_entry = getnode(node, "password text", "Password")
     password_entry.click()
     password_entry.typeText(value)
 
 @handle_action('/installation/configuration/root_password/confirm_password')
 def configuration_root_password_handler(element, node):
     value = get_attr(element, "value")
-    password_entry = waiton(node,
-                            GenericPredicate(roleName="password text",
-                                             name="Confirm Password"))
+    password_entry = getnode(node, "password text", "Confirm Password")
     password_entry.click()
     password_entry.typeText(value)
 
