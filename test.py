@@ -74,6 +74,12 @@ def welcome_language_handler(element, app_node, local_node):
     gui_lang = getnode(app_node, "table cell", lang)
     gui_lang.click()
 
+@handle_check('/installation/welcome/language')
+def welcome_language_check(element, app_node, local_node):
+    lang = get_attr(element, "value")
+    gui_lang = getnode(app_node, "table cell", lang)
+    return gui_lang.selected
+
 @handle_action('/installation/welcome/locality')
 def welcome_locality_handler(element, app_node, local_node):
     locality = get_attr(element, "value")
