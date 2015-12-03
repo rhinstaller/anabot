@@ -1,11 +1,12 @@
 #!/bin/env python2
 
 import libxml2, sys
-import time
+import time, re
 
 from functions import waiton, waiton_all, screenshot, TimeoutError, get_attr, getnode, getnodes
 
 ACTIONS = {}
+NODE_NUM = re.compile(r'\[[0-9]+\]')
 
 def handle_action(element_path):
     def tmp(func):
@@ -14,7 +15,8 @@ def handle_action(element_path):
     return tmp
 
 def handle_step(element, node):
-    ACTIONS.get(element.nodePath(), ACTIONS[None])(element, node)
+    ACTIONS.get(re.sub(NODE_NUM, '', element.nodePath()),
+                ACTIONS[None])(element, node)
 
 def default_handler(element, node):
     for child in element.xpathEval("./*"):
@@ -22,7 +24,7 @@ def default_handler(element, node):
 
 @handle_action(None)
 def unimplemented_handler(element, node):
-    print 'Unhandled element: %s' % element.name
+    print 'Unhandled element: %s' % element.nodePath()
     default_handler(element, node)
 
 @handle_action('/installation')
