@@ -33,7 +33,7 @@ def handle_step(element, app_node, local_node):
         ACTIONS.get(handler_path)(element, app_node, local_node)
     if handler_path is None:
         return
-    if (handler_path, "check") not in ACTIONS:
+    if handler_path not in CHECKS:
         handler_path = None
     if policy in ("should_pass", "just_check"):
         # ASSERT
