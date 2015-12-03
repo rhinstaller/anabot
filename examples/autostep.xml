@@ -73,6 +73,9 @@
     <partitioning>
       <!-- TODO -->
       <disk name="*" action="select" />
+      <disk name="*" action="select" />
+      <disk name="*" action="deselect" />
+      <disk name="*" action="select" />
       <mode mode="automatic" /> <!-- also manual and default -->
       <additional_space action="enable" />
       <done />
