@@ -154,7 +154,7 @@ def hub_configuration_handler(element, app_node, local_node):
     default_handler(element, app_node, local_node)
     print "WAITING FOR REBOOT"
     reboot_button = getnode(app_node, "push button", "Reboot", timeout=float("inf"))
-    reboot_button.click()    
+    reboot_button.click()
 
 @handle_action('/installation/configuration/root_password')
 def configuration_root_password_handler(element, app_node, local_node):
