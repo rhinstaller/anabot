@@ -160,7 +160,7 @@ if __name__ == "__main__":
     import dogtail.utils
     dogtail.utils.enableA11y()
     import dogtail.config
-    dogtail.config.config.typingDelay = 1
+    dogtail.config.config.typingDelay = 0.2
     from dogtail.predicate import GenericPredicate
     import dogtail.tree
     anaconda = dogtail.tree.root.child(roleName="application", name="anaconda")
