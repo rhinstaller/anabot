@@ -2,6 +2,7 @@
 
 import libxml2, sys
 import time, re
+import logging
 
 from fnmatch import fnmatchcase
 
@@ -10,6 +11,8 @@ from functions import waiton, waiton_all, screenshot, TimeoutError, get_attr, ge
 ACTIONS = {}
 CHECKS = {}
 NODE_NUM = re.compile(r'\[[0-9]+\]')
+
+logger = logging.getLogger('anabot')
 
 def handle_action(element_path):
     def tmp(func):
@@ -48,12 +51,12 @@ def default_handler(element, app_node, local_node):
 
 @handle_action(None)
 def unimplemented_handler(element, app_node, local_node):
-    print 'Unhandled element: %s' % element.nodePath()
+    logger.debug('Unhandled element: %s' % element.nodePath())
     default_handler(element, app_node, local_node)
 
 @handle_check(None)
 def unimplemented_handler_check(element, app_node, local_node):
-    print 'Unhandled check for element: %s' % element.nodePath()
+    logger.debug('Unhandled check for element: %s' % element.nodePath())
 
 @handle_action('/installation')
 def installation_handler(element, app_node, local_node):
@@ -164,7 +167,7 @@ def hub_partitioning_handler_reclaim_delete_all(element, app_node, local_node):
 @handle_action('/installation/configuration')
 def hub_configuration_handler(element, app_node, local_node):
     default_handler(element, app_node, local_node)
-    print "WAITING FOR REBOOT"
+    logger.debug("WAITING FOR REBOOT")
     reboot_button = getnode(app_node, "push button", "Reboot", timeout=float("inf"))
     reboot_button.click()
 
