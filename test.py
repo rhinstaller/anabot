@@ -191,10 +191,7 @@ def configuration_root_password_handler(element, app_node, local_node):
     password_entry.click()
     password_entry.typeText(value)
 
-if __name__ == "__main__":
-    import os
-    os.environ["DISPLAY"] = ":1"
-
+def run_test(file_path):
     import dogtail.utils
     dogtail.utils.enableA11y()
     import dogtail.config
@@ -203,6 +200,13 @@ if __name__ == "__main__":
     import dogtail.tree
     anaconda = dogtail.tree.root.child(roleName="application", name="anaconda")
 
-    doc = libxml2.parseFile("examples/autostep.xml")
+    doc = libxml2.parseFile(file_path)
     handle_step(doc.getRootElement(), anaconda, None)
     doc.freeDoc()
+
+if __name__ == "__main__":
+    import os
+    if "DISPLAY" not in os.environ:
+        os.environ["DISPLAY"] = ":1"
+
+    sys.exit(run_test("examples/autostep.xml"))

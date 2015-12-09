@@ -1,0 +1,11 @@
+[Unit]
+Description=Anaconda 
+After=anaconda.service
+Wants=anabot-prepare.service
+After=anabot-prepare.service
+
+[Service]
+ExecStart=/opt/anabot.py
+
+[Install]
+WantedBy=anaconda.service
