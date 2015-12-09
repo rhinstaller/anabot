@@ -6,10 +6,12 @@ import libxml2
 import dogtail
 from dogtail.predicate import GenericPredicate
 
+_SCREENSHOT_NUM = 0
+
 class TimeoutError(Exception):
     pass
 
-def waiton(node, predicates, timeout=7, make_screenshot=True):
+def waiton(node, predicates, timeout=7, make_screenshot=False):
     "wait unless item shows on the screen"
     count = 0
     if type(predicates) is not list:
@@ -26,7 +28,7 @@ def waiton(node, predicates, timeout=7, make_screenshot=True):
     screenshot()
     raise TimeoutError("No predicate matches within timeout period")
 
-def waiton_all(node, predicates, timeout=7, make_screenshot=True):
+def waiton_all(node, predicates, timeout=7, make_screenshot=False):
     "wait unless items show on the screen"
     count = 0
     if type(predicates) is not list:
@@ -65,9 +67,11 @@ def getnodes(parent, node_type=None, node_name=None, timeout=None):
     return waiton_all(parent, GenericPredicate(**predicates))
 
 def screenshot(wait=None):
+    global _SCREENSHOT_NUM
+    _SCREENSHOT_NUM += 1
     if wait is not None:
         time.sleep(wait)
-    os.system("/dogtail/screenshot dogtail-anaconda.png 1")
+    os.system("/opt/screenshot /var/run/anabot/%d-screenshot.png 1" % _SCREENSHOT_NUM)
 
 def get_attr(element, name, default=None):
     try:
