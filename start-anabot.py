@@ -1,6 +1,6 @@
 #!/bin/env python2
 
-from test import run_test
+from anabot import run_test
 from preprocessor import preprocess
 import os, sys, shutil
 
