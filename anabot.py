@@ -5,9 +5,12 @@ from preprocessor import preprocess
 import os, sys, shutil
 
 import logging
+from logging.handlers import SysLogHandler
 logger = logging.getLogger("anabot")
 logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.FileHandler("/var/log/anabot.log"))
+syslog = SysLogHandler(address="/dev/log", facility=SysLogHandler.LOG_LOCAL3)
+logger.addHandler(syslog)
 
 os.environ["DISPLAY"] = ":1"
 
