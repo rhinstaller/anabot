@@ -13,6 +13,7 @@ CHECKS = {}
 NODE_NUM = re.compile(r'\[[0-9]+\]')
 
 logger = logging.getLogger('anabot')
+logger.addHandler(logging.NullHandler())
 
 def handle_action(element_path):
     def tmp(func):
@@ -41,18 +42,14 @@ def handle_step(element, app_node, local_node):
         handler_path = None
     if policy in ("should_pass", "just_check"):
         if CHECKS.get(handler_path)(element, app_node, local_node):
-            logger.info("Check passed for: %s line: %d" % (node_path,
-                                                           node_line))
+            logger.info("Check passed for: %s line: %d", node_path, node_line)
         else:
-            logger.error("Check failed for: %s line: %d" % (node_path,
-                                                            node_line))
+            logger.error("Check failed for: %s line: %d", node_path, node_line)
     if policy in ("should_fail"):
         if not CHECKS.get(handler_path)(element, app_node, local_node):
-            logger.info("Expected failure for: %s line: %d" % (node_path,
-                                                               node_line))
+            logger.info("Expected failure for: %s line: %d", node_path, node_line)
         else:
-            logger.error("Unexpected failure for: %s line: %d" % (node_path,
-                                                                  node_line))
+            logger.error("Unexpected failure for: %s line: %d", node_path, node_line)
     screenshot()
 
 def default_handler(element, app_node, local_node):
