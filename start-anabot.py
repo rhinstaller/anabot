@@ -11,6 +11,7 @@ logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.StreamHandler(sys.stdout))
 logger.addHandler(logging.FileHandler("/var/log/anabot.log"))
 syslog = SysLogHandler(address="/dev/log", facility=SysLogHandler.LOG_LOCAL3)
+syslog.setFormatter(logging.Formatter("anabot: %(message)s"))
 logger.addHandler(syslog)
 
 os.environ["DISPLAY"] = ":1"
