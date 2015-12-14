@@ -5,22 +5,20 @@ The code is only in proof of concept stage right now.
 Prepare updates.img with test:
 $ ./make_updates.sh ~/public_html/dogtail.img
 
-Start anaconda with prepared updates.img:
+Start anaconda with prepared anabot.img:
 append on kernel cmdline:
-updates=http://myhost.example.com/~myuser/dogtail.img graphical console=tty0 console=ttyS0
+updates=http://myhost.example.com/~myuser/anabot.img graphical console=tty0 console=ttyS0
 
-Start test via serial console:
- * swith to shell: ctrl-b n
- * $ cd /opt
- * $ ./prepare.sh
- * $ ./test.py
+Anabot is started automatically via systemd. You can observe output of anabot using journalctl:
+ * $ journalctl -fu anabot-prepare
+ * $ journalctl -fu anabot
 
 If something went wrong, you can still put manually anaconda to desired state via GUI and then prepare again updates.img on your system:
-$ ./make_updates.sh ~/public_html/dogtail.img
+$ ./make_updates.sh ~/public_html/anabot.img
 Then on serial console of system run:
 $ ./get_update.sh
-And start test:
-$ ./test.py
+And start anabot:
+$ ./start-anabot.py
 
 
 It's currently not possible to specify or fetch test description (xml) from any other location then updates.img.
