@@ -67,8 +67,8 @@ def replace_welcome(original):
     else:
         new = original.copyNode(False)
     
-    if has_property(new, "language"):
-        lang_prop = pop_property(new, "language")
+    lang_prop = pop_property(new, "language")
+    if lang_prop is not None:
         match = lang_re.match(lang_prop.content)
         lang = match.group("lang")
         new.xpathEval("./language")[0].setProp("value", lang)
