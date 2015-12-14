@@ -4,6 +4,7 @@ import os, time
 import libxml2
 
 import dogtail
+import dogtail.utils
 from dogtail.predicate import GenericPredicate
 
 _SCREENSHOT_NUM = 0
@@ -67,11 +68,13 @@ def getnodes(parent, node_type=None, node_name=None, timeout=None):
     return waiton_all(parent, GenericPredicate(**predicates))
 
 def screenshot(wait=None):
+    # DISABLED ATM
+    return
     global _SCREENSHOT_NUM
     _SCREENSHOT_NUM += 1
     if wait is not None:
         time.sleep(wait)
-    os.system("/opt/screenshot /var/run/anabot/%d-screenshot.png 1" % _SCREENSHOT_NUM)
+    dogtail.utils.screenshot('/var/run/anabot/%02d-screenshot.png' % (_SCREENSHOT_NUM), timeStamp=False)
 
 def get_attr(element, name, default=None):
     try:
