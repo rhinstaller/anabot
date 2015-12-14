@@ -26,11 +26,13 @@ def handle_step(element, app_node, local_node):
             logger.info("Check passed for: %s line: %d", node_path, node_line)
         else:
             logger.error("Check failed for: %s line: %d", node_path, node_line)
-    if policy in ("should_fail"):
+    if policy in ("should_fail",):
         if not CHECKS.get(handler_path)(element, app_node, local_node):
-            logger.info("Expected failure for: %s line: %d", node_path, node_line)
+            logger.info("Expected failure for: %s line: %d",
+                        node_path, node_line)
         else:
-            logger.error("Unexpected failure for: %s line: %d", node_path, node_line)
+            logger.error("Unexpected failure for: %s line: %d",
+                         node_path, node_line)
     screenshot()
 
 def default_handler(element, app_node, local_node):
@@ -39,9 +41,9 @@ def default_handler(element, app_node, local_node):
 
 @handle_action(None)
 def unimplemented_handler(element, app_node, local_node):
-    logger.debug('Unhandled element: %s' % element.nodePath())
+    logger.debug('Unhandled element: %s', element.nodePath())
     default_handler(element, app_node, local_node)
 
 @handle_check(None)
 def unimplemented_handler_check(element, app_node, local_node):
-    logger.debug('Unhandled check for element: %s' % element.nodePath())
+    logger.debug('Unhandled check for element: %s', element.nodePath())

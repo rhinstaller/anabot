@@ -17,8 +17,10 @@ def default(node_path):
         return func
     return decorator
 
-def load_snippet(name, original_element = None, copy_attrs = True, tag_name="_replacing"):
-    tdoc = libxml2.parseFile(os.path.dirname(__file__) + '/snippets' + name + ".xml")
+def load_snippet(name, original_element=None, copy_attrs=True,
+                 tag_name="_replacing"):
+    tdoc = libxml2.parseFile(os.path.dirname(__file__) +
+                             '/snippets' + name + ".xml")
     doc = tdoc.copyDoc(True) # cannot modify document unless it's copied
     new = doc.getRootElement()
     if copy_attrs:
@@ -88,7 +90,7 @@ def copy_replace_tree(src_element, dst_parent, root=False):
             dst_parent.addChild(new_child)
         copy_replace_tree(child, new_child)
 
-def preprocess(input_path = '-', output_path = '-', debug = False):
+def preprocess(input_path='-', output_path='-', debug=False):
     # https://mail.gnome.org/archives/xml/2004-November/msg00008.html
     oldblankmode = libxml2.keepBlanksDefault(0) # very very ugly hack
 

@@ -1,6 +1,6 @@
 #!/bin/env python2
 
-import os, time
+import time
 import libxml2
 
 import dogtail
@@ -37,8 +37,8 @@ def waiton_all(node, predicates, timeout=7, make_screenshot=False):
     while count < timeout:
         count += 1
         for predicate in predicates:
-            found = [ x for x in node.findChildren(predicate)
-                      if x.showing and x.sensitive ]
+            found = [x for x in node.findChildren(predicate) if
+                     x.showing and x.sensitive]
             if len(found):
                 if make_screenshot:
                     screenshot()
@@ -74,7 +74,8 @@ def screenshot(wait=None):
     _SCREENSHOT_NUM += 1
     if wait is not None:
         time.sleep(wait)
-    dogtail.utils.screenshot('/var/run/anabot/%02d-screenshot.png' % (_SCREENSHOT_NUM), timeStamp=False)
+    dogtail.utils.screenshot('/var/run/anabot/%02d-screenshot.png' %
+                             (_SCREENSHOT_NUM), timeStamp=False)
 
 def get_attr(element, name, default=None):
     try:

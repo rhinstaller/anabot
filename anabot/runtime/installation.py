@@ -4,8 +4,8 @@ logger = logging.getLogger('anabot')
 import time
 from fnmatch import fnmatchcase
 
-from decorators import handle_action, handle_check
-from default import default_handler
+from .decorators import handle_action, handle_check
+from .default import default_handler
 from .functions import get_attr, getnode, getnodes
 
 @handle_action('/installation')
@@ -58,7 +58,8 @@ def hub_handler(element, app_node, local_node):
 
 @handle_action('/installation/hub/partitioning')
 def hub_partitioning_handler(element, app_node, local_node):
-    partitioning = getnode(app_node, "spoke selector", "INSTALLATION DESTINATION")
+    partitioning = getnode(app_node, "spoke selector",
+                           "INSTALLATION DESTINATION")
     partitioning.click()
     default_handler(element, app_node, local_node)
 
@@ -67,7 +68,8 @@ def hub_partitioning_handler_disk(element, app_node, local_node):
     name = get_attr(element, "name")
     action = get_attr(element, "action", "select")
     disks = getnodes(app_node, node_type="disk overview")
-    disks = [ disk for disk in disks if fnmatchcase(disk.children[0].children[3].text, name) ]
+    disks = [disk for disk in disks
+             if fnmatchcase(disk.children[0].children[3].text, name)]
     for disk in disks:
         # selected disk has icon without name
         icon = getnode(disk, node_type="icon")
@@ -77,7 +79,7 @@ def hub_partitioning_handler_disk(element, app_node, local_node):
             disk.click()
 
 @handle_action('/installation/hub/partitioning/mode')
-def hub_partitioning_handler_additional_space(element, app_node, local_node):
+def hub_partitioning_handler_mode(element, app_node, local_node):
     mode = get_attr(element, "mode")
     if mode == "default":
         return
@@ -92,7 +94,8 @@ def hub_partitioning_handler_additional_space(element, app_node, local_node):
 @handle_action('/installation/hub/partitioning/additional_space')
 def hub_partitioning_handler_additional_space(element, app_node, local_node):
     action = get_attr(element, "action", "enable")
-    additional_checkbox = getnode(app_node, "check box", "I would like to make additional space available.")
+    checkbox_text = "I would like to make additional space available."
+    additional_checkbox = getnode(app_node, "check box", checkbox_text)
     if (action == "enable") != additional_checkbox.checked:
         additional_checkbox.click()
 
@@ -118,7 +121,8 @@ def hub_partitioning_handler_reclaim_delete_all(element, app_node, local_node):
 def hub_configuration_handler(element, app_node, local_node):
     default_handler(element, app_node, local_node)
     logger.debug("WAITING FOR REBOOT")
-    reboot_button = getnode(app_node, "push button", "Reboot", timeout=float("inf"))
+    reboot_button = getnode(app_node, "push button", "Reboot",
+                            timeout=float("inf"))
     reboot_button.click()
 
 @handle_action('/installation/configuration/root_password')
@@ -131,14 +135,14 @@ def configuration_root_password_handler(element, app_node, local_node):
     root_password_done.click()
 
 @handle_action('/installation/configuration/root_password/password')
-def configuration_root_password_handler(element, app_node, local_node):
+def configuration_root_password_text_handler(element, app_node, local_node):
     value = get_attr(element, "value")
     password_entry = getnode(app_node, "password text", "Password")
     password_entry.click()
     password_entry.typeText(value)
 
 @handle_action('/installation/configuration/root_password/confirm_password')
-def configuration_root_password_handler(element, app_node, local_node):
+def configuration_root_password_confirm_handler(element, app_node, local_node):
     value = get_attr(element, "value")
     password_entry = getnode(app_node, "password text", "Confirm Password")
     password_entry.click()
