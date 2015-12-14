@@ -1,0 +1,10 @@
+<installation>
+  <welcome language="English (United Kingdom)" />
+  <hub>
+    <autopart />
+  </hub>
+  <configuration>
+    <root password="fo0m4nchU" />
+    <user fullname="Macho" password="fo0m4nchU" />
+  </configuration>
+</installation>
