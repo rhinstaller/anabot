@@ -68,12 +68,13 @@ def copy_replace_tree(src_element, dst_parent, root=False):
         copy_replace_tree(child, new_child)
         child = child.next
 
-def preprocess(input_path, output_path):
+def preprocess(input_path, output_path, debug = False):
     indoc = libxml2.parseFile(input_path)
     outdoc = indoc.copyDoc(False)
     copy_replace_tree(indoc, outdoc, True)
     indoc.dump(open(output_path + '.orig', 'w'))
     outdoc.dump(open(output_path, 'w'))
-    print outdoc.serialize(format=1)
+    if debug:
+        print outdoc.serialize(format=1)
     indoc.freeDoc()
     outdoc.freeDoc()
