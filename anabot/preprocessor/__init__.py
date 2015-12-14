@@ -1,5 +1,6 @@
 import libxml2
 import sys, re
+import os.path
 
 REPLACES = {}
 DEFAULTS = {}
@@ -16,11 +17,37 @@ def default(node_path):
         return func
     return decorator
 
+def load_snippet(name, original_element = None, copy_attrs = True, tag_name="_replacing"):
+    tdoc = libxml2.parseFile(os.path.dirname(__file__) + '/snippets' + name + ".xml")
+    doc = tdoc.copyDoc(True) # cannot modify document unless it's copied
+    new = doc.getRootElement()
+    if copy_attrs:
+        for prop in original_element.xpathEval("./@*"):
+            new.addChild(prop.copyProp(None))
+    if original_element is not None:
+        tag_elements(doc, original_element, tag_name)
+    tdoc.freeDoc()
+    return new
+
+def has_property(element, prop_name):
+    return len(element.xpathEval("./@" + prop_name)) == 1
+
 def pop_property(element, prop_name):
-    pass
+    try:
+        prop = element.xpathEval("./@" + prop_name)[0].copyNode(True)
+    except IndexError:
+        return None
+    element.unsetProp(prop_name)
+    return prop
+
+def tag_elements(new, orig, tag_name="_replacing"):
+    tag_element(new, orig, tag_name)
+    for child in new.xpathEval("./*"):
+        tag_elements(child, orig, tag_name)
 
 def tag_element(new, orig, tag_name="_replacing"):
-    new.newProp(tag_name, orig.nodePath())
+    #new.newProp(tag_name, orig.nodePath())
+    pass
 
 def pop_child(element, child_name):
     pass
@@ -35,23 +62,18 @@ def copy(element):
 @replace("/installation/welcome")
 def replace_welcome(original):
     lang_re = re.compile(r"(?P<lang>[^(]*) (?:\((?P<loc>[^)]*)\))?")
-    new = original.copyNode(False)
-    for prop in original.xpathEval("./@*"):
-        if prop.name == "language":
-            tag_element(new, original)
-            match = lang_re.match(prop.content)
-
-            lang = match.group("lang")
-            lang_el = new.newChild(None, "language", "")
-            lang_el.newProp("value", lang)
-            tag_element(lang_el, original)
-
-            loc = match.group("loc")
-            loc_el = new.newChild(None, "locality", "")
-            loc_el.newProp("value", loc)
-            tag_element(loc_el, original)
-        else:
-            new.addChild(prop.copyProp(None))
+    if has_property(original, "language"):
+        new = load_snippet("/installation/welcome@language", original)
+    else:
+        new = original.copyNode(False)
+    
+    if has_property(new, "language"):
+        lang_prop = pop_property(new, "language")
+        match = lang_re.match(lang_prop.content)
+        lang = match.group("lang")
+        new.xpathEval("./language")[0].setProp("value", lang)
+        loc = match.group("loc")
+        new.xpathEval("./locality")[0].setProp("value", loc)
     return new
 
 def copy_replace_tree(src_element, dst_parent, root=False):
