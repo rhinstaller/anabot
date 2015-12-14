@@ -1,7 +1,7 @@
 #!/bin/env python2
 
 from anabot import run_test
-from preprocessor import preprocess
+from anabot.preprocessor import preprocess
 import os, sys, shutil
 
 import logging
