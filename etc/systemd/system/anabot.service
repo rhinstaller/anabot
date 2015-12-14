@@ -6,6 +6,7 @@ After=anabot-prepare.service
 
 [Service]
 ExecStart=/opt/start-anabot.py
+Environment="PYTHONPATH=/opt/lib/python2.7/site-packages"
 
 [Install]
 WantedBy=anaconda.service
