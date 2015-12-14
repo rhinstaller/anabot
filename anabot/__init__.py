@@ -8,7 +8,7 @@ logger = logging.getLogger('anabot')
 logger.addHandler(logging.NullHandler())
 
 from .default import handle_step
-import installation
+from . import installation
 
 def run_test(file_path):
     import dogtail.utils
