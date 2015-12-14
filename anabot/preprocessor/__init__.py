@@ -77,9 +77,8 @@ def replace_welcome(original):
     return new
 
 def copy_replace_tree(src_element, dst_parent, root=False):
-    child = src_element.children
-    while child is not None:
-        if child.type == "element" and child.nodePath() in REPLACES:
+    for child in src_element.xpathEval("./*"):
+        if child.nodePath() in REPLACES:
             new_child = REPLACES[child.nodePath()](child)
         else:
             new_child = REPLACES[None](child)
@@ -88,7 +87,6 @@ def copy_replace_tree(src_element, dst_parent, root=False):
         else:
             dst_parent.addChild(new_child)
         copy_replace_tree(child, new_child)
-        child = child.next
 
 def preprocess(input_path, output_path, debug = False):
     indoc = libxml2.parseFile(input_path)
