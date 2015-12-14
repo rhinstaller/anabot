@@ -3,8 +3,8 @@ import re
 import logging
 logger = logging.getLogger('anabot')
 
-from functions import get_attr, screenshot
-from decorators import ACTIONS, CHECKS, handle_action, handle_check
+from .functions import get_attr, screenshot
+from .decorators import ACTIONS, CHECKS, handle_action, handle_check
 
 NODE_NUM = re.compile(r'\[[0-9]+\]')
 

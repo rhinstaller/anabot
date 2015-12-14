@@ -6,7 +6,7 @@ from fnmatch import fnmatchcase
 
 from decorators import handle_action, handle_check
 from default import default_handler
-from functions import get_attr, getnode, getnodes
+from .functions import get_attr, getnode, getnodes
 
 @handle_action('/installation')
 def installation_handler(element, app_node, local_node):
