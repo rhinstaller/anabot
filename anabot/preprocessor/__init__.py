@@ -66,7 +66,7 @@ def replace_welcome(original):
         new = load_snippet("/installation/welcome@language", original)
     else:
         new = original.copyNode(False)
-    
+
     lang_prop = pop_property(new, "language")
     if lang_prop is not None:
         match = lang_re.match(lang_prop.content)
@@ -88,13 +88,20 @@ def copy_replace_tree(src_element, dst_parent, root=False):
             dst_parent.addChild(new_child)
         copy_replace_tree(child, new_child)
 
-def preprocess(input_path, output_path, debug = False):
+def preprocess(input_path = '-', output_path = '-', debug = False):
+    # https://mail.gnome.org/archives/xml/2004-November/msg00008.html
+    oldblankmode = libxml2.keepBlanksDefault(0) # very very ugly hack
+
     indoc = libxml2.parseFile(input_path)
     outdoc = indoc.copyDoc(False)
     copy_replace_tree(indoc, outdoc, True)
-    indoc.dump(open(output_path + '.orig', 'w'))
-    outdoc.dump(open(output_path, 'w'))
+    with open(output_path + '.orig', 'w') as outfile_orig:
+        indoc.dump(outfile_orig)
+    with open(output_path, 'w') as outfile:
+        outfile.write(outdoc.serialize(format=1))
     if debug:
         print outdoc.serialize(format=1)
     indoc.freeDoc()
     outdoc.freeDoc()
+
+    libxml2.keepBlanksDefault(oldblankmode) # cleanup very very ugly hack
