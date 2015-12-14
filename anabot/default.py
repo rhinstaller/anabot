@@ -36,3 +36,12 @@ def handle_step(element, app_node, local_node):
 def default_handler(element, app_node, local_node):
     for child in element.xpathEval("./*"):
         handle_step(child, app_node, local_node)
+
+@handle_action(None)
+def unimplemented_handler(element, app_node, local_node):
+    logger.debug('Unhandled element: %s' % element.nodePath())
+    default_handler(element, app_node, local_node)
+
+@handle_check(None)
+def unimplemented_handler_check(element, app_node, local_node):
+    logger.debug('Unhandled check for element: %s' % element.nodePath())

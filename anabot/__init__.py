@@ -4,25 +4,11 @@ import libxml2, sys
 import time, re
 import logging
 
-from fnmatch import fnmatchcase
-
-from functions import waiton, waiton_all, screenshot, TimeoutError, get_attr, getnode, getnodes
-
 logger = logging.getLogger('anabot')
 logger.addHandler(logging.NullHandler())
 
-from decorators import handle_action, handle_check
-from default import handle_step, default_handler
-from . import installation
-
-@handle_action(None)
-def unimplemented_handler(element, app_node, local_node):
-    logger.debug('Unhandled element: %s' % element.nodePath())
-    default_handler(element, app_node, local_node)
-
-@handle_check(None)
-def unimplemented_handler_check(element, app_node, local_node):
-    logger.debug('Unhandled check for element: %s' % element.nodePath())
+from .default import handle_step
+import .installation
 
 def run_test(file_path):
     import dogtail.utils
