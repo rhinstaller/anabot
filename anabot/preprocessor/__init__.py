@@ -35,10 +35,10 @@ def has_property(element, prop_name):
     return len(element.xpathEval("./@" + prop_name)) == 1
 
 def pop_property(element, prop_name):
-    try:
-        prop = element.xpathEval("./@" + prop_name)[0].copyNode(True)
-    except IndexError:
-        return None
+    prop = element.xpathEval("./@" + prop_name)
+    if prop is None:
+        return
+    prop = prop[0].copyNode(True)
     element.unsetProp(prop_name)
     return prop
 
