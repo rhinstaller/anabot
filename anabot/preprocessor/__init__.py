@@ -123,8 +123,8 @@ def copy_replace_tree(src_element, dst_parent, root=False):
 def place_defaults(root):
     for default_key in sorted(DEFAULTS.keys()):
         if len(root.xpathEval(default_key)) == 0:
-            default = DEFAULTS[default_key](root)
-            tag_elements(default, default_key, "_default_for")
+            elem = DEFAULTS[default_key](root)
+            tag_elements(elem, default_key, "_default_for")
 
 def preprocess(input_path='-', output_path='-', debug=False):
     # https://mail.gnome.org/archives/xml/2004-November/msg00008.html
