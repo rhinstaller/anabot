@@ -22,7 +22,7 @@ def default(node_path):
         return func
     return decorator
 
-def load_snippet(name, original_element=None, copy_attrs=True,
+def load_snippet(name, original_element=None, copy_attrs=False,
                  tag_name="_replacing"):
     tdoc = libxml2.parseFile(os.path.dirname(__file__) +
                              '/snippets' + name + ".xml")
@@ -69,7 +69,7 @@ def copy(element):
 def replace_welcome(original):
     lang_re = re.compile(r"(?P<lang>[^(]*) (?:\((?P<loc>[^)]*)\))?")
     if has_property(original, "language"):
-        new = load_snippet("/installation/welcome@language", original)
+        new = load_snippet("/installation/welcome@language", original, True)
     else:
         new = original.copyNode(False)
 
