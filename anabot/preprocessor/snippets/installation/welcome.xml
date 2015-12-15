@@ -1,1 +1,4 @@
-<welcome />
+<welcome>
+  <language value="English" />
+  <locality value="United States" />
+</welcome>
