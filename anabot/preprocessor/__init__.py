@@ -2,6 +2,11 @@ import libxml2
 import sys, re
 import os.path
 
+import logging
+
+logger = logging.getLogger('anabot.preprocessor')
+logger.addHandler(logging.NullHandler())
+
 REPLACES = {}
 DEFAULTS = {}
 
@@ -77,12 +82,27 @@ def replace_welcome(original):
         new.xpathEval("./locality")[0].setProp("value", loc)
     return new
 
+@replace("/installation/hub/autopart")
+def replace_autopart(original):
+    return load_snippet("/installation/hub/autopart", original)
+
+@replace("/installation/configuration/root")
+def replace_rootpw(original):
+    pass
+
+@replace("/installation/configuration/user")
+def replace_user(original):
+    pass
+
 def copy_replace_tree(src_element, dst_parent, root=False):
     for child in src_element.xpathEval("./*"):
         if child.nodePath() in REPLACES:
             new_child = REPLACES[child.nodePath()](child)
         else:
             new_child = REPLACES[None](child)
+        if new_child is None:
+            logger.warn("Didn't get replacement for %s", child.nodePath())
+            return
         if root:
             dst_parent.setRootElement(new_child)
         else:
