@@ -93,13 +93,19 @@ def preprocess(input_path='-', output_path='-', debug=False):
     # https://mail.gnome.org/archives/xml/2004-November/msg00008.html
     oldblankmode = libxml2.keepBlanksDefault(0) # very very ugly hack
 
-    indoc = libxml2.parseFile(input_path)
+    if input_path == '-':
+        indoc = libxml2.parseDoc(sys.stdin.read())
+    else:
+        indoc = libxml2.parseFile(input_path)
     outdoc = indoc.copyDoc(False)
     copy_replace_tree(indoc, outdoc, True)
-    with open(output_path + '.orig', 'w') as outfile_orig:
-        indoc.dump(outfile_orig)
-    with open(output_path, 'w') as outfile:
-        outfile.write(outdoc.serialize(format=1))
+    if output_path == '-':
+        sys.stdout.write(outdoc.serialize(format=1))
+    else:
+        with open(output_path + '.orig', 'w') as outfile_orig:
+            indoc.dump(outfile_orig)
+        with open(output_path, 'w') as outfile:
+            outfile.write(outdoc.serialize(format=1))
     if debug:
         print outdoc.serialize(format=1)
     indoc.freeDoc()
