@@ -100,15 +100,18 @@ def replace_user(original):
 
 @default("/installation/welcome")
 def default_welcome(root):
-    # need to place welcome before hub
+    # need to place welcome before hub (hub < welcome)
+    hub = root.xpathEval("/installation/hub")[0]
     new = load_snippet("/installation/welcome")
-    root.addChild(new)
+    hub.addPrevSibling(new)
     return new
 
 @default("/installation/hub")
 def default_hub(root):
-    # need to place hub between welcome and configuration
+    # need to place hub before configuration (configuration < hub)
+    configuration = root.xpathEval("/installation/configuration")[0]
     new = root.newChild(None, "hub", None)
+    configuration.addPrevSibling(new)
     return new
 
 @default("/installation/hub/partitioning")
