@@ -88,14 +88,26 @@ def replace_autopart(original):
 
 @replace("/installation/configuration/root")
 def replace_rootpw(original):
-    pass
+    new = load_snippet("/installation/configuration/root", original)
+    password = original.xpathEval("./@password")[0].content
+    new.xpathEval("./password")[0].setProp("value", password)
+    new.xpathEval("./confirm_password")[0].setProp("value", password)
+    return new
 
 @replace("/installation/configuration/user")
 def replace_user(original):
     pass
 
+@default("/installation/welcome")
+def default_welcome(root):
+    # need to place welcome before hub
+    new = load_snippet("/installation/welcome")
+    root.addChild(new)
+    return new
+
 @default("/installation/hub")
 def default_hub(root):
+    # need to place hub between welcome and configuration
     new = root.newChild(None, "hub", None)
     return new
 
@@ -103,6 +115,17 @@ def default_hub(root):
 def default_partitioning(root):
     new = load_snippet("/installation/hub/autopart")
     root.xpathEval("/installation/hub")[0].addChild(new)
+    return new
+
+@default("/installation/configuration")
+def default_configuration(root):
+    new = root.newChild(None, "configuration", None)
+    return new
+
+@default("/installation/configuration/root_password")
+def default_root_password(root):
+    new = load_snippet("/installation/configuration/root_password")
+    root.xpathEval("/installation/configuration")[0].addChild(new)
     return new
 
 def copy_replace_tree(src_element, dst_parent, root=False):
