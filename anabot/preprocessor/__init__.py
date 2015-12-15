@@ -32,7 +32,7 @@ def load_snippet(name, original_element=None, copy_attrs=False,
         for prop in original_element.xpathEval("./@*"):
             new.addChild(prop.copyProp(None))
     if original_element is not None:
-        tag_elements(new, original_element, tag_name)
+        tag_elements(new, original_element.nodePath(), tag_name)
     tdoc.freeDoc()
     return new
 
@@ -47,13 +47,13 @@ def pop_property(element, prop_name):
     element.unsetProp(prop_name)
     return prop
 
-def tag_elements(new, orig, tag_name="_replacing"):
-    tag_element(new, orig, tag_name)
-    for child in new.xpathEval("./*"):
-        tag_elements(child, orig, tag_name)
+def tag_elements(elem, value, name="_replacing"):
+    tag_element(elem, value, name)
+    for child in elem.xpathEval("./*"):
+        tag_elements(child, value, name)
 
-def tag_element(new, orig, tag_name="_replacing"):
-    new.setProp(tag_name, orig.nodePath())
+def tag_element(elem, value, name="_replacing"):
+    elem.setProp(name, value)
 
 def pop_child(element, child_name):
     pass
@@ -94,6 +94,17 @@ def replace_rootpw(original):
 def replace_user(original):
     pass
 
+@default("/installation/hub")
+def default_hub(root):
+    new = root.newChild(None, "hub", None)
+    return new
+
+@default("/installation/hub/partitioning")
+def default_partitioning(root):
+    new = load_snippet("/installation/hub/autopart")
+    root.xpathEval("/installation/hub")[0].addChild(new)
+    return new
+
 def copy_replace_tree(src_element, dst_parent, root=False):
     for child in src_element.xpathEval("./*"):
         if child.nodePath() in REPLACES:
@@ -109,6 +120,12 @@ def copy_replace_tree(src_element, dst_parent, root=False):
             dst_parent.addChild(new_child)
         copy_replace_tree(child, new_child)
 
+def place_defaults(root):
+    for default_key in sorted(DEFAULTS.keys()):
+        if len(root.xpathEval(default_key)) == 0:
+            default = DEFAULTS[default_key](root)
+            tag_elements(default, default_key, "_default_for")
+
 def preprocess(input_path='-', output_path='-', debug=False):
     # https://mail.gnome.org/archives/xml/2004-November/msg00008.html
     oldblankmode = libxml2.keepBlanksDefault(0) # very very ugly hack
@@ -119,6 +136,7 @@ def preprocess(input_path='-', output_path='-', debug=False):
         indoc = libxml2.parseFile(input_path)
     outdoc = indoc.copyDoc(False)
     copy_replace_tree(indoc, outdoc, True)
+    place_defaults(outdoc.getRootElement())
     if output_path == '-':
         sys.stdout.write(outdoc.serialize(format=1))
     else:
