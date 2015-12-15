@@ -20,6 +20,5 @@ $ ./get_update.sh
 And start anabot:
 $ ./start-anabot.py
 
-
-It's currently not possible to specify or fetch test description (xml) from any other location then updates.img.
-If you want, it's just few lines of code and pull requests are welcome.
+If you want to specify your own anabot recipe, you can do it via kernel command line, option named anabot. Eg:
+anabot=http://myhost.example.com/~myuser/recipe.xml

@@ -18,4 +18,9 @@ popd
 
 mkdir -p /var/run/anabot 2> /dev/null
 
-cp /opt/examples/autostep.xml /var/run/anabot/raw-recipe.xml
+RECIPE_URL=`awk 'BEGIN {RS=" |\n"; FS="="} $1 == "anabot" {print $2}' /proc/cmdline`
+if [ "$RECIPE_URL" ]; then
+    curl $RECIPE_URL > /var/run/anabot/raw-recipe.xml
+else
+    cp /opt/examples/minimal.xml /var/run/anabot/raw-recipe.xml
+fi
