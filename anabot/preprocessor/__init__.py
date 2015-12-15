@@ -27,7 +27,7 @@ def load_snippet(name, original_element=None, copy_attrs=True,
         for prop in original_element.xpathEval("./@*"):
             new.addChild(prop.copyProp(None))
     if original_element is not None:
-        tag_elements(doc, original_element, tag_name)
+        tag_elements(new, original_element, tag_name)
     tdoc.freeDoc()
     return new
 
@@ -48,8 +48,7 @@ def tag_elements(new, orig, tag_name="_replacing"):
         tag_elements(child, orig, tag_name)
 
 def tag_element(new, orig, tag_name="_replacing"):
-    #new.newProp(tag_name, orig.nodePath())
-    pass
+    new.setProp(tag_name, orig.nodePath())
 
 def pop_child(element, child_name):
     pass
