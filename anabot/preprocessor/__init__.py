@@ -113,7 +113,7 @@ def copy_replace_tree(src_element, dst_parent, root=False):
             new_child = REPLACES[None](child)
         if new_child is None:
             logger.warn("Didn't get replacement for %s", child.nodePath())
-            return
+            continue
         if root:
             dst_parent.setRootElement(new_child)
         else:
