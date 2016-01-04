@@ -8,15 +8,20 @@ from .decorators import ACTIONS, CHECKS, handle_action, handle_check
 
 NODE_NUM = re.compile(r'\[[0-9]+\]')
 
+RESULTS = {}
+
 def handle_step(element, app_node, local_node):
-    node_path = re.sub(NODE_NUM, '', element.nodePath())
+    raw_node_path = element.nodePath()
+    node_path = re.sub(NODE_NUM, '', raw_node_path)
     node_line = element.lineNo()
     policy = get_attr(element, "policy", "should_pass")
     handler_path = node_path
     if handler_path not in ACTIONS:
         handler_path = None
     if policy in ("should_pass", "should_fail", "may_fail"):
-        ACTIONS.get(handler_path)(element, app_node, local_node)
+        RESULTS[raw_node_path] = ACTIONS.get(handler_path)(element,
+                                                           app_node,
+                                                           local_node)
     if handler_path is None:
         return
     if handler_path not in CHECKS:
@@ -46,4 +51,13 @@ def unimplemented_handler(element, app_node, local_node):
 
 @handle_check(None)
 def unimplemented_handler_check(element, app_node, local_node):
-    logger.debug('Unhandled check for element: %s', element.nodePath())
+    node_path = element.nodePath()
+    try:
+        result = RESULTS[node_path]
+        if result is not None:
+            logger.debug('Using result reported by handler for element: %s',
+                         node_path)
+            return result
+    except KeyError:
+        pass
+    logger.warn('Unhandled check for element: %s', node_path)

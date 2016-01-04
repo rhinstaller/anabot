@@ -150,3 +150,4 @@ def configuration_root_password_done_handler(element, app_node, local_node):
     root_password_panel = getnode(app_node, "panel", "ROOT PASSWORD")
     root_password_done = getnode(root_password_panel, "push button", "_Done")
     root_password_done.click()
+    return True # done for password found and was clicked
