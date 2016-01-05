@@ -7,10 +7,9 @@ import dogtail
 import dogtail.utils
 from dogtail.predicate import GenericPredicate
 
-_SCREENSHOT_NUM = 0
+from .errors import TimeoutError
 
-class TimeoutError(Exception):
-    pass
+_SCREENSHOT_NUM = 0
 
 def waiton(node, predicates, timeout=7, make_screenshot=False):
     "wait unless item shows on the screen"

@@ -32,12 +32,20 @@ def handle_step(element, app_node, local_node):
         else:
             logger.error("Check failed for: %s line: %d", node_path, node_line)
     if policy in ("should_fail",):
-        if not CHECKS.get(handler_path)(element, app_node, local_node):
+        result = CHECKS.get(handler_path)(element, app_node, local_node)
+        reason = None
+        if type(result) != type(bool()):
+            result, reason = result
+        if not result:
             logger.info("Expected failure for: %s line: %d",
                         node_path, node_line)
+            if reason is not None:
+                logger.info("Reason was: %s", reason)
         else:
             logger.error("Unexpected failure for: %s line: %d",
                          node_path, node_line)
+            if reason is not None:
+                logger.error("Reason was: %s", reason)
     screenshot()
 
 def default_handler(element, app_node, local_node):

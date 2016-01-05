@@ -7,6 +7,7 @@ from fnmatch import fnmatchcase
 from .decorators import handle_action, handle_check
 from .default import default_handler
 from .functions import get_attr, getnode, getnodes
+from .errors import TimeoutError
 
 @handle_action('/installation')
 def installation_handler(element, app_node, local_node):
@@ -147,7 +148,16 @@ def configuration_root_password_confirm_handler(element, app_node, local_node):
 
 @handle_action('/installation/configuration/root_password/done')
 def configuration_root_password_done_handler(element, app_node, local_node):
-    root_password_panel = getnode(app_node, "panel", "ROOT PASSWORD")
-    root_password_done = getnode(root_password_panel, "push button", "_Done")
+    try:
+        root_password_panel = getnode(app_node, "panel", "ROOT PASSWORD")
+    except TimeoutError:
+        return (False, "Root password spoke not found")
+
+    try:
+        root_password_done = getnode(root_password_panel,
+                                     "push button", "_Done")
+    except TimeoutError:
+        return (False, "Done button not found or not clickable")
+
     root_password_done.click()
     return True # done for password found and was clicked
