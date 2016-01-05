@@ -70,6 +70,9 @@ def getnodes(parent, node_type=None, node_name=None, timeout=None,
         return waiton_all(parent, GenericPredicate(**predicates), timeout)
     return waiton_all(parent, GenericPredicate(**predicates))
 
+def getselected(parent):
+    return [child for child in getnodes(parent) if child.selected]
+
 def screenshot(wait=None):
     # DISABLED ATM
     return
