@@ -6,8 +6,9 @@ from fnmatch import fnmatchcase
 
 from .decorators import handle_action, handle_check
 from .default import default_handler
-from .functions import get_attr, getnode, getnodes
+from .functions import get_attr, getnode, getnodes, getselected
 from .errors import TimeoutError
+from .translate import set_languages_by_name, tr
 
 @handle_action('/installation')
 def installation_handler(element, app_node, local_node):
@@ -17,6 +18,8 @@ def installation_handler(element, app_node, local_node):
 def welcome_handler(element, app_node, local_node):
     default_handler(element, app_node, local_node)
     welcome = getnode(app_node, "panel", "WELCOME")
+    locales = getnode(welcome, "table", "Locales")
+    set_languages_by_name(getselected(locales)[0].name)
     getnode(welcome, "push button", "_Continue").click()
 
 @handle_action('/installation/welcome/language')
