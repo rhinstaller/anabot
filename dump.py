@@ -2,6 +2,8 @@
 
 import os
 os.environ["DISPLAY"] = ":1"
+import sys
+sys.path.append('/opt/lib/python2.7/site-packages')
 import dogtail.utils
 import dogtail.config
 dogtail.utils.enableA11y()
