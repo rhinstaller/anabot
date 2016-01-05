@@ -46,8 +46,10 @@ def waiton_all(node, predicates, timeout=7, make_screenshot=False):
     screenshot()
     raise TimeoutError("No predicate matches within timeout period")
 
-def getnode(parent, node_type=None, node_name=None, timeout=None):
-    predicates = {}
+def getnode(parent, node_type=None, node_name=None, timeout=None,
+            predicates=None):
+    if predicates is None:
+        predicates = {}
     if node_type is not None:
         predicates['roleName'] = node_type
     if node_name is not None:
@@ -56,8 +58,10 @@ def getnode(parent, node_type=None, node_name=None, timeout=None):
         return waiton(parent, GenericPredicate(**predicates), timeout)
     return waiton(parent, GenericPredicate(**predicates))
 
-def getnodes(parent, node_type=None, node_name=None, timeout=None):
-    predicates = {}
+def getnodes(parent, node_type=None, node_name=None, timeout=None,
+             predicates=None):
+    if predicates is None:
+        predicates = {}
     if node_type is not None:
         predicates['roleName'] = node_type
     if node_name is not None:
