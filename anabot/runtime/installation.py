@@ -130,32 +130,30 @@ def hub_configuration_handler(element, app_node, local_node):
 def configuration_root_password_handler(element, app_node, local_node):
     root_password_spoke = getnode(app_node, "spoke selector", "ROOT PASSWORD")
     root_password_spoke.click()
-    default_handler(element, app_node, local_node)
+    try:
+        root_password_panel = getnode(app_node, "panel", "ROOT PASSWORD")
+    except TimeoutError:
+        return (False, "Root password spoke not found")
+    default_handler(element, app_node, root_password_panel)
 
 @handle_action('/installation/configuration/root_password/password')
 def configuration_root_password_text_handler(element, app_node, local_node):
     value = get_attr(element, "value")
-    password_entry = getnode(app_node, "password text", "Password")
+    password_entry = getnode(local_node, "password text", "Password")
     password_entry.click()
     password_entry.typeText(value)
 
 @handle_action('/installation/configuration/root_password/confirm_password')
 def configuration_root_password_confirm_handler(element, app_node, local_node):
     value = get_attr(element, "value")
-    password_entry = getnode(app_node, "password text", "Confirm Password")
+    password_entry = getnode(local_node, "password text", "Confirm Password")
     password_entry.click()
     password_entry.typeText(value)
 
 @handle_action('/installation/configuration/root_password/done')
 def configuration_root_password_done_handler(element, app_node, local_node):
     try:
-        root_password_panel = getnode(app_node, "panel", "ROOT PASSWORD")
-    except TimeoutError:
-        return (False, "Root password spoke not found")
-
-    try:
-        root_password_done = getnode(root_password_panel,
-                                     "push button", "_Done")
+        root_password_done = getnode(local_node, "push button", "_Done")
     except TimeoutError:
         return (False, "Done button not found or not clickable")
 
