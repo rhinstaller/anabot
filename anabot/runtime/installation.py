@@ -114,7 +114,15 @@ def hub_partitioning_handler_done(element, app_node, local_node):
 @handle_action('/installation/hub/partitioning/reclaim')
 def hub_partitioning_handler_reclaim(element, app_node, local_node):
     # TODO action=reclaim/cancel
-    reclaim_dialog = app_node
+    reclaim_dialog = None
+    for dialog in getnodes(app_node, "dialog"):
+        try:
+            getnode(dialog, "label", tr("RECLAIM DISK SPACE"))
+            reclaim_dialog = dialog
+        except TimeoutError:
+            pass
+    if reclaim_dialog is None:
+        return (False, "Reclaim dialog not found")
     default_handler(element, app_node, reclaim_dialog)
     reclaim_button = getnode(reclaim_dialog, "push button",
                              tr("_Reclaim space", context="GUI|Reclaim Dialog"))
