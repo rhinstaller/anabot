@@ -16,8 +16,8 @@ def installation_handler(element, app_node, local_node):
 
 @handle_action('/installation/welcome')
 def welcome_handler(element, app_node, local_node):
-    default_handler(element, app_node, local_node)
     welcome = getnode(app_node, "panel", "WELCOME")
+    default_handler(element, app_node, welcome)
     locales = getnode(welcome, "table", "Locales")
     set_languages_by_name(getselected(locales)[0].name)
     getnode(welcome, "push button", "_Continue").click()
@@ -25,23 +25,22 @@ def welcome_handler(element, app_node, local_node):
 @handle_action('/installation/welcome/language')
 def welcome_language_handler(element, app_node, local_node):
     lang = get_attr(element, "value")
-    welcome = getnode(app_node, "panel", "WELCOME")
-    gui_lang_search = getnode(welcome, node_type="text")
+    gui_lang_search = getnode(local_node, node_type="text")
     gui_lang_search.typeText(lang)
-    gui_lang = getnode(app_node, "table cell", lang)
+    gui_lang = getnode(local_node, "table cell", lang)
     gui_lang.click()
 
 @handle_check('/installation/welcome/language')
 def welcome_language_check(element, app_node, local_node):
     lang = get_attr(element, "value")
-    gui_lang = getnode(app_node, "table cell", lang)
+    gui_lang = getnode(local_node, "table cell", lang)
     return gui_lang.selected
 
 @handle_action('/installation/welcome/locality')
 def welcome_locality_handler(element, app_node, local_node):
     locality = get_attr(element, "value")
-    gui_locality = getnode(app_node, "table cell", ".* (%s)" % locality)
-    gui_locality_first = getnode(app_node, "table cell", ".* (.*)")
+    gui_locality = getnode(local_node, "table cell", ".* (%s)" % locality)
+    gui_locality_first = getnode(local_node, "table cell", ".* (.*)")
     gui_locality_first.click()
     time.sleep(1)
     while not gui_locality.selected:
@@ -51,7 +50,8 @@ def welcome_locality_handler(element, app_node, local_node):
 @handle_check('/installation/welcome/locality')
 def welcome_locality_check(element, app_node, local_node):
     locality = get_attr(element, "value")
-    gui_locality = getnode(app_node, "table cell", ".* ({0})".format(locality))
+    gui_locality = getnode(local_node, "table cell",
+                           ".* ({0})".format(locality))
     return gui_locality.selected
 
 @handle_action('/installation/hub')
@@ -66,13 +66,15 @@ def hub_partitioning_handler(element, app_node, local_node):
     partitioning = getnode(app_node, "spoke selector",
                            tr("INSTALLATION DESTINATION"))
     partitioning.click()
-    default_handler(element, app_node, local_node)
+    partitioning_panel = getnode(app_node, "panel",
+                                 tr("INSTALLATION DESTINATION"))
+    default_handler(element, app_node, partitioning_panel)
 
 @handle_action('/installation/hub/partitioning/disk')
 def hub_partitioning_handler_disk(element, app_node, local_node):
     name = get_attr(element, "name")
     action = get_attr(element, "action", "select")
-    disks = getnodes(app_node, node_type="disk overview")
+    disks = getnodes(local_node, node_type="disk overview")
     disks = [disk for disk in disks
              if fnmatchcase(disk.children[0].children[3].text, name)]
     for disk in disks:
@@ -92,7 +94,7 @@ def hub_partitioning_handler_mode(element, app_node, local_node):
         radio_text = tr("A_utomatically configure partitioning.")
     if mode == "manual":
         radio_text = tr("_I will configure partitioning.")
-    radio = getnode(app_node, "radio button", radio_text)
+    radio = getnode(local_node, "radio button", radio_text)
     if not radio.checked:
         radio.click()
 
@@ -100,28 +102,27 @@ def hub_partitioning_handler_mode(element, app_node, local_node):
 def hub_partitioning_handler_additional_space(element, app_node, local_node):
     action = get_attr(element, "action", "enable")
     checkbox_text = tr("I would like to _make additional space available.")
-    additional_checkbox = getnode(app_node, "check box", checkbox_text)
+    additional_checkbox = getnode(local_node, "check box", checkbox_text)
     if (action == "enable") != additional_checkbox.checked:
         additional_checkbox.click()
 
 @handle_action('/installation/hub/partitioning/done')
 def hub_partitioning_handler_done(element, app_node, local_node):
-    destination_panel = getnode(app_node, "panel",
-                                tr("INSTALLATION DESTINATION"))
-    done_button = getnode(destination_panel, "push button", tr("_Done", False))
+    done_button = getnode(local_node, "push button", tr("_Done", False))
     done_button.click()
 
 @handle_action('/installation/hub/partitioning/reclaim')
 def hub_partitioning_handler_reclaim(element, app_node, local_node):
     # TODO action=reclaim/cancel
-    default_handler(element, app_node, local_node)
-    reclaim_button = getnode(app_node, "push button",
+    reclaim_dialog = app_node
+    default_handler(element, app_node, reclaim_dialog)
+    reclaim_button = getnode(reclaim_dialog, "push button",
                              tr("_Reclaim space", context="GUI|Reclaim Dialog"))
     reclaim_button.click()
 
 @handle_action('/installation/hub/partitioning/reclaim/delete_all')
 def hub_partitioning_handler_reclaim_delete_all(element, app_node, local_node):
-    delete_all_button = getnode(app_node, "push button",
+    delete_all_button = getnode(local_node, "push button",
                                 tr("Delete _all", context="GUI|Reclaim Dialog"))
     delete_all_button.click()
 
