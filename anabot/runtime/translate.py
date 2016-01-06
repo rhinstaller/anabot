@@ -20,7 +20,15 @@ def set_languages(languages):
     __translate = gettext.translation('anaconda', languages=languages,
                                       fallback=True)
 
-def tr(intext):
-    return __translate.ugettext(intext)
+def tr(intext, drop_underscore=True, context=None):
+    # Some translations have context but python gettext doesn't support
+    # contexts. There is workaround for this issue:
+    # https://bugs.python.org/issue2504#msg106121
+    if context is not None:
+        intext = context + "\x04" + intext
+    outtext = __translate.ugettext(intext)
+    if drop_underscore:
+        outtext = outtext.replace('_', '', 1)
+    return outtext
 
 set_languages(['en'])
