@@ -1,0 +1,42 @@
+<installation>
+  <hub>
+    <partitioning>
+      <!-- TODO -->
+      <disk name="*" action="select" />
+      <mode mode="manual" />
+      <done />
+      <advanced>
+	<schema value="native" />
+	<select device="*">
+	  <remove dialog="reject">
+	    <remove_siblings /> <!-- value="yes" || value="no" -->
+	  </remove>
+	</select>
+	<select device="*">
+	  <remove />
+	</select>
+	<add>
+	  <mountpoint value="/" />
+	  <size value="20G" />
+	</add>
+	<rescan dialog="reject" />
+	<rescan>
+	  <rescan />
+	</rescan>
+      </advanced>
+      <done />
+      <advanced>
+	<schema value="native" />
+	<select device="*">
+	  <remove dialog="reject">
+	    <remove_siblings /> <!-- value="yes" || value="no" -->
+	  </remove>
+	</select>
+	<schema value="native" />
+	<autopart />
+	<done />
+	<summary dialog="accept" />
+      </advanced>
+    </partitioning>
+  </hub>
+</installation>
