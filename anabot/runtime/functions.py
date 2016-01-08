@@ -11,7 +11,10 @@ from .errors import TimeoutError
 
 _SCREENSHOT_NUM = 0
 
-def waiton(node, predicates, timeout=7, make_screenshot=False):
+def visibility(node, value):
+    return (value is None) or (bool(value) == node.showing)
+
+def waiton(node, predicates, timeout=7, make_screenshot=False, visible=True):
     "wait unless item shows on the screen"
     count = 0
     if type(predicates) is not list:
@@ -20,7 +23,7 @@ def waiton(node, predicates, timeout=7, make_screenshot=False):
         count += 1
         for predicate in predicates:
             found = node.findChild(predicate, retry=False, requireResult=False)
-            if found is not None and found.showing and found.sensitive:
+            if found is not None and visibility(found, visible) and found.sensitive:
                 if make_screenshot:
                     screenshot()
                 return found
@@ -28,7 +31,7 @@ def waiton(node, predicates, timeout=7, make_screenshot=False):
     screenshot()
     raise TimeoutError("No predicate matches within timeout period")
 
-def waiton_all(node, predicates, timeout=7, make_screenshot=False):
+def waiton_all(node, predicates, timeout=7, make_screenshot=False, visible=True):
     "wait unless items show on the screen"
     count = 0
     if type(predicates) is not list:
@@ -37,7 +40,7 @@ def waiton_all(node, predicates, timeout=7, make_screenshot=False):
         count += 1
         for predicate in predicates:
             found = [x for x in node.findChildren(predicate) if
-                     x.showing and x.sensitive]
+                     visibility(x, visible) and x.sensitive]
             if len(found):
                 if make_screenshot:
                     screenshot()
@@ -47,7 +50,7 @@ def waiton_all(node, predicates, timeout=7, make_screenshot=False):
     raise TimeoutError("No predicate matches within timeout period")
 
 def getnode(parent, node_type=None, node_name=None, timeout=None,
-            predicates=None):
+            predicates=None, visible=True):
     if predicates is None:
         predicates = {}
     if node_type is not None:
@@ -55,11 +58,12 @@ def getnode(parent, node_type=None, node_name=None, timeout=None,
     if node_name is not None:
         predicates['name'] = node_name
     if timeout is not None:
-        return waiton(parent, GenericPredicate(**predicates), timeout)
-    return waiton(parent, GenericPredicate(**predicates))
+        return waiton(parent, GenericPredicate(**predicates), timeout,
+                      visible=visible)
+    return waiton(parent, GenericPredicate(**predicates), visible=visible)
 
 def getnodes(parent, node_type=None, node_name=None, timeout=None,
-             predicates=None):
+             predicates=None, visible=True):
     if predicates is None:
         predicates = {}
     if node_type is not None:
@@ -67,8 +71,27 @@ def getnodes(parent, node_type=None, node_name=None, timeout=None,
     if node_name is not None:
         predicates['name'] = node_name
     if timeout is not None:
-        return waiton_all(parent, GenericPredicate(**predicates), timeout)
-    return waiton_all(parent, GenericPredicate(**predicates))
+        return waiton_all(parent, GenericPredicate(**predicates), timeout,
+                          visible=visible)
+    return waiton_all(parent, GenericPredicate(**predicates), visible=visible)
+
+def getparent(child, node_type=None, node_name=None, predicates=None):
+    if predicates is None:
+        predicates = {}
+    if node_type is not None:
+        predicates['roleName'] = node_type
+    if node_name is not None:
+        predicates['name'] = node_name
+    return child.findAncestor(GenericPredicate(**predicates))
+
+def getparents(child, node_type=None, node_name=None, predicates=None):
+    parents = []
+    while True:
+        parent = getparent(child, node_type, node_name, predicates)
+        if parent is None:
+            return parents
+        parents.append(parent)
+        child = parent
 
 def getselected(parent):
     return [child for child in getnodes(parent) if child.selected]
@@ -90,6 +113,4 @@ def get_attr(element, name, default=None):
     except libxml2.xpathError:
         raise Exception("Incorrect xpath expression: '%s'" % xpath)
     except IndexError:
-        if default is None:
-            raise KeyError("No attribute named '%s'" % name)
         return default
