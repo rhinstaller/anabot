@@ -9,7 +9,8 @@
 	<schema value="native" />
 	<select device="*">
 	  <remove dialog="reject">
-	    <remove_siblings /> <!-- value="yes" || value="no" -->
+	    <also_related /> <!-- value="yes" || value="no" -->
+	    <also_related value="no" />
 	  </remove>
 	</select>
 	<select device="*">
@@ -21,7 +22,7 @@
 	</add>
 	<rescan dialog="reject" />
 	<rescan>
-	  <rescan />
+	  <push_rescan />
 	</rescan>
       </advanced>
       <done />
@@ -29,7 +30,7 @@
 	<schema value="native" />
 	<select device="*">
 	  <remove dialog="reject">
-	    <remove_siblings /> <!-- value="yes" || value="no" -->
+	    <remove_related /> <!-- value="yes" || value="no" -->
 	  </remove>
 	</select>
 	<schema value="native" />
