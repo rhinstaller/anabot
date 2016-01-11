@@ -12,49 +12,12 @@ from anabot.runtime.translate import set_languages_by_name, tr
 
 from dogtail.predicate import GenericPredicate
 
+# submodules
+from . import welcome, configuration
+
 @handle_action('/installation')
 def installation_handler(element, app_node, local_node):
     default_handler(element, app_node, local_node)
-
-@handle_action('/installation/welcome')
-def welcome_handler(element, app_node, local_node):
-    welcome = getnode(app_node, "panel", "WELCOME")
-    default_handler(element, app_node, welcome)
-    locales = getnode(welcome, "table", "Locales")
-    set_languages_by_name(getselected(locales)[0].name)
-    getnode(welcome, "push button", "_Continue").click()
-
-@handle_action('/installation/welcome/language')
-def welcome_language_handler(element, app_node, local_node):
-    lang = get_attr(element, "value")
-    gui_lang_search = getnode(local_node, node_type="text")
-    gui_lang_search.typeText(lang)
-    gui_lang = getnode(local_node, "table cell", lang)
-    gui_lang.click()
-
-@handle_check('/installation/welcome/language')
-def welcome_language_check(element, app_node, local_node):
-    lang = get_attr(element, "value")
-    gui_lang = getnode(local_node, "table cell", lang)
-    return gui_lang.selected
-
-@handle_action('/installation/welcome/locality')
-def welcome_locality_handler(element, app_node, local_node):
-    locality = get_attr(element, "value")
-    gui_locality = getnode(local_node, "table cell", ".* (%s)" % locality)
-    gui_locality_first = getnode(local_node, "table cell", ".* (.*)")
-    gui_locality_first.click()
-    time.sleep(1)
-    while not gui_locality.selected:
-        gui_locality_first.parent.keyCombo("Down")
-        time.sleep(1)
-
-@handle_check('/installation/welcome/locality')
-def welcome_locality_check(element, app_node, local_node):
-    locality = get_attr(element, "value")
-    gui_locality = getnode(local_node, "table cell",
-                           ".* ({0})".format(locality))
-    return gui_locality.selected
 
 @handle_action('/installation/hub')
 def hub_handler(element, app_node, local_node):
@@ -225,40 +188,3 @@ def hub_configuration_handler(element, app_node, local_node):
                             tr("_Reboot", context="GUI|Progress"),
                             timeout=float("inf"))
     reboot_button.click()
-
-@handle_action('/installation/configuration/root_password')
-def configuration_root_password_handler(element, app_node, local_node):
-    root_password_spoke = getnode(app_node, "spoke selector",
-                                  tr("_ROOT PASSWORD", context="GUI|Spoke"))
-    root_password_spoke.click()
-    try:
-        root_password_panel = getnode(app_node, "panel", tr("ROOT PASSWORD"))
-    except TimeoutError:
-        return (False, "Root password spoke not found")
-    default_handler(element, app_node, root_password_panel)
-
-@handle_action('/installation/configuration/root_password/password')
-def configuration_root_password_text_handler(element, app_node, local_node):
-    value = get_attr(element, "value")
-    password_entry = getnode(local_node, "password text", tr("Password"))
-    password_entry.click()
-    password_entry.typeText(value)
-
-@handle_action('/installation/configuration/root_password/confirm_password')
-def configuration_root_password_confirm_handler(element, app_node, local_node):
-    value = get_attr(element, "value")
-    password_entry = getnode(local_node, "password text",
-                             tr("Confirm Password"))
-    password_entry.click()
-    password_entry.typeText(value)
-
-@handle_action('/installation/configuration/root_password/done')
-def configuration_root_password_done_handler(element, app_node, local_node):
-    try:
-        root_password_done = getnode(local_node, "push button",
-                                     tr("_Done", False))
-    except TimeoutError:
-        return (False, "Done button not found or not clickable")
-
-    root_password_done.click()
-    return True # done for password found and was clicked
