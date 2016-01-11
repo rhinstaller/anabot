@@ -1,3 +1,6 @@
+import logging
+logger = logging.getLogger('anabot')
+
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler
 from anabot.runtime.functions import get_attr, getnode, TimeoutError
