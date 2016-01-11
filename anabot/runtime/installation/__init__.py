@@ -4,11 +4,11 @@ logger = logging.getLogger('anabot')
 import time
 from fnmatch import fnmatchcase
 
-from .decorators import handle_action, handle_check
-from .default import default_handler
-from .functions import get_attr, waiton, getnode, getnodes, getselected, getparent, getparents
-from .errors import TimeoutError
-from .translate import set_languages_by_name, tr
+from anabot.runtime.decorators import handle_action, handle_check
+from anabot.runtime.default import default_handler
+from anabot.runtime.functions import get_attr, waiton, getnode, getnodes, getselected, getparent, getparents
+from anabot.runtime.errors import TimeoutError
+from anabot.runtime.translate import set_languages_by_name, tr
 
 from dogtail.predicate import GenericPredicate
 
