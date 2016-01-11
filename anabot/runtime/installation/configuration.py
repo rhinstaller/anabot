@@ -3,6 +3,15 @@ from anabot.runtime.default import default_handler
 from anabot.runtime.functions import get_attr, getnode, TimeoutError
 from anabot.runtime.translate import tr
 
+@handle_action('/installation/configuration')
+def hub_configuration_handler(element, app_node, local_node):
+    default_handler(element, app_node, local_node)
+    logger.debug("WAITING FOR REBOOT")
+    reboot_button = getnode(app_node, "push button",
+                            tr("_Reboot", context="GUI|Progress"),
+                            timeout=float("inf"))
+    reboot_button.click()
+
 @handle_action('/installation/configuration/root_password')
 def configuration_root_password_handler(element, app_node, local_node):
     root_password_spoke = getnode(app_node, "spoke selector",

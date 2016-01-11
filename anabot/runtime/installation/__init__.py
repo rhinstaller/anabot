@@ -179,12 +179,3 @@ def hub_partitioning_advanced_select_handler(element, app_node, local_node):
                 processed.append(name)
                 done = False
                 break
-
-@handle_action('/installation/configuration')
-def hub_configuration_handler(element, app_node, local_node):
-    default_handler(element, app_node, local_node)
-    logger.debug("WAITING FOR REBOOT")
-    reboot_button = getnode(app_node, "push button",
-                            tr("_Reboot", context="GUI|Progress"),
-                            timeout=float("inf"))
-    reboot_button.click()
