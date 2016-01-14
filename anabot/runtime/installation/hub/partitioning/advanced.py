@@ -95,3 +95,79 @@ def hub_partitioning_advanced_select_handler(element, app_node, local_node):
                 processed.append(name)
                 done = False
                 break
+
+@handle_action('/installation/hub/partitioning/advanced/remove')
+@handle_action('/installation/hub/partitioning/advanced/select/remove')
+def hub_partitioning_advanced_remove_handler(element, app_node, local_node):
+    dialog_action = get_attr(element, "dialog", "accept")
+    remove_button = getnode(local_node, "push button",
+                            tr("Remove", context="GUI|Custom Partitioning"))
+    remove_button.click()
+    dialog_text = tr("Are you sure you want to delete all of the data on %s?")
+    dialog_text %= "*"
+    dialog_text = unicode(dialog_text)
+    try:
+        remove_dialog = getnode(app_node, "dialog")
+    except:
+        return (False, "No dialog appeared after pressing remove button")
+    if len([ x for x in getnodes(remove_dialog, "label")
+             if fnmatchcase(unicode(x.name), dialog_text)]) != 1:
+        return (False, "Different dialog appeared after pressing remove button")
+    default_handler(element, app_node, remove_dialog)
+    remove_dialog_context = "GUI|Custom Partitioning|Confirm Delete Dialog"
+    if dialog_action == "accept":
+        button_text = tr("_Delete It", context=remove_dialog_context)
+    elif dialog_action == "reject":
+        button_text = tr("_Cancel", context=remove_dialog_context)
+    else:
+        return (False, "Undefined state")
+    getnode(remove_dialog, "push button", button_text).click()
+
+@handle_action('/installation/hub/partitioning/advanced/remove/also_related')
+@handle_action('/installation/hub/partitioning/advanced/select/remove/also_related')
+def hub_partitioning_advanced_remove_related_handler(element, app_node, local_node):
+    check = get_attr(element, "value", "yes") == "yes"
+    checkbox_text = tr("Delete _all other file systems in the %s root as well.",
+                       context="GUI|Custom Partitioning|Confirm Delete Dialog")
+    checkbox_text %= "*"
+    checkbox_text = unicode(checkbox_text)
+    checkboxes = [x for x in getnodes(local_node, "check box")
+                  if fnmatchcase(unicode(x.name), checkbox_text)]
+    logger.warn("Found checkboxes: %s", repr(checkboxes))
+    if len(checkboxes) != 1:
+        return (False, "No or more checkboxes for removing related partitions found. Check screenshot")
+    checkbox = checkboxes[0]
+    if checkbox.checked != check:
+        checkbox.click()
+
+@handle_action('/installation/hub/partitioning/advanced/rescan')
+def hub_partitioning_advanced_rescan_handler(element, app_node, local_node):
+    dialog_action = get_attr(element, "dialog", "accept")
+    rescan_name = tr("Refresh", context="GUI|Custom Partitioning")
+    rescan_button = getnode(local_node, "push button", rescan_name)
+    rescan_button.click()
+    rescan_dialog = getnode(app_node, "dialog", tr("RESCAN DISKS"))
+    default_handler(element, app_node, rescan_dialog)
+    context = "GUI|Refresh Dialog|Rescan"
+    if dialog_action == "accept":
+        button_text = tr("_OK", context=context)
+    elif dialog_action == "reject":
+        button_text = tr("_Cancel", context=context)
+    else:
+        return (False, "Undefined state")
+    getnode(rescan_dialog, "push button", button_text).click()
+
+@handle_action('/installation/hub/partitioning/advanced/rescan/push_rescan')
+def hub_partitioning_advanced_rescan_push_rescan_handler(element, app_node, local_node):
+    rescan_text = tr("_Rescan Disks", context="GUI|Refresh Dialog|Rescan")
+    rescan_button = getnode(local_node, "push button", rescan_text)
+    rescan_button.click()
+
+@handle_check('/installation/hub/partitioning/advanced/rescan/push_rescan')
+def hub_partitioning_advanced_rescan_push_rescan_check(element, app_node, local_node):
+    # check that scan was successfull
+    pass
+
+# autopart
+# done
+# summary
