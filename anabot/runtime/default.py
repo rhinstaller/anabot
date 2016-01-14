@@ -10,6 +10,14 @@ NODE_NUM = re.compile(r'\[[0-9]+\]')
 
 RESULTS = {}
 
+def _check_result_reason(result):
+    if result is None:
+        return None, None
+    reason = None
+    if type(result) != type(bool()):
+        result, reason = result
+    return (result, reason)
+
 def handle_step(element, app_node, local_node):
     raw_node_path = element.nodePath()
     node_path = re.sub(NODE_NUM, '', raw_node_path)
@@ -26,26 +34,23 @@ def handle_step(element, app_node, local_node):
         return
     if handler_path not in CHECKS:
         handler_path = None
+    result, reason = _check_result_reason(CHECKS.get(handler_path)(element, app_node, local_node))
+    if policy == "may_fail":
+        return
     if policy in ("should_pass", "just_check"):
-        if CHECKS.get(handler_path)(element, app_node, local_node):
+        if result:
             logger.info("Check passed for: %s line: %d", node_path, node_line)
         else:
             logger.error("Check failed for: %s line: %d", node_path, node_line)
     if policy in ("should_fail",):
-        result = CHECKS.get(handler_path)(element, app_node, local_node)
-        reason = None
-        if type(result) != type(bool()):
-            result, reason = result
         if not result:
             logger.info("Expected failure for: %s line: %d",
                         node_path, node_line)
-            if reason is not None:
-                logger.info("Reason was: %s", reason)
         else:
-            logger.error("Unexpected failure for: %s line: %d",
+            logger.error("Unexpected pass for: %s line: %d",
                          node_path, node_line)
-            if reason is not None:
-                logger.error("Reason was: %s", reason)
+    if reason is not None:
+        logger.info("Reason was: %s", reason)
     screenshot()
 
 def default_handler(element, app_node, local_node):
