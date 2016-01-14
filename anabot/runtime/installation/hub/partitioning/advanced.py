@@ -69,9 +69,12 @@ def hub_partitioning_advanced_select_handler(element, app_node, local_node):
             if matches and mountpoint is not None:
                 matches = fnmatchcase(mpoint(icon), mountpoint)
             return matches
-        return [icon.parent.parent
-                for icon in getnodes(parent, "icon", visible=None)
-                if check(icon)]
+        try:
+            return [icon.parent.parent
+                    for icon in getnodes(parent, "icon", visible=None)
+                    if check(icon)]
+        except TimeoutError:
+            return []
     def devname(device_panel):
         return getnode(device_panel, "label", visible=None).name
     fndevice = get_attr(element, "device", None)
