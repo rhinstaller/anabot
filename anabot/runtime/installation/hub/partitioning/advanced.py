@@ -15,8 +15,9 @@ from dogtail.predicate import GenericPredicate
 def hub_partitioning_advanced_handler(element, app_node, local_node):
     try:
         manual_label = getnode(app_node, "label", tr("MANUAL PARTITIONING"))
-        # advanced partitioning panel is third parent panel of the label
-        advanced_panel = getparents(manual_label, "panel")[2]
+        # advanced partitioning panel is second child of filler which
+        # is first parent of MANUAL PARTITIONING label
+        advanced_panel = getparent(manual_label, "filler").children[1]
     except TimeoutError:
         return (False, "Manual partitioning panel not found")
     except IndexError:
