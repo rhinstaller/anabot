@@ -7,8 +7,8 @@ done
 sleep 5
 
 pushd /opt/dogtail
-tar xzf /opt/dogtail/dogtail-0.9.0.tar.gz
-pushd dogtail-0.9.0
+tar xzf /opt/dogtail/dogtail-0.9.1.tar.gz
+pushd dogtail-0.9.1
 python setup.py install --prefix /opt/
 popd
 
