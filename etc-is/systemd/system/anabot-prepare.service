@@ -1,0 +1,8 @@
+[Unit]
+Description=Prepare environment for anabot
+DefaultDependencies=no
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/opt/prepare-anabot.sh
