@@ -107,6 +107,15 @@ def remove_handler(element, app_node, local_node):
     remove_button = getnode(local_node, "push button",
                             tr("Remove", context="GUI|Custom Partitioning"))
     remove_button.click()
+    remove_dialog_context = "GUI|Custom Partitioning|Confirm Delete Dialog"
+    if dialog_action == "no dialog":
+        return
+    elif dialog_action == "accept":
+        button_text = tr("_Delete It", context=remove_dialog_context)
+    elif dialog_action == "reject":
+        button_text = tr("_Cancel", context=remove_dialog_context)
+    else:
+        return (False, "Undefined state")
     dialog_text = tr("Are you sure you want to delete all of the data on %s?")
     dialog_text %= "*"
     dialog_text = unicode(dialog_text)
@@ -118,13 +127,6 @@ def remove_handler(element, app_node, local_node):
              if fnmatchcase(unicode(x.name), dialog_text)]) != 1:
         return (False, "Different dialog appeared after pressing remove button")
     default_handler(element, app_node, remove_dialog)
-    remove_dialog_context = "GUI|Custom Partitioning|Confirm Delete Dialog"
-    if dialog_action == "accept":
-        button_text = tr("_Delete It", context=remove_dialog_context)
-    elif dialog_action == "reject":
-        button_text = tr("_Cancel", context=remove_dialog_context)
-    else:
-        return (False, "Undefined state")
     getnode(remove_dialog, "push button", button_text).click()
 
 @handle_act('/remove/also_related')
