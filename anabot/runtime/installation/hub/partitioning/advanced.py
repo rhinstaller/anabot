@@ -174,8 +174,59 @@ def rescan_push_rescan_check(element, app_node, local_node):
     # check that scan was successfull
     pass
 
-# add
+@handle_act('/autopart')
+def autopart_handler(element, app_node, local_node):
+    autopart = getnode(local_node, "push button", tr("_Click here to create them automatically."))
+    autopart.click()
+
+@handle_act('/add')
+def add_handler(element, app_node, local_node):
+    accept = get_attr(element, "dialog", "accept") == "accept"
+    add_button = getnode(local_node, "push button",
+                         tr("Add", context="GUI|Custom Partitioning"))
+    add_button.click()
+    add_dialog_label = getnode(app_node, "label", tr("ADD A NEW MOUNT POINT"))
+    add_dialog = getparent(add_dialog_label, "dialog")
+    default_handler(element, app_node, add_dialog)
+    context = "GUI|Custom Partitioning|Add Dialog"
+    if accept:
+        button_text = "_Add mount point"
+    else:
+        button_text = "_Cancel"
+    button_text = tr(button_text, context=context)
+    getnode(add_dialog, "push button", button_text).click()
+
+@handle_act('/add/mountpoint')
+def add_mountpoint_handler(element, app_node, local_node):
+    mountpoint = get_attr(element, "value")
+    combo = getnode(local_node, "combo box")
+    textfield = getnode(combo, "text")
+    textfield.typeText(mountpoint)
+
+@handle_act('/add/size')
+def add_size_handler(element, app_node, local_node):
+    size = get_attr(element, "value")
+    mountpoint = getnode(local_node, "combo box")
+    # textfield for size is next to mountpoint combo box
+    textfield = mountpoint.parent[mountpoint.indexInParent+1]
+    textfield.typeText(size)
+
+@handle_act('/done')
+def done_handler(element, app_node, local_node):
+    done_button = getnode(local_node.parent, "push button", tr("_Done", False))
+    done_button.click()
+
+@handle_act('/summary')
+def summary_handler(element, app_node, local_node):
+    accept = get_attr(element, "dialog", "accept") == "accept"
+    context = "GUI|Summary Dialog"
+    if accept:
+        button_text = "_Accept Changes"
+    else:
+        button_text = "_Cancel & Return to Custom Partitioning"
+    button_text = tr(button_text, context=context)
+    dialog = getnode(app_node, "dialog", tr("SUMMARY OF CHANGES"))
+    dialog_button = getnode(dialog, "push button", button_text)
+    dialog_button.click()
+
 # details
-# autopart
-# done
-# summary
