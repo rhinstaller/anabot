@@ -16,9 +16,9 @@ def replace(node_path):
         return func
     return decorator
 
-def default(node_path):
+def default(application, node_path):
     def decorator(func):
-        DEFAULTS[node_path] = func
+        DEFAULTS[(application, node_path)] = func
         return func
     return decorator
 
@@ -98,7 +98,7 @@ def replace_rootpw(original):
 def replace_user(original):
     pass
 
-@default("/installation/welcome")
+@default("installation", "/installation/welcome")
 def default_welcome(root):
     # need to place welcome before hub (hub < welcome)
     hub = root.xpathEval("/installation/hub")[0]
@@ -106,7 +106,7 @@ def default_welcome(root):
     hub.addPrevSibling(new)
     return new
 
-@default("/installation/hub")
+@default("installation", "/installation/hub")
 def default_hub(root):
     # need to place hub before configuration (configuration < hub)
     configuration = root.xpathEval("/installation/configuration")[0]
@@ -114,18 +114,18 @@ def default_hub(root):
     configuration.addPrevSibling(new)
     return new
 
-@default("/installation/hub/partitioning")
+@default("installation", "/installation/hub/partitioning")
 def default_partitioning(root):
     new = load_snippet("/installation/hub/autopart")
     root.xpathEval("/installation/hub")[0].addChild(new)
     return new
 
-@default("/installation/configuration")
+@default("installation", "/installation/configuration")
 def default_configuration(root):
     new = root.newChild(None, "configuration", None)
     return new
 
-@default("/installation/configuration/root_password")
+@default("installation", "/installation/configuration/root_password")
 def default_root_password(root):
     new = load_snippet("/installation/configuration/root_password")
     root.xpathEval("/installation/configuration")[0].addChild(new)
@@ -146,13 +146,16 @@ def copy_replace_tree(src_element, dst_parent, root=False):
             dst_parent.addChild(new_child)
         copy_replace_tree(child, new_child)
 
-def place_defaults(root):
-    for default_key in sorted(DEFAULTS.keys()):
-        if len(root.xpathEval(default_key)) == 0:
+def place_defaults(root, app="installation"):
+    for default_key in sorted(DEFAULTS.keys(), key=lambda x: x[1]):
+        application, xpath = default_key
+        if application != app:
+            continue
+        if len(root.xpathEval(xpath)) == 0:
             elem = DEFAULTS[default_key](root)
-            tag_elements(elem, default_key, "_default_for")
+            tag_elements(elem, xpath, "_default_for")
 
-def preprocess(input_path='-', output_path='-', debug=False):
+def preprocess(input_path='-', output_path='-', application="installation"):
     # https://mail.gnome.org/archives/xml/2004-November/msg00008.html
     oldblankmode = libxml2.keepBlanksDefault(0) # very very ugly hack
 
@@ -162,7 +165,7 @@ def preprocess(input_path='-', output_path='-', debug=False):
         indoc = libxml2.parseFile(input_path)
     outdoc = indoc.copyDoc(False)
     copy_replace_tree(indoc, outdoc, True)
-    place_defaults(outdoc.getRootElement())
+    place_defaults(outdoc.getRootElement(), application)
     if output_path == '-':
         sys.stdout.write(outdoc.serialize(format=1))
     else:
@@ -170,8 +173,6 @@ def preprocess(input_path='-', output_path='-', debug=False):
             indoc.dump(outfile_orig)
         with open(output_path, 'w') as outfile:
             outfile.write(outdoc.serialize(format=1))
-    if debug:
-        print outdoc.serialize(format=1)
     indoc.freeDoc()
     outdoc.freeDoc()
 
