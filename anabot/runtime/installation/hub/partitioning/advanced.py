@@ -172,6 +172,8 @@ def rescan_push_rescan_check(element, app_node, local_node):
     # check that scan was successfull
     pass
 
+# add
+# details
 # autopart
 # done
 # summary

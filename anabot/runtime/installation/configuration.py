@@ -6,8 +6,12 @@ from anabot.runtime.default import default_handler
 from anabot.runtime.functions import get_attr, getnode, TimeoutError
 from anabot.runtime.translate import tr
 
-@handle_action('/installation/configuration')
-def hub_configuration_handler(element, app_node, local_node):
+_local_path = '/installation/configuration'
+handle_act = lambda x: handle_action(_local_path + x)
+handle_chck = lambda x: handle_check(_local_path + x)
+
+@handle_act('')
+def base_handler(element, app_node, local_node):
     default_handler(element, app_node, local_node)
     logger.debug("WAITING FOR REBOOT")
     reboot_button = getnode(app_node, "push button",
@@ -15,8 +19,8 @@ def hub_configuration_handler(element, app_node, local_node):
                             timeout=float("inf"))
     reboot_button.click()
 
-@handle_action('/installation/configuration/root_password')
-def configuration_root_password_handler(element, app_node, local_node):
+@handle_act('/root_password')
+def root_password_handler(element, app_node, local_node):
     root_password_spoke = getnode(app_node, "spoke selector",
                                   tr("_ROOT PASSWORD", context="GUI|Spoke"))
     root_password_spoke.click()
@@ -26,23 +30,23 @@ def configuration_root_password_handler(element, app_node, local_node):
         return (False, "Root password spoke not found")
     default_handler(element, app_node, root_password_panel)
 
-@handle_action('/installation/configuration/root_password/password')
-def configuration_root_password_text_handler(element, app_node, local_node):
+@handle_act('/root_password/password')
+def root_password_text_handler(element, app_node, local_node):
     value = get_attr(element, "value")
     password_entry = getnode(local_node, "password text", tr("Password"))
     password_entry.click()
     password_entry.typeText(value)
 
-@handle_action('/installation/configuration/root_password/confirm_password')
-def configuration_root_password_confirm_handler(element, app_node, local_node):
+@handle_act('/root_password/confirm_password')
+def root_password_confirm_handler(element, app_node, local_node):
     value = get_attr(element, "value")
     password_entry = getnode(local_node, "password text",
                              tr("Confirm Password"))
     password_entry.click()
     password_entry.typeText(value)
 
-@handle_action('/installation/configuration/root_password/done')
-def configuration_root_password_done_handler(element, app_node, local_node):
+@handle_act('/root_password/done')
+def root_password_done_handler(element, app_node, local_node):
     try:
         root_password_done = getnode(local_node, "push button",
                                      tr("_Done", False))

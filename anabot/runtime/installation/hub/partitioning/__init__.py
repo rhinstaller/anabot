@@ -12,8 +12,12 @@ from anabot.runtime.translate import tr
 # submodules
 from . import advanced
 
-@handle_action('/installation/hub/partitioning')
-def hub_partitioning_handler(element, app_node, local_node):
+_local_path = '/installation/hub/partitioning'
+handle_act = lambda x: handle_action(_local_path + x)
+handle_chck = lambda x: handle_check(_local_path + x)
+
+@handle_act('')
+def base_handler(element, app_node, local_node):
     partitioning = getnode(app_node, "spoke selector",
                            tr("INSTALLATION DESTINATION"))
     partitioning.click()
@@ -21,8 +25,8 @@ def hub_partitioning_handler(element, app_node, local_node):
                                  tr("INSTALLATION DESTINATION"))
     default_handler(element, app_node, partitioning_panel)
 
-@handle_action('/installation/hub/partitioning/disk')
-def hub_partitioning_handler_disk(element, app_node, local_node):
+@handle_act('/disk')
+def disk_handler(element, app_node, local_node):
     name = get_attr(element, "name")
     action = get_attr(element, "action", "select")
     disks = getnodes(local_node, node_type="disk overview")
@@ -36,8 +40,8 @@ def hub_partitioning_handler_disk(element, app_node, local_node):
         elif action == "deselect" and icon.name == "":
             disk.click()
 
-@handle_action('/installation/hub/partitioning/mode')
-def hub_partitioning_handler_mode(element, app_node, local_node):
+@handle_act('/mode')
+def mode_handler(element, app_node, local_node):
     mode = get_attr(element, "mode")
     if mode == "default":
         return
@@ -49,21 +53,21 @@ def hub_partitioning_handler_mode(element, app_node, local_node):
     if not radio.checked:
         radio.click()
 
-@handle_action('/installation/hub/partitioning/additional_space')
-def hub_partitioning_handler_additional_space(element, app_node, local_node):
+@handle_act('/additional_space')
+def additional_space_handler(element, app_node, local_node):
     action = get_attr(element, "action", "enable")
     checkbox_text = tr("I would like to _make additional space available.")
     additional_checkbox = getnode(local_node, "check box", checkbox_text)
     if (action == "enable") != additional_checkbox.checked:
         additional_checkbox.click()
 
-@handle_action('/installation/hub/partitioning/done')
-def hub_partitioning_handler_done(element, app_node, local_node):
+@handle_act('/done')
+def done_handler(element, app_node, local_node):
     done_button = getnode(local_node, "push button", tr("_Done", False))
     done_button.click()
 
-@handle_action('/installation/hub/partitioning/reclaim')
-def hub_partitioning_handler_reclaim(element, app_node, local_node):
+@handle_act('/reclaim')
+def reclaim_handler(element, app_node, local_node):
     # TODO action=reclaim/cancel
     reclaim_dialog = None
     for dialog in getnodes(app_node, "dialog"):
@@ -79,8 +83,8 @@ def hub_partitioning_handler_reclaim(element, app_node, local_node):
                              tr("_Reclaim space", context="GUI|Reclaim Dialog"))
     reclaim_button.click()
 
-@handle_action('/installation/hub/partitioning/reclaim/delete_all')
-def hub_partitioning_handler_reclaim_delete_all(element, app_node, local_node):
+@handle_act('/reclaim/delete_all')
+def reclaim_delete_all_handler(element, app_node, local_node):
     delete_all_button = getnode(local_node, "push button",
                                 tr("Delete _all", context="GUI|Reclaim Dialog"))
     delete_all_button.click()
