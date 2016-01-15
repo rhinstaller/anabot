@@ -32,11 +32,28 @@
 	  <remove dialog="reject">
 	    <remove_related /> <!-- value="yes" || value="no" -->
 	  </remove>
+	  <remove dialog="accept" />
 	</select>
 	<schema value="native" />
 	<autopart />
 	<done />
-	<summary dialog="accept" />
+	<summary dialog="reject" />
+	<select device="*">
+	  <remove dialog="no dialog" />
+	</select>
+	<add>
+	  <mountpoint value="swap" />
+	  <size value="1G" />
+	</add>
+	<add>
+	  <mountpoint value="/boot" />
+	  <size value="1G" />
+	</add>
+	<add>
+	  <mountpoint value="/" />
+	</add>
+	<done />
+	<summary />
       </advanced>
     </partitioning>
   </hub>
