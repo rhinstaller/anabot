@@ -11,8 +11,12 @@ from anabot.runtime.translate import tr
 
 from dogtail.predicate import GenericPredicate
 
-@handle_action('/installation/hub/partitioning/advanced')
-def hub_partitioning_advanced_handler(element, app_node, local_node):
+_local_path = '/installation/hub/partitioning/advanced'
+handle_act = lambda x: handle_action(_local_path + x)
+handle_chck = lambda x: handle_check(_local_path + x)
+
+@handle_act('')
+def base_handler(element, app_node, local_node):
     try:
         manual_label = getnode(app_node, "label", tr("MANUAL PARTITIONING"))
         # advanced partitioning panel is second child of filler which
@@ -25,8 +29,8 @@ def hub_partitioning_advanced_handler(element, app_node, local_node):
     default_handler(element, app_node, advanced_panel)
     return True
 
-@handle_action('/installation/hub/partitioning/advanced/schema')
-def hub_partitioning_advanced_schema_handler(element, app_node, local_node):
+@handle_act('/schema')
+def schema_handler(element, app_node, local_node):
     schemas = {
         'native' : tr("Standard Partition"),
         'btrfs' : tr("Btrfs"),
@@ -55,8 +59,8 @@ def hub_partitioning_advanced_schema_handler(element, app_node, local_node):
     schema_node.click()
     getnode(schema_node, "menu item", schemas[schema]).click()
 
-@handle_action('/installation/hub/partitioning/advanced/select')
-def hub_partitioning_advanced_select_handler(element, app_node, local_node):
+@handle_act('/select')
+def select_handler(element, app_node, local_node):
     def devs(parent, device=None, mountpoint=None):
         def dname(icon):
             return icon.parent.children[0].name
@@ -96,9 +100,9 @@ def hub_partitioning_advanced_select_handler(element, app_node, local_node):
                 done = False
                 break
 
-@handle_action('/installation/hub/partitioning/advanced/remove')
-@handle_action('/installation/hub/partitioning/advanced/select/remove')
-def hub_partitioning_advanced_remove_handler(element, app_node, local_node):
+@handle_act('/remove')
+@handle_act('/select/remove')
+def remove_handler(element, app_node, local_node):
     dialog_action = get_attr(element, "dialog", "accept")
     remove_button = getnode(local_node, "push button",
                             tr("Remove", context="GUI|Custom Partitioning"))
@@ -123,9 +127,9 @@ def hub_partitioning_advanced_remove_handler(element, app_node, local_node):
         return (False, "Undefined state")
     getnode(remove_dialog, "push button", button_text).click()
 
-@handle_action('/installation/hub/partitioning/advanced/remove/also_related')
-@handle_action('/installation/hub/partitioning/advanced/select/remove/also_related')
-def hub_partitioning_advanced_remove_related_handler(element, app_node, local_node):
+@handle_act('/remove/also_related')
+@handle_act('/select/remove/also_related')
+def remove_related_handler(element, app_node, local_node):
     check = get_attr(element, "value", "yes") == "yes"
     checkbox_text = tr("Delete _all other file systems in the %s root as well.",
                        context="GUI|Custom Partitioning|Confirm Delete Dialog")
@@ -140,8 +144,8 @@ def hub_partitioning_advanced_remove_related_handler(element, app_node, local_no
     if checkbox.checked != check:
         checkbox.click()
 
-@handle_action('/installation/hub/partitioning/advanced/rescan')
-def hub_partitioning_advanced_rescan_handler(element, app_node, local_node):
+@handle_act('/rescan')
+def rescan_handler(element, app_node, local_node):
     dialog_action = get_attr(element, "dialog", "accept")
     rescan_name = tr("Refresh", context="GUI|Custom Partitioning")
     rescan_button = getnode(local_node, "push button", rescan_name)
@@ -157,14 +161,14 @@ def hub_partitioning_advanced_rescan_handler(element, app_node, local_node):
         return (False, "Undefined state")
     getnode(rescan_dialog, "push button", button_text).click()
 
-@handle_action('/installation/hub/partitioning/advanced/rescan/push_rescan')
-def hub_partitioning_advanced_rescan_push_rescan_handler(element, app_node, local_node):
+@handle_act('/rescan/push_rescan')
+def rescan_push_rescan_handler(element, app_node, local_node):
     rescan_text = tr("_Rescan Disks", context="GUI|Refresh Dialog|Rescan")
     rescan_button = getnode(local_node, "push button", rescan_text)
     rescan_button.click()
 
-@handle_check('/installation/hub/partitioning/advanced/rescan/push_rescan')
-def hub_partitioning_advanced_rescan_push_rescan_check(element, app_node, local_node):
+@handle_chck('/rescan/push_rescan')
+def rescan_push_rescan_check(element, app_node, local_node):
     # check that scan was successfull
     pass
 
