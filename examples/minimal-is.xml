@@ -1,8 +1,0 @@
-<initial_setup>
-    <hub>
-        <license>
-            <agree_with_eula action="enable" />
-            <done />
-        </license>
-    </hub>
-</initial_setup>
