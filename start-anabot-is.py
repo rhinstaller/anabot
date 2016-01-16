@@ -16,7 +16,7 @@ logger.addHandler(syslog)
 
 os.environ["DISPLAY"] = ":1"
 
-preprocess("/var/run/anabot/raw-recipe.xml", "/var/run/anabot/final-recipe.xml")
-run_test("/var/run/anabot/final-recipe.xml")
+preprocess("/var/run/anabot/raw-recipe.xml", "/var/run/anabot/final-recipe.xml", "initial-setup")
+run_test("/var/run/anabot/final-recipe.xml", "__main__.py")
 
 
