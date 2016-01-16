@@ -10,10 +10,10 @@ logger.addHandler(logging.NullHandler()) # pylint: disable=no-member
 
 from .default import handle_step
 from .default import dump
-from . import installation
+from . import installation, initial_setup
 import pyatspi # pylint: disable=import-error
 
-def run_test(file_path):
+def run_test(file_path, name="anaconda"):
     """Run anabot with given path to anabot recipe.
 
     Given file needs to be in "raw" xml schema, which means that it's required
@@ -27,13 +27,13 @@ def run_test(file_path):
     dogtail.config.config.childrenLimit = 10000
     from dogtail.predicate import GenericPredicate # pylint: disable=import-error
     import dogtail.tree # pylint: disable=import-error
-    anaconda = dogtail.tree.root.child(roleName="application", name="anaconda")
+    application = dogtail.tree.root.child(roleName="application", name=name)
     # atspi sometimes has connection issues when asking for parents, so cache
     # them
-    anaconda.setCacheMask(pyatspi.cache.PARENT)
-    signal.signal(signal.SIGUSR1, lambda x,y: dump(anaconda, '/tmp/dogtail.dump'))
+    application.setCacheMask(pyatspi.cache.PARENT)
+    signal.signal(signal.SIGUSR1, lambda x,y: dump(application, '/tmp/dogtail.dump'))
     doc = libxml2.parseFile(file_path)
-    handle_step(doc.getRootElement(), anaconda, None)
+    handle_step(doc.getRootElement(), application, None)
     doc.freeDoc()
 
 if __name__ == "__main__":
