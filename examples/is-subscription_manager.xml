@@ -1,0 +1,20 @@
+<initial-setup>
+    <hub>
+        <subscription-manager>
+            <server-panel>
+                <server value="" />
+                <proxy>
+                    <proxy-server value="" />
+                    <OK/>
+                </proxy>
+                <next />
+            </server-panel>
+            <user-panel>
+                <username value="" />
+                <password value="" />
+                <next/>
+            </user-panel>
+            <done />
+        </subscription-manager>
+    </hub>
+</initial-setup>

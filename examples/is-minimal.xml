@@ -1,7 +1,7 @@
 <initial_setup>
     <hub>
         <license>
-            <agree_with_eula action="enable" />
+            <accept_license checked="yes" />
             <done />
         </license>
     </hub>
