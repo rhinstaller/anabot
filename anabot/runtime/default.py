@@ -41,6 +41,7 @@ def _check_result(result):
     return result
 
 def handle_step(element, app_node, local_node):
+    logger.debug("handle_step (%s %s %s)" % (element, app_node, local_node))
     raw_node_path = element.nodePath()
     node_path = re.sub(NODE_NUM, '', raw_node_path)
     node_line = element.lineNo()
@@ -49,6 +50,7 @@ def handle_step(element, app_node, local_node):
     handler_path = node_path
     reporter.log_info("Processing: %s" % raw_node_path)
     if handler_path not in ACTIONS:
+        logger.debug("won't handle path %s", (handler_path,))
         handler_path = None
     if policy in ("should_pass", "should_fail", "may_fail"):
         result = ACTIONS.get(handler_path)(element, app_node, local_node)
@@ -56,6 +58,7 @@ def handle_step(element, app_node, local_node):
     if handler_path is None:
         return
     if handler_path not in CHECKS:
+        logger.debug("won't handle check %s" % (handler_path,))
         handler_path = None
     result = _check_result(CHECKS.get(handler_path)(element, app_node, local_node))
     if policy == "may_fail":
