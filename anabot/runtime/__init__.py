@@ -13,7 +13,7 @@ from .default import dump
 from . import installation, initial_setup
 import pyatspi # pylint: disable=import-error
 
-def run_test(file_path, name="anaconda"):
+def run_test(file_path, appname="anaconda"):
     """Run anabot with given path to anabot recipe.
 
     Given file needs to be in "raw" xml schema, which means that it's required
@@ -27,7 +27,7 @@ def run_test(file_path, name="anaconda"):
     dogtail.config.config.childrenLimit = 10000
     from dogtail.predicate import GenericPredicate # pylint: disable=import-error
     import dogtail.tree # pylint: disable=import-error
-    application = dogtail.tree.root.child(roleName="application", name=name)
+    application = dogtail.tree.root.child(roleName="application", name=appname)
     # atspi sometimes has connection issues when asking for parents, so cache
     # them
     application.setCacheMask(pyatspi.cache.PARENT)
