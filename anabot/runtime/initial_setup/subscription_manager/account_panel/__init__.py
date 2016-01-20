@@ -6,6 +6,10 @@ from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.functions import get_attr, getnode, getparents
 from anabot.runtime.translate import tr
 from anabot.runtime.errors import TimeoutError
+<<<<<<< 56ef4ab98274fbe5c27ccc5bb57bc0e1bfe42c31
+=======
+from time import sleep
+>>>>>>> initial setup - changes in account_panel
 
 
 _local_path = '/initial_setup/subscription_manager/account_panel'
@@ -43,12 +47,16 @@ def password_handler(element, app_node, local_node):
 
 # it is not possible to get password back from the widget via ATK
 # only check which makes sense is to check that password is not readable
+<<<<<<< 56ef4ab98274fbe5c27ccc5bb57bc0e1bfe42c31
 @handle_chck('/password')
 def password_check(element, app_node, local_node):
     password = get_attr(element, 'value')
     password_input = getnode(local_node, 'password text', 'account_password')
     BLACK_CIRCLE = u'\u25cf'
     return len(password)*BLACK_CIRCLE == unicode(password_input.text, 'utf-8')
+=======
+# but it is not implemented yet (ToDo)
+>>>>>>> initial setup - changes in account_panel
 
 @handle_act('/system_name')
 def system_name_handler(element, app_node, local_node):
