@@ -6,7 +6,7 @@ import os, sys, shutil
 
 import logging
 from logging.handlers import SysLogHandler
-logger = logging.getLogger("anabot-is")
+logger = logging.getLogger("anabot")
 logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.StreamHandler(sys.stdout))
 logger.addHandler(logging.FileHandler("/var/log/anabot-is.log"))
