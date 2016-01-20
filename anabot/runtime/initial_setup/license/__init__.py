@@ -8,7 +8,7 @@ from anabot.runtime.translate import tr
 
 
 
-_local_path = '/initial_setup/hub/license'
+_local_path = '/initial_setup/license'
 handle_act = lambda x: handle_action(_local_path + x)
 handle_chck = lambda x: handle_check(_local_path + x)
 
