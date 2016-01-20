@@ -6,6 +6,7 @@ from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.functions import get_attr, getnode, getparents
 from anabot.runtime.translate import tr
 from anabot.runtime.errors import TimeoutError
+from time import sleep
 
 
 _local_path = '/initial_setup/subscription_manager/account_panel'
