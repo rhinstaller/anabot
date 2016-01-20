@@ -5,6 +5,7 @@ from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler
 from anabot.runtime.functions import get_attr, getnode, getparents
 from anabot.runtime.translate import tr
+from anabot.runtime.errors import TimeoutError
 from time import sleep
 
 
@@ -38,11 +39,9 @@ def password_handler(element, app_node, local_node):
     password_input.actions['activate'].do()
     password_input.typeText(password)
 
-@handle_chck('/password')
-def password_chck(element, app_node, local_node):
-    password = get_attr(element, 'value')
-    password_input = getnode(local_node, 'password text', 'account_password')
-    return password_input.text == password
+# it is not possible to get password back from the widget via ATK
+# only check which makes sense is to check that password is not readable
+# but it is not implemented yet (ToDo)
 
 @handle_act('/system_name')
 def password_handler(element, app_node, local_node):
@@ -66,4 +65,11 @@ def back_handler(element, app_node, local_node):
 def next_handler(element, app_node, local_node):
     next_button = getnode(local_node.parent.parent, "push button", tr("Register", False))
     next_button.click()
+    # registering takes some time, wait until progress bar disappears
+    sleep(1)
+    try:
+        while True:
+            progress_bar = getnode(local_node, 'progress bar', 'register_progressbar')
+    except TimeoutError:
+        pass
 
