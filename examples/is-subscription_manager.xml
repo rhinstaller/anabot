@@ -1,12 +1,9 @@
 <initial_setup>
     <subscription_manager>
         <server_panel>
-<!--    
             <server value="blablabla" />
             <default_server />
--->
             <server value="SUBSCRIPTION_SERVER" />
-<!--
             <proxy>
                 <use_proxy checked="no" />
                 <save />
@@ -15,34 +12,24 @@
                 <use_proxy checked="yes" />
                 <proxy_server value="172.30.32.3" />
                 <test_connection />
-                <cancel />
+                <save />
             </proxy>
-            <proxy>
-                <use_proxy checked="no" policy="just_check" />
-                <proxy_server value="" policy="just_check" />
-                <cancel />
-            </proxy>
--->
             <next />
         </server_panel>
         <account_panel>
             <login value="LOGIN" />
             <password value="PASSWORD" />
             <system_name value="some.system.localdomain" />
-            <back />
+            <register />
         </account_panel>
-        <server_panel policy="just_check">
-            <server value="SUBSCRIPTION_SERVER" />
-            <next policy="may_fail"/>
-        </server_panel>
-        <account_panel policy="just_check">
-            <login value="LOGIN" />
-            <password value="PASSWORD" />
-            <system_name value="some.system.localdomain" />
-            <register policy="should_pass"/>
-        </account_panel>
-<!--
+        <sla_panel policy="may_fail">
+            <sla value="Self-Support" />
+            <next />
+        </sla_panel>
+        <subscription_panel>
+            <subscriptions />
+            <attach />
+        </subscription_panel>
         <done />
--->
     </subscription_manager>
 </initial_setup>

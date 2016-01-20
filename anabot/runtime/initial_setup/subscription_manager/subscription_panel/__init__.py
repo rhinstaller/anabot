@@ -1,0 +1,61 @@
+import logging
+logger = logging.getLogger('anabot')
+
+from anabot.runtime.decorators import handle_action, handle_check
+from anabot.runtime.default import default_handler
+from anabot.runtime.functions import get_attr, getnode, getnodes
+from anabot.runtime.translate import tr
+from anabot.runtime.errors import TimeoutError
+from time import sleep
+
+
+_local_path = '/initial_setup/subscription_manager/subscription_panel'
+handle_act = lambda x: handle_action(_local_path + x)
+handle_chck = lambda x: handle_check(_local_path + x)
+
+
+@handle_act('')
+def subscription_panel_handler(element, app_node, local_node):
+    panel = local_node
+    default_handler(element, app_node, panel)
+
+@handle_act('/subscriptions')
+def empty_handler(element, app_node, local_node):
+    pass
+
+@handle_chck('/subscriptions')
+def subscriptions_chck(element, app_node, local_node):
+    subscriptions_table = getnode(local_node, 'table', 'Selected Subscriptions Table')
+    cells = getnodes(subscriptions_table, 'table cell')
+    sub_name = cells[0].text
+    sub_type = cells[1].text
+    sub_count = cells[2].text
+    if sub_name != "":
+        return (True, "Possible subscription found %s (%s) %s" % (sub_name, sub_type, sub_count))
+    return False
+
+@handle_act('/back')
+def back_handler(element, app_node, local_node):
+    back_button = getnode(local_node.parent.parent, "push button", tr("Back", False))
+    back_button.click()
+
+@handle_act('/attach')
+def attach_button_handler(element, app_node, local_node):
+    attach_button = getnode(local_node.parent.parent, "push button", tr("Attach", False))
+    attach_button.click()
+    # attaching subscriptions takes some time, wait until progress bar disappears
+    sleep(1)
+    try:
+        while True:
+            progress_bar = getnode(local_node, 'progress bar', 'register_progressbar')
+    except TimeoutError:
+        pass
+
+@handle_chck('/attach')
+def attach_button_chck(element, app_node, local_node):
+    try:
+        result_label = getnode(local_node, 'label', tr('Registration with Red Hat Subscription Management is Done!'))
+    except TimeoutError:
+        return (False, "Cannot find success message.")
+    return (True, 'Registration was successfull.')
+

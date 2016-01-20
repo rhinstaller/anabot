@@ -13,7 +13,7 @@ handle_act = lambda x: handle_action(_local_path + x)
 handle_chck = lambda x: handle_check(_local_path + x)
 
 # import submodules
-import server_panel, account_panel
+import server_panel, account_panel, sla_panel, subscription_panel
 
 @handle_act('')
 def base_handler(element, app_node, local_node):
