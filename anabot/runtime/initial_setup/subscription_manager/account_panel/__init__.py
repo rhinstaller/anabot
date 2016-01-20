@@ -6,6 +6,7 @@ from anabot.runtime.default import default_handler
 from anabot.runtime.functions import get_attr, getnode, getparents
 from anabot.runtime.translate import tr
 from anabot.runtime.errors import TimeoutError
+from time import sleep
 
 
 _local_path = '/initial_setup/subscription_manager/account_panel'
@@ -64,4 +65,11 @@ def back_handler(element, app_node, local_node):
 def next_handler(element, app_node, local_node):
     next_button = getnode(local_node.parent.parent, "push button", tr("Register", False))
     next_button.click()
+    # registering takes some time, wait until progress bar disappears
+    sleep(1)
+    try:
+        while True:
+            progress_bar = getnode(local_node, 'progress bar', 'register_progressbar')
+    except TimeoutError:
+        pass
 
