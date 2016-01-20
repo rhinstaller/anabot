@@ -1,8 +1,6 @@
 <initial_setup>
-    <hub>
-        <license>
-            <accept_license checked="yes" />
-            <done />
-        </license>
-    </hub>
+    <license>
+        <accept_license checked="yes" />
+        <done />
+    </license>
 </initial_setup>
