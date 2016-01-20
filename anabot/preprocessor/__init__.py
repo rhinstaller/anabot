@@ -7,8 +7,10 @@ import logging
 logger = logging.getLogger('anabot.preprocessor')
 logger.addHandler(logging.NullHandler())
 
-from .decorators import replace, default
-from .internals import copy_replace_tree, place_defaults
+EASY_NS_URI = 'http://example.com/path/anabot/easy'
+
+from .decorators import replace
+from .internals import do_replace, remove_easy_namespace
 
 from . import defaults, installation
 
@@ -20,9 +22,13 @@ def preprocess(input_path='-', output_path='-', application="installation"):
         indoc = libxml2.parseDoc(sys.stdin.read())
     else:
         indoc = libxml2.parseFile(input_path)
-    outdoc = indoc.copyDoc(False)
-    copy_replace_tree(indoc, outdoc, True)
-    place_defaults(outdoc.getRootElement(), application)
+    outdoc = indoc.copyDoc(True)
+    xpath = outdoc.xpathNewContext()
+    xpath.xpathRegisterNs('ez', 'http://example.com/path/anabot/easy')
+    easies = [(e, e.nodePath()) for e in xpath.xpathEval('//ez:*')]
+    for element, node_path in sorted(easies, key=lambda x: x[1], reverse=True):
+        do_replace(element)
+    remove_easy_namespace(outdoc)
     if output_path == '-':
         sys.stdout.write(outdoc.serialize(format=1))
     else:

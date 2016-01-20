@@ -2,29 +2,22 @@ import logging
 
 logger = logging.getLogger('anabot.preprocessor')
 
+import re
+
+from . import EASY_NS_URI
 from .decorators import _REPLACES, _DEFAULTS
 from .functions import tag_elements
 
-def copy_replace_tree(src_element, dst_parent, root=False):
-    for child in src_element.xpathEval("./*"):
-        if child.nodePath() in _REPLACES:
-            new_child = _REPLACES[child.nodePath()](child)
-        else:
-            new_child = _REPLACES[None](child)
-        if new_child is None:
-            logger.warn("Didn't get replacement for %s", child.nodePath())
-            continue
-        if root:
-            dst_parent.setRootElement(new_child)
-        else:
-            dst_parent.addChild(new_child)
-        copy_replace_tree(child, new_child)
+DROP_NS_RE = re.compile(r'/[^:/ ]+:')
+DROP_NS = lambda x: DROP_NS_RE.sub('/', x)
+DROP_NUM_RE = re.compile(r'\[[0-9]+\]')
+DROP_NUM = lambda x: DROP_NUM_RE.sub('', x)
 
-def place_defaults(root, app="installation"):
-    for default_key in sorted(_DEFAULTS.keys(), key=lambda x: x[1]):
-        application, xpath = default_key
-        if application != app:
-            continue
-        if len(root.xpathEval(xpath)) == 0:
-            elem = _DEFAULTS[default_key](root)
-            tag_elements(elem, xpath, "_default_for")
+def do_replace(element):
+    node_path = DROP_NS(DROP_NUM(element.nodePath()))
+    _REPLACES.get(node_path, _REPLACES[None])(element)
+    element.setNs(None)
+
+def remove_easy_namespace(document):
+    for element in document.xpathEval('//*'):
+        element.removeNsDef(EASY_NS_URI)

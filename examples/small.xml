@@ -1,10 +1,10 @@
-<installation>
-  <welcome language="English (United Kingdom)" />
+<installation xmlns:ez="http://example.com/path/anabot/easy">
+  <ez:welcome language="English (United Kingdom)" />
   <hub>
-    <autopart />
+    <ez:autopart />
   </hub>
   <configuration>
-    <root password="fo0m4nchU" />
-    <user fullname="Macho" password="fo0m4nchU" />
+    <ez:root password="fo0m4nchU" />
+    <ez:user fullname="Macho" password="fo0m4nchU" />
   </configuration>
 </installation>
