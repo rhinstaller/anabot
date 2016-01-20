@@ -20,8 +20,22 @@ def base_handler(element, app_node, local_node):
     license_label = getnode(app_node, "label", tr("License Agreement:"))
     license_panel = license_label.parent.parent
     license_text = getnode(license_panel, 'text', '')
-    # ToDo check eula text
     default_handler(element, app_node, license_panel.parent)
+
+@handle_act('/eula')
+def empty_handler(element, app_node, local_node):
+    pass
+
+@handle_chck('/eula')
+def eula_chck(element, app_node, local_node):
+    # license file location ./usr/share/redhat-release/EULA
+    license_label = getnode(app_node, "label", tr("License Agreement:"))
+    license_panel = license_label.parent.parent
+    license_text = getnode(license_panel, 'text', '')
+    displayed_eula = license_text.text
+    # ToDo load and check eula text
+    # stored_eula = #ToDo
+    return (False, 'Not implemented yet')
 
 @handle_act('/accept_license')
 def accept_license_handler(element, app_node, local_node):
