@@ -5,6 +5,8 @@ logger = logging.getLogger('anabot.preprocessor')
 import libxml2
 import os
 
+from . import EASY_NS_URI
+
 def tag_elements(elem, value, name="_replacing"):
     tag_element(elem, value, name)
     for child in elem.xpathEval("./*"):
@@ -27,12 +29,12 @@ def load_snippet(name, original_element=None, copy_attrs=False,
     tdoc.freeDoc()
     return new
 
-def has_property(element, prop_name):
-    return len(element.xpathEval("./@" + prop_name)) == 1
+def has_property(element, prop_name, namespace=None):
+    return element.hasNsProp(prop_name, namespace) is not None
 
-def pop_property(element, prop_name):
-    prop = element.xpathEval("./@" + prop_name)
-    if prop is None:
+def pop_property(element, prop_name, namespace=None):
+    prop = element.xpathEval('./@' + prop_name)
+    if len(prop) != 1:
         return
     prop = prop[0].copyNode(True)
     element.unsetProp(prop_name)
