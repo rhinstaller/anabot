@@ -1,11 +1,1 @@
-<hub>
-  <partitioning>
-    <disk name="*" action="select" />
-    <mode mode="automatic" />
-    <additional_space action="enable" />
-    <done />
-    <reclaim>
-      <delete_all />
-    </reclaim>
-  </partitioning>
-</hub>
+<hub />
