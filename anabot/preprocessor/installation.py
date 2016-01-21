@@ -25,8 +25,6 @@ def replace_installation(element):
         new_conf = element.addChild(load_snippet("/installation/configuration", element, tag_name='_default_for'))
         replace_configuration(new_conf, element)
 
-    return element
-
 @replace("/installation/welcome")
 def replace_welcome(element, default_for=None):
     if default_for is None:
@@ -41,7 +39,6 @@ def replace_welcome(element, default_for=None):
         element.xpathEval("./language")[0].setProp("value", lang)
         loc = match.group("loc")
         element.xpathEval("./locality")[0].setProp("value", loc)
-    return element
 
 @replace("/installation/hub")
 def replace_hub(element, default_for=None):
@@ -55,7 +52,6 @@ def replace_hub(element, default_for=None):
 def replace_autopart(element, default_for=None):
     new = load_snippet("/installation/hub/autopart", element)
     element.replaceNode(new)
-    return new
 
 @replace("/installation/configuration")
 def replace_configuration(element, default_for=None):
@@ -72,7 +68,6 @@ def replace_rootpw(element):
     password = element.xpathEval("./@password")[0].content
     new.xpathEval("./password")[0].setProp("value", password)
     new.xpathEval("./confirm_password")[0].setProp("value", password)
-    return new
 
 @replace("/installation/configuration/user")
 def replace_user(element):
