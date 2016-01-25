@@ -54,6 +54,17 @@ def handle_step(element, app_node, local_node):
     screenshot()
 
 def default_handler(element, app_node, local_node):
+    if element.name == 'debug_stop':
+        from time import sleep
+        import os
+        RESUME_FILEPATH = '/var/run/anabot/resume'
+        logger.debug('Running /opt/dump.py due to DEBUG STOP')
+        os.system('/opt/dump.py')
+        logger.debug('DEBUG STOP at %s, touch %s to resume',
+                     element.nodePath(), RESUME_FILEPATH)
+        while not os.path.exists(RESUME_FILEPATH):
+            sleep(0.1)
+        os.remove(RESUME_FILEPATH)
     for child in element.xpathEval("./*"):
         handle_step(child, app_node, local_node)
 
