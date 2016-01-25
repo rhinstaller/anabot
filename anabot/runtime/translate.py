@@ -27,6 +27,9 @@ def tr(intext, drop_underscore=True, context=None):
     if context is not None:
         intext = context + "\x04" + intext
     outtext = __translate.ugettext(intext)
+    # drop context if there is no translation
+    if outtext == intext:
+        outtext = outtext[len(context)+1:]
     if drop_underscore:
         outtext = outtext.replace('_', '', 1)
     return outtext
