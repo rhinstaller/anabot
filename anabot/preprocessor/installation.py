@@ -58,7 +58,7 @@ def replace_configuration(element, default_for=None):
     if default_for is None:
         default_for = element
     if len(element.xpathEval("./root_password")) == 0:
-        new = load_snippet("/installation/configuration/root", default_for, tag_name="_default_for")
+        new = load_snippet("/installation/configuration/root_password", default_for, tag_name="_default_for")
         element.addChild(new)
 
 @replace("/installation/configuration/root")
