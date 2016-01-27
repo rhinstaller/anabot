@@ -42,7 +42,7 @@ def handle_step(element, app_node, local_node):
             logger.info("Check passed for: %s line: %d", node_path, node_line)
         else:
             logger.error("Check failed for: %s line: %d", node_path, node_line)
-    if policy in ("should_fail",):
+    if policy in ("should_fail", "just_check_fail"):
         if not result:
             logger.info("Expected failure for: %s line: %d",
                         node_path, node_line)

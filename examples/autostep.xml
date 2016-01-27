@@ -1,5 +1,5 @@
 <!--
-  Each element has implicit parameter policy="should_pass", other possible values are "should_fail", "may_fail" and "just_check"
+  Each element has implicit parameter policy="should_pass", other possible values are "should_fail", "may_fail", "just_check" and "just_check_fail"
 
   Each element representing dialog will have parameter action="accept", which could be also "reject" or action bound to some other button present in dialog.
 -->
