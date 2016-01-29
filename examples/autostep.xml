@@ -98,5 +98,7 @@
       <confirm_password value="fo0m4nchU" />
       <done />
     </root_password>
+    <user>
+    </user>
   </configuration>
 </installation>
