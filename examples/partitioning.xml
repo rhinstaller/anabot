@@ -1,4 +1,4 @@
-<installation>
+<ez:installation xmlns:ez="http://example.com/path/anabot/easy">
   <hub>
     <partitioning>
       <!-- TODO -->
@@ -45,10 +45,19 @@
 	  <mountpoint value="swap" />
 	  <size value="1G" />
 	</add>
+	<debug_stop />
+	<details>
+	  <name value="swap_ahoj" />
+	  <update />
+	</details>
 	<add>
 	  <mountpoint value="/boot" />
 	  <size value="1G" />
 	</add>
+	<details>
+	  <label value="boot_label" />
+	  <update />
+	</details>
 	<add>
 	  <mountpoint value="/" />
 	</add>
@@ -57,4 +66,4 @@
       </advanced>
     </partitioning>
   </hub>
-</installation>
+</ez:installation>
