@@ -24,6 +24,7 @@ def handle_step(element, app_node, local_node):
     node_line = element.lineNo()
     policy = get_attr(element, "policy", "should_pass")
     handler_path = node_path
+    logger.debug("Processing: %s", raw_node_path)
     if handler_path not in ACTIONS:
         handler_path = None
     if policy in ("should_pass", "should_fail", "may_fail"):
