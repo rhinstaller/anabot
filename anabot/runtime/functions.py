@@ -14,7 +14,10 @@ _SCREENSHOT_NUM = 0
 def visibility(node, value):
     return (value is None) or (bool(value) == node.showing)
 
-def waiton(node, predicates, timeout=7, make_screenshot=False, visible=True):
+def sensitivity(node, value):
+    return (value is None) or (bool(value) == node.sensitive)
+
+def waiton(node, predicates, timeout=7, make_screenshot=False, visible=True, sensitive=True):
     "wait unless item shows on the screen"
     count = 0
     if type(predicates) is not list:
@@ -23,7 +26,7 @@ def waiton(node, predicates, timeout=7, make_screenshot=False, visible=True):
         count += 1
         for predicate in predicates:
             found = node.findChild(predicate, retry=False, requireResult=False)
-            if found is not None and visibility(found, visible) and found.sensitive:
+            if found is not None and visibility(found, visible) and sensitivity(found, sensitive):
                 if make_screenshot:
                     screenshot()
                 return found
@@ -31,7 +34,7 @@ def waiton(node, predicates, timeout=7, make_screenshot=False, visible=True):
     screenshot()
     raise TimeoutError("No predicate matches within timeout period")
 
-def waiton_all(node, predicates, timeout=7, make_screenshot=False, visible=True):
+def waiton_all(node, predicates, timeout=7, make_screenshot=False, visible=True, sensitive=True):
     "wait unless items show on the screen"
     count = 0
     if type(predicates) is not list:
@@ -40,7 +43,7 @@ def waiton_all(node, predicates, timeout=7, make_screenshot=False, visible=True)
         count += 1
         for predicate in predicates:
             found = [x for x in node.findChildren(predicate) if
-                     visibility(x, visible) and x.sensitive]
+                     visibility(x, visible) and sensitivity(x, sensitive)]
             if len(found):
                 if make_screenshot:
                     screenshot()
@@ -50,7 +53,7 @@ def waiton_all(node, predicates, timeout=7, make_screenshot=False, visible=True)
     raise TimeoutError("No predicate matches within timeout period")
 
 def getnode(parent, node_type=None, node_name=None, timeout=None,
-            predicates=None, visible=True):
+            predicates=None, visible=True, sensitive=True):
     if predicates is None:
         predicates = {}
     if node_type is not None:
@@ -59,11 +62,12 @@ def getnode(parent, node_type=None, node_name=None, timeout=None,
         predicates['name'] = node_name
     if timeout is not None:
         return waiton(parent, GenericPredicate(**predicates), timeout,
-                      visible=visible)
-    return waiton(parent, GenericPredicate(**predicates), visible=visible)
+                      visible=visible, sensitive=sensitive)
+    return waiton(parent, GenericPredicate(**predicates), visible=visible,
+                  sensitive=sensitive)
 
 def getnodes(parent, node_type=None, node_name=None, timeout=None,
-             predicates=None, visible=True):
+             predicates=None, visible=True, sensitive=True):
     if predicates is None:
         predicates = {}
     if node_type is not None:
@@ -72,8 +76,9 @@ def getnodes(parent, node_type=None, node_name=None, timeout=None,
         predicates['name'] = node_name
     if timeout is not None:
         return waiton_all(parent, GenericPredicate(**predicates), timeout,
-                          visible=visible)
-    return waiton_all(parent, GenericPredicate(**predicates), visible=visible)
+                          visible=visible, sensitive=sensitive)
+    return waiton_all(parent, GenericPredicate(**predicates), visible=visible,
+                      sensitive=sensitive)
 
 def getparent(child, node_type=None, node_name=None, predicates=None):
     if predicates is None:
