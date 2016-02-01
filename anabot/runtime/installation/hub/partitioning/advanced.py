@@ -5,7 +5,7 @@ from fnmatch import fnmatchcase
 
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler
-from anabot.runtime.functions import get_attr, waiton, getnode, getnodes, getparent, getparents
+from anabot.runtime.functions import get_attr, waiton, getnode, getnodes, getparent, getparents, getsibling
 from anabot.runtime.errors import TimeoutError
 from anabot.runtime.translate import tr
 
@@ -208,7 +208,7 @@ def add_size_handler(element, app_node, local_node):
     size = get_attr(element, "value")
     mountpoint = getnode(local_node, "combo box")
     # textfield for size is next to mountpoint combo box
-    textfield = mountpoint.parent[mountpoint.indexInParent+1]
+    textfield = getsibling(mountpoint, 1, "text")
     textfield.typeText(size)
 
 @handle_act('/done')
