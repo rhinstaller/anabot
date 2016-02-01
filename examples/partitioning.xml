@@ -45,7 +45,6 @@
 	  <mountpoint value="swap" />
 	  <size value="1G" />
 	</add>
-	<debug_stop />
 	<details>
 	  <name value="swap_ahoj" />
 	  <update />
