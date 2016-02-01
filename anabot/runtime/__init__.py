@@ -9,6 +9,7 @@ logger.addHandler(logging.NullHandler())
 
 from .default import handle_step
 from . import installation
+import pyatspi
 
 def run_test(file_path):
     import dogtail.utils
@@ -18,7 +19,9 @@ def run_test(file_path):
     from dogtail.predicate import GenericPredicate
     import dogtail.tree
     anaconda = dogtail.tree.root.child(roleName="application", name="anaconda")
-
+    # atspi sometimes has connection issues when asking for parents, so cache
+    # them
+    anaconda.setCacheMask(pyatspi.cache.PARENT)
     doc = libxml2.parseFile(file_path)
     handle_step(doc.getRootElement(), anaconda, None)
     doc.freeDoc()
