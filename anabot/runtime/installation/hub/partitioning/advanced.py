@@ -229,4 +229,34 @@ def summary_handler(element, app_node, local_node):
     dialog_button = getnode(dialog, "push button", button_text)
     dialog_button.click()
 
-# details
+@handle_act('/details')
+@handle_act('/select/details')
+def details_handler(element, app_node, local_node):
+    details_node = getnode(local_node, "page tab list")
+    details_node = getnodes(details_node, "page tab", sensitive=None)[0]
+    default_handler(element, app_node, details_node)
+
+@handle_act('/details/name')
+@handle_act('/select/details/name')
+def details_name_handler(element, app_node, local_node):
+    value = get_attr(element, "value")
+    name_label = getnode(local_node, "label", tr("_Name:", context="GUI|Custom Partitioning|Container Dialog"))
+    name = getsibling(name_label, 1, "text")
+    name.typeText(value)
+
+@handle_act('/details/label')
+@handle_act('/select/details/label')
+def details_label_handler(element, app_node, local_node):
+    value = get_attr(element, "value")
+    label_label = getnode(local_node, "label", tr("_Label:"))
+    label = getsibling(label_label, 1, "text")
+    label.typeText(value)
+
+@handle_act('/details/update')
+@handle_act('/select/details/update')
+def details_update_handler(element, app_node, local_node):
+    try:
+        getnode(local_node, "push button", tr("_Update Settings")).click()
+    except TimeoutError:
+        return False
+    return True
