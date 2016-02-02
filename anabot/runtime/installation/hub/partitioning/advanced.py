@@ -236,6 +236,23 @@ def details_handler(element, app_node, local_node):
     details_node = getnodes(details_node, "page tab", sensitive=None)[0]
     default_handler(element, app_node, details_node)
 
+@handle_act('/details/mountpoint')
+@handle_act('/select/details/mountpoint')
+def details_mountpoint_handler(element, app_node, local_node):
+    value = get_attr(element, "value")
+    mountpoint_label = getnode(local_node, "label", tr("Mount _Point:"))
+    mountpoint = getsibling(mountpoint_label, 1, "text")
+    mountpoint.typeText(value)
+
+@handle_act('/details/filesystem')
+@handle_act('/select/details/filesystem')
+def details_mountpoint_handler(element, app_node, local_node):
+    fstype = get_attr(element, "select")
+    filesystem_label = getnode(local_node, "label", tr("File S_ystem:", context="GUI|Custom Partitioning|Configure"))
+    filesystem = getsibling(filesystem_label, 1, "combo box")
+    filesystem.click()
+    getnode(filesystem, "menu item", fstype).click()
+
 @handle_act('/details/name')
 @handle_act('/select/details/name')
 def details_name_handler(element, app_node, local_node):

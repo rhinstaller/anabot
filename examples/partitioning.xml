@@ -60,6 +60,20 @@
 	<add>
 	  <mountpoint value="/" />
 	</add>
+	<details>
+	  <mountpoint value="/foo" />
+	  <update />
+	  <mountpoint value="/" />
+	  <filesystem select="ext4" />
+	  <update />
+	  <!--
+	      size
+	      devices
+	      device type
+	      volume group
+	      volume group dialog
+	  -->
+	</details>
 	<done />
 	<summary />
       </advanced>
