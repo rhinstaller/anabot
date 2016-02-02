@@ -120,11 +120,14 @@ def getsibling(node, vector, node_type=None, node_name=None, visible=True,
                      sensitive=sensitive, recursive=False)
     if len(nodes) == 0:
         return
+    lastId = nodes[0].indexInParent
     if vector < 0:
         nodes = sorted(nodes, reverse=True)
         index *= -1
+        lastId -= 1
+    else:
+        lastId += 1
     located = False
-    lastId = nodes[0].indexInParent
     for sibling in nodes:
         curId = sibling.indexInParent
         if located:
