@@ -246,7 +246,7 @@ def details_mountpoint_handler(element, app_node, local_node):
 
 @handle_act('/details/filesystem')
 @handle_act('/select/details/filesystem')
-def details_mountpoint_handler(element, app_node, local_node):
+def details_filesystem_handler(element, app_node, local_node):
     fstype = get_attr(element, "select")
     filesystem_label = getnode(local_node, "label", tr("File S_ystem:", context="GUI|Custom Partitioning|Configure"))
     filesystem = getsibling(filesystem_label, 1, "combo box")
