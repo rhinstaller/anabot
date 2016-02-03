@@ -65,9 +65,9 @@
 	  <update />
 	  <mountpoint value="/" />
 	  <filesystem select="ext4" />
+	  <size value="10G" />
 	  <update />
 	  <!--
-	      size
 	      devices
 	      device type
 	      volume group

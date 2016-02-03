@@ -253,6 +253,14 @@ def details_filesystem_handler(element, app_node, local_node):
     filesystem.click()
     getnode(filesystem, "menu item", fstype).click()
 
+@handle_act('/details/size')
+@handle_act('/select/details/size')
+def details_size_handler(element, app_node, local_node):
+    value = get_attr(element, "value")
+    size_label = getnode(local_node, "label", tr("_Desired Capacity:"))
+    size = getsibling(size_label, 1, "text")
+    size.typeText(value)
+
 @handle_act('/details/name')
 @handle_act('/select/details/name')
 def details_name_handler(element, app_node, local_node):
