@@ -15,6 +15,18 @@ _local_path = '/installation/hub/partitioning/advanced'
 handle_act = lambda x: handle_action(_local_path + x)
 handle_chck = lambda x: handle_check(_local_path + x)
 
+def schema_name(schema=None):
+    SCHEMAS = {
+        'native' : tr("Standard Partition"),
+        'btrfs' : tr("Btrfs"),
+        'lvm' : tr("LVM"),
+        'raid' : tr("RAID"),
+        'lvm thinp' : tr("LVM Thin Provisioning")
+    }
+    if schema is not None:
+        return SCHEMAS[schema]
+    return SCHEMAS.values()
+
 @handle_act('')
 def base_handler(element, app_node, local_node):
     try:
@@ -31,13 +43,6 @@ def base_handler(element, app_node, local_node):
 
 @handle_act('/schema')
 def schema_handler(element, app_node, local_node):
-    schemas = {
-        'native' : tr("Standard Partition"),
-        'btrfs' : tr("Btrfs"),
-        'lvm' : tr("LVM"),
-        'raid' : tr("RAID"),
-        'lvm thinp' : tr("LVM Thin Provisioning")
-    }
     schema = get_attr(element, "value")
     schema_node = None
     group_nodes = getnodes(local_node, "toggle button")
@@ -50,14 +55,14 @@ def schema_handler(element, app_node, local_node):
             schema_node = waiton(group_node,
                                  [GenericPredicate(roleName="combo box",
                                                    name=name)
-                                  for name in schemas.values()])
+                                  for name in schema_name()])
         except TimeoutError:
             if not shown:
                 group_node.actions['activate'].do()
     if schema_node is None:
         return (False, "Couldn't find combo box for partitioning schema")
     schema_node.click()
-    getnode(schema_node, "menu item", schemas[schema]).click()
+    getnode(schema_node, "menu item", schema_name(schema)).click()
 
 @handle_act('/select')
 def select_handler(element, app_node, local_node):
