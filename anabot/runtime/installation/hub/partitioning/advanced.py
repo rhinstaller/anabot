@@ -5,7 +5,7 @@ from fnmatch import fnmatchcase
 
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler
-from anabot.runtime.functions import get_attr, waiton, getnode, getnodes, getparent, getparents, getsibling
+from anabot.runtime.functions import get_attr, waiton, getnode, getnodes, getparent, getparents, getsibling, hold_key, release_key
 from anabot.runtime.errors import TimeoutError
 from anabot.runtime.translate import tr
 
@@ -281,6 +281,71 @@ def details_label_handler(element, app_node, local_node):
     label_label = getnode(local_node, "label", tr("_Label:"))
     label = getsibling(label_label, 1, "text")
     label.typeText(value)
+
+@handle_act('/details/device_type')
+@handle_act('/select/details/device_type')
+def details_device_type_handler(element, app_node, local_node):
+    dev_type = get_attr(element, "select")
+    device_type_label = getnode(local_node, "label", tr("Device _Type:", context="GUI|Custom Partitioning|Configure"))
+    device_type = getsibling(device_type_label, 1, "combo box")
+    device_type.click()
+    getnode(device_type, "menu item", schema_name(dev_type)).click()
+
+@handle_act('/details/devices')
+@handle_act('/select/details/devices')
+def details_devices_handler(element, app_node, local_node):
+    dialog_action = get_attr(element, "dialog", "accept")
+    devices_label = getnode(local_node, "label", tr("Device(s):"))
+    devices_button = getsibling(devices_label, 1, "push button")
+    devices_button.click()
+    dialog_label = getnode(app_node, "label", tr("CONFIGURE MOUNT POINT"))
+    dialog = getparent(dialog_label, "dialog")
+    default_handler(element, app_node, dialog)
+    context = "GUI|Custom Partitioning|Configure Dialog"
+    if dialog_action == "accept":
+        button_text = tr("_Select", context=context)
+    elif dialog_action == "reject":
+        button_text = tr("_Cancel", context=context)
+    else:
+        return (False, "Undefined state")
+    getnode(dialog, "push button", button_text).click()
+
+@handle_act('/details/devices/deselect')
+@handle_act('/select/details/devices/deselect')
+def details_devices_deselect_handler(element, app_node, local_node):
+    name = unicode(get_attr(element, "device"))
+    table_cells = getnodes(local_node, "table cell")
+    # device is second cell in row consisting of 4 cells, so take only
+    # those whose index matches rule: i modulo 4 == 1
+    devices = [table_cells[i] for i in xrange(len(table_cells)) if i % 4 == 1]
+    logger.info("found devices: %s", repr(devices))
+    deselect = [device for device in devices if
+                fnmatchcase(unicode(device.name), name)]
+    logger.info("Deselecting devices: %s", repr(deselect))
+    hold_key('control')
+    for device in deselect:
+        logger.debug("Deselecting %s", device.name)
+        if device.selected:
+            device.click()
+    release_key('control')
+
+@handle_act('/details/devices/select')
+@handle_act('/select/details/devices/select')
+def details_devices_select_handler(element, app_node, local_node):
+    name = unicode(get_attr(element, "device"))
+    table_cells = getnodes(local_node, "table cell")
+    # device is second cell in row consisting of 4 cells, so take only
+    # those whose index matches rule: i modulo 4 == 1
+    devices = [table_cells[i] for i in xrange(len(table_cells)) if i % 4 == 1]
+    logger.info("found devices: %s", repr(devices))
+    select = [device for device in devices if
+                fnmatchcase(unicode(device.name), name)]
+    hold_key('control')
+    for device in select:
+        logger.debug("Selecting %s", device.name)
+        if not device.selected:
+            device.click()
+    release_key('control')
 
 @handle_act('/details/update')
 @handle_act('/select/details/update')

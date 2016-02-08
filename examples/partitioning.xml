@@ -66,10 +66,18 @@
 	  <mountpoint value="/" />
 	  <filesystem select="ext4" />
 	  <size value="10G" />
+	  <device_type select="native" /> <!-- native, lvm, raid, lvm_thinp, btrfs-->
+	  <devices dialog="reject">
+	    <deselect device="*" />
+	    <select device="vda" />
+	  </devices>
+	  <devices dialog="accept">
+	    <deselect device="*" />
+	    <select device="vdb" />
+	  </devices>
 	  <update />
 	  <!--
 	      devices
-	      device type
 	      volume group
 	      volume group dialog
 	  -->
