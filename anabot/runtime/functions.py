@@ -5,6 +5,7 @@ import libxml2
 
 import dogtail
 import dogtail.utils
+import pyatspi
 from dogtail.predicate import GenericPredicate
 
 from .errors import TimeoutError
@@ -161,3 +162,25 @@ def get_attr(element, name, default=None):
         raise Exception("Incorrect xpath expression: '%s'" % xpath)
     except IndexError:
         return default
+
+def hold_key(keyName):
+    return key_action(keyName, "press")
+
+def release_key(keyName):
+    return key_action(keyName, "release")
+
+def key_action(keyName, action):
+    # need to import dogtail.rawinput after display is on, so this is probably
+    # the best place for it
+    import dogtail.rawinput
+    actions = {
+        "press" : pyatspi.KEY_PRESS,
+        "release" : pyatspi.KEY_RELEASE,
+        "pressrelease" : pyatspi.KEY_PRESSRELEASE,
+    }
+    if action not in actions:
+        return
+    gtk_name = dogtail.rawinput.keyNameAliases[keyName]
+    keyCode = dogtail.rawinput.keyNameToKeyCode(gtk_name)
+    pyatspi.Registry.generateKeyboardEvent(keyCode, None, actions[action])
+    dogtail.rawinput.doTypingDelay()
