@@ -49,6 +49,22 @@
 	  <name value="swap_ahoj" />
 	  <update />
 	</details>
+	<debug_stop />
+	<details>
+	  <new_volume_group dialog="reject">
+	    <name value="anabot_vg" />
+	    <raid select="None" />
+	    <raid select="RAID0" />
+	    <size_policy select="fixed" />
+	    <size value="30G" />
+	    <size_policy select="grow" />
+	    <size_policy select="automatic" />
+	    <encrypt value="yes" />
+	    <encrypt value="no" />
+	    <raid select="None" />
+	  </new_volume_group>
+	  <debug_stop />
+	</details>
 	<add>
 	  <mountpoint value="/boot" />
 	  <size value="1G" />
@@ -77,7 +93,6 @@
 	  </devices>
 	  <update />
 	  <!--
-	      devices
 	      volume group
 	      volume group dialog
 	  -->

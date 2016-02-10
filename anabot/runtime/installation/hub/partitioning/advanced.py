@@ -357,3 +357,31 @@ def details_update_handler(element, app_node, local_node):
     except TimeoutError:
         return False
     return True
+
+@handle_act('/details/new_volume_group')
+@handle_act('/select/details/new_volume_group')
+def details_new_volume_group(element, app_node, local_node):
+    dialog_action = get_attr(element, "dialog", "accept")
+    # Volume Group is not translated, file bug!
+    volume_group_label = getnode(local_node, "label", "Volume Group")
+    volume_group_combo = getsibling(volume_group_label, 1, "combo box")
+    volume_group_combo.click()
+    # Vyvořit nový volume group ... in czech, file bug!
+    create_text = tr("Create a new %(container_type)s ...", False) % {
+        "container_type" : "volume group"
+    }
+    selection_window = getnode(app_node, "window")
+    new_volgroup = getnode(selection_window, "menu item", create_text)
+    new_volgroup.click()
+    # dialog appears
+    vg_dialog = getnode(app_node, "dialog")
+    default_handler(element, app_node, vg_dialog)
+    context = "GUI|Custom Partitioning|Container Dialog"
+    if dialog_action == "accept":
+        button_text = "_Save"
+    elif dialog_action == "reject":
+        button_text = "_Cancel"
+    else:
+        return (False, "Undefined state")
+    button_text = tr(button_text, context=context)
+    getnode(vg_dialog, "push button", button_text).click()
