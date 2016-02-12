@@ -16,6 +16,8 @@ def run_test(file_path):
     dogtail.utils.enableA11y()
     import dogtail.config
     dogtail.config.config.typingDelay = 0.2
+    dogtail.config.config.logDebugToFile = False
+    dogtail.config.config.logDebugToStdOut = False
     from dogtail.predicate import GenericPredicate
     import dogtail.tree
     anaconda = dogtail.tree.root.child(roleName="application", name="anaconda")
