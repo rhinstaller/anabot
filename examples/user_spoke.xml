@@ -1,0 +1,35 @@
+<!-- 
+    this is only snippet to document user creation spoke xml
+    it does not work as is
+--> 
+<installation>
+  <configuration>
+    <create_user>
+        <full_name value="Full Name" />
+        <username value="login" />
+        <!-- make user administrator -->
+        <is_admin checked="yes" />
+        <require_password checked="yes" /> 
+        <!-- if require_password checked = "no" password and confirm_password does not make sense -->
+        <password value="aaa" />
+        <confirm_password value="aaa" />
+        <!-- advanced user configuration dialog -->
+        <advanced>
+            <home value="/home/loginname" />
+            <manual_uid checked="yes" />
+            <uid value="1112" />
+            <manual_gid checked="yes" />
+            <gid value="1113" />
+            <groups value="zombies,undead" />
+            <!-- to cancel advanced config
+            <cancel />
+            -->
+            <!-- to save changes in advanced config dialog -->
+            <save />
+        </advanced>
+        <!-- press done twice to allow short password -->
+        <done />
+        <done />
+    </create_user>
+  </configuration>
+</installation>
