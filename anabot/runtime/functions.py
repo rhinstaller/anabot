@@ -111,25 +111,29 @@ def getsibling(node, vector, node_type=None, node_name=None, visible=True,
                      sensitive=sensitive, recursive=False)
     if len(nodes) == 0:
         return
-    lastId = nodes[0].indexInParent
+    result = None
+    idx = 0
+    sub_zero = False
     if vector < 0:
-        nodes = sorted(nodes, reverse=True)
-        index *= -1
-        lastId -= 1
-    else:
-        lastId += 1
-    located = False
+        sub_zero = True
+        vector = vector * (-1)
+        nodes.sort(reverse=True)
+
     for sibling in nodes:
-        curId = sibling.indexInParent
-        if located:
-            index -= 1
-        elif inrange(index, lastId, curId):
-            located = True
-            index -= 1
-        else:
-            lastId = curId
-        if index == 0:
-            return sibling
+        if sibling.indexInParent == index:
+            # sibling == node
+            break
+        elif (sub_zero and (sibling.indexInParent < index)) or ((not sub_zero) and (sibling.indexInParent > index)):
+            # sibling is first after the node
+            vector -= 1
+            break
+        idx += 1
+    try:
+        result = nodes[idx + vector]
+    except IndexError:
+        # not found
+        pass
+    return result
 
 def getselected(parent):
     return [child for child in getnodes(parent) if child.selected]
