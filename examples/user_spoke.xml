@@ -28,7 +28,7 @@
             <save />
         </advanced>
         <!-- press done twice to allow short password -->
-        <done />
+        <done policy="should_fail" />
         <done />
     </create_user>
   </configuration>

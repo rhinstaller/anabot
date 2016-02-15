@@ -153,7 +153,7 @@ def user_password_handler(element, app_node, local_node):
     entry = getnode(local_node, "password text", tr('_Password', context="GUI|User"))
     password = get_attr(element, 'value')
     entry.typeText(password)
-    return True
+    return True #cannot verify password via ATK
 
 @handle_act('/create_user/confirm_password')
 def user_password_handler(element, app_node, local_node):
@@ -161,7 +161,7 @@ def user_password_handler(element, app_node, local_node):
     entry = getnode(local_node, "password text", tr('Confirm Password')) # translation error  label "_Povrďte heslo"
     password = get_attr(element, 'value')
     entry.typeText(password)
-    return True
+    return True #cannot verify password via ATK
 
 @handle_act('/create_user/advanced')
 def user_advanced_handler(element, app_node, local_node):
@@ -265,10 +265,28 @@ def user_adv_cancel_handler(element, app_node, local_node):
     button = getnode(local_node, "push button", tr("_Cancel", context="GUI|Advanced User"))
     button.click()
 
+@handle_chck('/create_user/advanced/cancel')
+def user_adv_cancel_check(element, app_node, local_node):
+    try:
+        dialog_label = getnode(app_node, "label", tr('ADVANCED USER CONFIGURATION'))
+        return (False,"Advanced user dialog is still present")
+    except TimeoutError:
+        return True
+    return False
+
 @handle_act('/create_user/advanced/save')
 def user_adv_save_handler(element, app_node, local_node):
     button = getnode(local_node, "push button", tr("_Save Changes", context="GUI|Advanced User"))
     button.click()
+
+@handle_chck('/create_user/advanced/save')
+def user_adv_cancel_check(element, app_node, local_node):
+    try:
+        dialog_label = getnode(app_node, "label", tr('ADVANCED USER CONFIGURATION'))
+        return (False,"Advanced user dialog is still present")
+    except TimeoutError:
+        return True
+    return False
 
 @handle_act('/create_user/done')
 def root_password_done_handler(element, app_node, local_node):
@@ -277,7 +295,11 @@ def root_password_done_handler(element, app_node, local_node):
                                      tr("_Done", False))
     except TimeoutError:
         return (False, "Done button not found or not clickable")
-
     done_btn.click()
-    return True # done for password found and was clicked
+    try:
+        user_panel = getnode(app_node, "panel", tr("CREATE USER"))
+        return (False, "User spoke is still present")
+    except TimeoutError:
+        return True
+    return False 
 
