@@ -39,4 +39,4 @@ If you want to specify your own anabot recipe, you can do it via kernel command 
 
     anabot=http://myhost.example.com/~myuser/recipe.xml
 
-To pause execution of anabot installation use <debug_stop /> tag in your recipe. To resume installation, touch /var/run/anabot/resume file.
+To pause execution of anabot installation use `<debug_stop />` tag in your recipe. To resume installation, touch /var/run/anabot/resume file.
