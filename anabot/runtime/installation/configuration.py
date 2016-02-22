@@ -126,7 +126,7 @@ def user_is_admin_check(element, app_node, local_node):
         
 
 @handle_act('/create_user/require_password')
-def user_is_admin_handler(element, app_node, local_node):
+def user_require_passwd_handler(element, app_node, local_node):
     checkbox = getnode(local_node, "check box", tr('Require a password to use this account', context="GUI|User"))
     value = get_attr(element, 'checked')
     if value == 'yes':
@@ -137,7 +137,7 @@ def user_is_admin_handler(element, app_node, local_node):
         checkbox.click()
 
 @handle_chck('/create_user/require_password')
-def user_is_admin_check(element, app_node, local_node):
+def user_require_passwd_check(element, app_node, local_node):
     checkbox = getnode(local_node, "check box", tr('Require a password to use this account', context="GUI|User"))
     value = get_attr(element, 'checked')
     if value == 'yes':
@@ -156,7 +156,7 @@ def user_password_handler(element, app_node, local_node):
     return True #cannot verify password via ATK
 
 @handle_act('/create_user/confirm_password')
-def user_password_handler(element, app_node, local_node):
+def user_confirm_password_handler(element, app_node, local_node):
     print "searching for %s" % tr('Confirm password')
     entry = getnode(local_node, "password text", tr('Confirm Password')) # translation error  label "_Povrďte heslo"
     password = get_attr(element, 'value')
@@ -280,7 +280,7 @@ def user_adv_save_handler(element, app_node, local_node):
     button.click()
 
 @handle_chck('/create_user/advanced/save')
-def user_adv_cancel_check(element, app_node, local_node):
+def user_adv_save_check(element, app_node, local_node):
     try:
         dialog_label = getnode(app_node, "label", tr('ADVANCED USER CONFIGURATION'))
         return (False,"Advanced user dialog is still present")
@@ -289,7 +289,7 @@ def user_adv_cancel_check(element, app_node, local_node):
     return False
 
 @handle_act('/create_user/done')
-def root_password_done_handler(element, app_node, local_node):
+def user_done_handler(element, app_node, local_node):
     try:
         done_btn = getnode(local_node, "push button",
                                      tr("_Done", False))
