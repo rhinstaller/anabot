@@ -35,7 +35,7 @@ def disk_handler(element, app_node, local_node):
     for disk in disks:
         # selected disk has icon without name
         icon = getnode(disk, node_type="icon")
-        if action == "select" and not disk.name != "":
+        if action == "select" and not icon.name != "":
             disk.click()
         elif action == "deselect" and icon.name == "":
             disk.click()
