@@ -1,0 +1,28 @@
+<ez:installation xmlns:ez="http://example.com/path/anabot/easy">
+  <hub>
+    <partitioning>
+      <!-- TODO -->
+      <disk name="*" action="select" />
+      <disk name="*" action="select" />
+      <disk name="*" action="deselect" />
+      <disk name="*" action="select" />
+      <mode mode="manual" />
+      <done />
+      <advanced>
+	<rescan>
+	  <push_rescan />
+	</rescan>
+      </advanced>
+      <disk name="*" action="select" />
+      <disk name="*" action="select" />
+      <disk name="*" action="deselect" />
+      <disk name="*" action="select" />
+      <mode mode="automatic" />
+      <additional_space />
+      <done />
+      <reclaim>
+	<delete_all />
+      </reclaim>
+    </partitioning>
+  </hub>
+</ez:installation>
