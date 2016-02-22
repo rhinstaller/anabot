@@ -5,7 +5,7 @@ import time, re
 import logging
 
 logger = logging.getLogger('anabot')
-logger.addHandler(logging.NullHandler())
+logger.addHandler(logging.NullHandler()) # pylint: disable=no-member
 
 from .default import handle_step
 from . import installation
