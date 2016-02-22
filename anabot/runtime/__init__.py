@@ -12,6 +12,12 @@ from . import installation
 import pyatspi
 
 def run_test(file_path):
+    """Run anabot with given path to anabot recipe.
+
+    Given file needs to be in "raw" xml schema, which means that it's required
+    that this file is already processed by anabot preprocessor.
+    See anabot.preprocessor package.
+    """
     import dogtail.utils
     dogtail.utils.enableA11y()
     import dogtail.config
