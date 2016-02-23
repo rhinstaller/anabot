@@ -5,7 +5,7 @@ import os.path
 import logging
 
 logger = logging.getLogger('anabot.preprocessor')
-logger.addHandler(logging.NullHandler())
+logger.addHandler(logging.NullHandler()) # pylint: disable=no-member
 
 EASY_NS_URI = 'http://example.com/path/anabot/easy'
 
