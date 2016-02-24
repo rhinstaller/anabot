@@ -1,3 +1,5 @@
+from anabot.runtime.translate import tr
+
 def schema_name(schema=None):
     SCHEMAS = {
         'native' : tr("Standard Partition"),
