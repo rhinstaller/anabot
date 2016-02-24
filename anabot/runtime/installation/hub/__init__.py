@@ -10,7 +10,7 @@ from anabot.runtime.functions import getnode, TimeoutError
 from anabot.runtime.translate import tr
 
 # submodules
-from . import datetime, keyboard, partitioning, software_selection, oscap_addon
+from . import datetime, keyboard, partitioning, software_selection, oscap_addon, language
 
 @handle_action('/installation/hub')
 def hub_handler(element, app_node, local_node):
