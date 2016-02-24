@@ -3,10 +3,10 @@
 import time
 import libxml2
 
-import dogtail
-import dogtail.utils
-import pyatspi
-from dogtail.predicate import GenericPredicate
+import dogtail # pylint: disable=import-error
+import dogtail.utils # pylint: disable=import-error
+import pyatspi # pylint: disable=import-error
+from dogtail.predicate import GenericPredicate # pylint: disable=import-error
 
 from .errors import TimeoutError
 
@@ -162,7 +162,7 @@ def release_key(keyName):
 def key_action(keyName, action):
     # need to import dogtail.rawinput after display is on, so this is probably
     # the best place for it
-    import dogtail.rawinput
+    import dogtail.rawinput # pylint: disable=import-error
     actions = {
         "press" : pyatspi.KEY_PRESS,
         "release" : pyatspi.KEY_RELEASE,

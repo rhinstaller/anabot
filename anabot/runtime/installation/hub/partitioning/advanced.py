@@ -11,7 +11,8 @@ from anabot.runtime.functions import get_attr, waiton, getnode, getnodes, getpar
 from anabot.runtime.errors import TimeoutError
 from anabot.runtime.translate import tr
 
-from dogtail.predicate import GenericPredicate
+from dogtail.predicate import GenericPredicate # pylint: disable=import-error
+
 
 _local_path = '/installation/hub/partitioning/advanced'
 handle_act = lambda x: handle_action(_local_path + x)

@@ -2,7 +2,7 @@
 
 import re
 import gettext
-import langtable
+import langtable # pylint: disable=import-error
 __translate = None
 __language = None
 __locality = None

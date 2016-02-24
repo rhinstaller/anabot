@@ -8,8 +8,6 @@ from anabot.runtime.default import default_handler
 from anabot.runtime.functions import getnode
 from anabot.runtime.translate import tr
 
-from dogtail.predicate import GenericPredicate
-
 # submodules
 from . import partitioning
 
