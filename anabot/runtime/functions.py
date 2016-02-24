@@ -61,20 +61,6 @@ def waiton_all(node, predicates, timeout=7, make_screenshot=False, visible=True,
     screenshot()
     raise TimeoutError("No predicate matches within timeout period")
 
-def getnode(parent, node_type=None, node_name=None, timeout=None,
-            predicates=None, visible=True, sensitive=True, recursive=True):
-    if predicates is None:
-        predicates = {}
-    if node_type is not None:
-        predicates['roleName'] = node_type
-    if node_name is not None:
-        predicates['name'] = node_name
-    if timeout is not None:
-        return waiton(parent, GenericPredicate(**predicates), timeout,
-                      visible=visible, sensitive=sensitive, recursive=recursive)
-    return waiton(parent, GenericPredicate(**predicates), visible=visible,
-                  sensitive=sensitive, recursive=recursive)
-
 def getnodes(parent, node_type=None, node_name=None, timeout=None,
              predicates=None, visible=True, sensitive=True, recursive=True):
     if predicates is None:
@@ -89,6 +75,10 @@ def getnodes(parent, node_type=None, node_name=None, timeout=None,
                           recursive=recursive)
     return waiton_all(parent, GenericPredicate(**predicates), visible=visible,
                       sensitive=sensitive, recursive=recursive)
+
+def getnode(parent, node_type=None, node_name=None, timeout=None,
+            predicates=None, visible=True, sensitive=True, recursive=True):
+    return getnodes(parent, node_type, node_name, timeout, predicates, visible, sensitive, recursive)[0]
 
 def getparent(child, node_type=None, node_name=None, predicates=None):
     if predicates is None:
