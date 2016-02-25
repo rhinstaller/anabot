@@ -186,3 +186,12 @@ def handle_vg_chck(path):
         handle_chck('/new_volume_group' + path)(func)
         return handle_chck('/edit_volume_group' + path)(func)
     return decorator
+
+@handle_vg_act('/name')
+def vg_name(element, app_node, local_node):
+    value = get_attr(element, "value")
+    name_label_text = tr("_Name:",
+                         context="GUI|Custom Partitioning|Container Dialog")
+    name_label = getnode(local_node, "label", name_label_text)
+    name = getsibling(name_label, 1, "text")
+    name.typeText(value)
