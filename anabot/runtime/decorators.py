@@ -1,3 +1,6 @@
+import logging
+logger = logging.getLogger('anabot')
+
 ACTIONS = {}
 CHECKS = {}
 
@@ -23,6 +26,7 @@ def handle_action(element_path, func=None):
     handle_action("/installation/welcome", welcome_handler)
     """
     def decorator(func):
+        logger.debug("Registering handler for path: %s", element_path)
         ACTIONS[element_path] = func
         return func
     if func is not None:
