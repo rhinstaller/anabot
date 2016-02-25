@@ -1,7 +1,5 @@
 #!/bin/env python2
 
-from anabot.runtime import run_test
-from anabot.preprocessor import preprocess
 import os, sys, shutil
 
 import logging
@@ -20,6 +18,9 @@ if os.path.exists(VIRTIO_CONSOLE):
 logger.addHandler(syslog)
 
 os.environ["DISPLAY"] = ":1"
+
+from anabot.runtime import run_test
+from anabot.preprocessor import preprocess
 
 preprocess("/var/run/anabot/raw-recipe.xml", "/var/run/anabot/final-recipe.xml")
 run_test("/var/run/anabot/final-recipe.xml")
