@@ -6,12 +6,17 @@ import os, sys, shutil
 
 import logging
 from logging.handlers import SysLogHandler
+
 logger = logging.getLogger("anabot")
 logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.StreamHandler(sys.stdout))
 logger.addHandler(logging.FileHandler("/var/log/anabot.log"))
 syslog = SysLogHandler(address="/dev/log", facility=SysLogHandler.LOG_LOCAL3)
 syslog.setFormatter(logging.Formatter("anabot: %(message)s"))
+# virtio console - useful for debugging
+VIRTIO_CONSOLE = '/dev/virtio-ports/com.redhat.anabot.0'
+if os.path.exists(VIRTIO_CONSOLE):
+    logger.addHandler(logging.FileHandler(VIRTIO_CONSOLE))
 logger.addHandler(syslog)
 
 os.environ["DISPLAY"] = ":1"
