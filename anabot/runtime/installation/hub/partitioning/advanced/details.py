@@ -15,12 +15,16 @@ from anabot.runtime.installation.hub.partitioning.advanced.common import schema_
 _local_path = '/installation/hub/partitioning/advanced/details'
 _local_select_path = '/installation/hub/partitioning/advanced/select/details'
 def handle_act(path):
-    handle_action(_local_path + path)
-    return handle_action(_local_select_path + path)
+    def decorator(func):
+        handle_action(_local_path + path, func)
+        return handle_action(_local_select_path + path, func)
+    return decorator
 
 def handle_chck(path):
-    handle_check(_local_path + path)
-    return handle_check(_local_select_path + path)
+    def decorator(func):
+        handle_check(_local_path + path, func)
+        return handle_check(_local_select_path + path, func)
+    return decorator
 
 @handle_act('')
 def base_handler(element, app_node, local_node):
@@ -172,9 +176,13 @@ def edit_volume_group(element, app_node, local_node):
     return volume_group_dialog(element, app_node, local_node)
 
 def handle_vg_act(path):
-    handle_act('/new_volume_group' + path)
-    return handle_act('/edit_volume_group' + path)
+    def decorator(func):
+        handle_act('/new_volume_group' + path)(func)
+        return handle_act('/edit_volume_group' + path)(func)
+    return decorator
 
 def handle_vg_chck(path):
-    handle_chck('/new_volume_group' + path)
-    return handle_chck('/edit_volume_group' + path)
+    def decorator(func):
+        handle_chck('/new_volume_group' + path)(func)
+        return handle_chck('/edit_volume_group' + path)(func)
+    return decorator
