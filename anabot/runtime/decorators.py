@@ -5,25 +5,23 @@ ACTIONS = {}
 CHECKS = {}
 
 def handle_action(element_path, func=None):
-    """Decorator for handler function
+    """Decorator for handler function.
 
-    This function is used to register callback function for XML element
-    located at element_path (e.g. /installation/welcome). Use only absolute
-    paths without wildcards or any other special features.
+    As a decorator this function is used to register handler functuon for XML
+    element *element_path* located at element_path (e.g. /installation/welcome).
+    Use only absolute paths without wildcards or any other special features.
 
-    arguments:
-    element_path -- path to XML node
+    It can be used also as an ordinary function with function *func* as an
+    argument.
 
-    Keyword argumenst:
-    func -- (default None)
+    As decorator::
 
-    This function can be used either as decorator:
-    @handle_action("/installation/welcome")
-    def welcome_handler(element, app_node, local_node):
-    ...
+        @handle_action("/installation/welcome")
+        def welcome_handler(element, app_node, local_node):
 
-    Or as function where the registered function is passed as argument:
-    handle_action("/installation/welcome", welcome_handler)
+    As function::
+
+        handle_action("/installation/welcome", welcome_handler)
     """
     def decorator(func):
         logger.debug("Registering handler for path: %s", element_path)
@@ -34,15 +32,10 @@ def handle_action(element_path, func=None):
     return decorator
 
 def handle_check(element_path, func=None):
-    """Decorator for checker function
+    """Decorator for checker function.
 
-    This function is used to register check function same way as handle_action.
-
-    arguments:
-    element_path -- path to XML node
-
-    Keyword argumenst:
-    func -- (default None)
+    This function is used to register check function *func* for XML element
+    *element_path* in the same way as :py:func:`handle_action`.
     """
     def decorator(func):
         CHECKS[element_path] = func
