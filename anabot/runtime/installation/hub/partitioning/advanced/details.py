@@ -7,7 +7,7 @@ from fnmatch import fnmatchcase
 
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler
-from anabot.runtime.functions import get_attr, getnode, getnodes, getparent, getsibling, hold_key, release_key
+from anabot.runtime.functions import get_attr, getnode, getnodes, getparent, getparents, getsibling, hold_key, release_key
 from anabot.runtime.errors import TimeoutError
 from anabot.runtime.translate import tr
 from anabot.runtime.installation.hub.partitioning.advanced.common import schema_name
@@ -23,20 +23,20 @@ def handle_chck(path):
     return handle_check(_local_select_path + path)
 
 @handle_act('')
-def details_handler(element, app_node, local_node):
+def base_handler(element, app_node, local_node):
     details_node = getnode(local_node, "page tab list")
     details_node = getnodes(details_node, "page tab", sensitive=None)[0]
     default_handler(element, app_node, details_node)
 
 @handle_act('/mountpoint')
-def details_mountpoint_handler(element, app_node, local_node):
+def mountpoint_handler(element, app_node, local_node):
     value = get_attr(element, "value")
     mountpoint_label = getnode(local_node, "label", tr("Mount _Point:"))
     mountpoint = getsibling(mountpoint_label, 1, "text")
     mountpoint.typeText(value)
 
 @handle_act('/filesystem')
-def details_filesystem_handler(element, app_node, local_node):
+def filesystem_handler(element, app_node, local_node):
     fstype = get_attr(element, "select")
     filesystem_label = getnode(local_node, "label", tr("File S_ystem:", context="GUI|Custom Partitioning|Configure"))
     filesystem = getsibling(filesystem_label, 1, "combo box")
@@ -44,28 +44,28 @@ def details_filesystem_handler(element, app_node, local_node):
     getnode(filesystem, "menu item", fstype).click()
 
 @handle_act('/size')
-def details_size_handler(element, app_node, local_node):
+def size_handler(element, app_node, local_node):
     value = get_attr(element, "value")
     size_label = getnode(local_node, "label", tr("_Desired Capacity:"))
     size = getsibling(size_label, 1, "text")
     size.typeText(value)
 
 @handle_act('/name')
-def details_name_handler(element, app_node, local_node):
+def name_handler(element, app_node, local_node):
     value = get_attr(element, "value")
     name_label = getnode(local_node, "label", tr("_Name:", context="GUI|Custom Partitioning|Container Dialog"))
     name = getsibling(name_label, 1, "text")
     name.typeText(value)
 
 @handle_act('/label')
-def details_label_handler(element, app_node, local_node):
+def label_handler(element, app_node, local_node):
     value = get_attr(element, "value")
     label_label = getnode(local_node, "label", tr("_Label:"))
     label = getsibling(label_label, 1, "text")
     label.typeText(value)
 
 @handle_act('/device_type')
-def details_device_type_handler(element, app_node, local_node):
+def device_type_handler(element, app_node, local_node):
     dev_type = get_attr(element, "select")
     device_type_label = getnode(local_node, "label", tr("Device _Type:", context="GUI|Custom Partitioning|Configure"))
     device_type = getsibling(device_type_label, 1, "combo box")
@@ -73,7 +73,7 @@ def details_device_type_handler(element, app_node, local_node):
     getnode(device_type, "menu item", schema_name(dev_type)).click()
 
 @handle_act('/devices')
-def details_devices_handler(element, app_node, local_node):
+def devices_handler(element, app_node, local_node):
     dialog_action = get_attr(element, "dialog", "accept")
     devices_label = getnode(local_node, "label", tr("Device(s):"))
     devices_button = getsibling(devices_label, 1, "push button")
@@ -91,7 +91,7 @@ def details_devices_handler(element, app_node, local_node):
     getnode(dialog, "push button", button_text).click()
 
 @handle_act('/devices/deselect')
-def details_devices_deselect_handler(element, app_node, local_node):
+def devices_deselect_handler(element, app_node, local_node):
     name = unicode(get_attr(element, "device"))
     table_cells = getnodes(local_node, "table cell")
     # device is second cell in row consisting of 4 cells, so take only
@@ -109,7 +109,7 @@ def details_devices_deselect_handler(element, app_node, local_node):
     release_key('control')
 
 @handle_act('/devices/select')
-def details_devices_select_handler(element, app_node, local_node):
+def devices_select_handler(element, app_node, local_node):
     name = unicode(get_attr(element, "device"))
     table_cells = getnodes(local_node, "table cell")
     # device is second cell in row consisting of 4 cells, so take only
@@ -126,16 +126,29 @@ def details_devices_select_handler(element, app_node, local_node):
     release_key('control')
 
 @handle_act('/update')
-def details_update_handler(element, app_node, local_node):
+def update_handler(element, app_node, local_node):
     try:
         getnode(local_node, "push button", tr("_Update Settings")).click()
     except TimeoutError:
         return False
     return True
 
-@handle_act('/new_volume_group')
-def details_new_volume_group(element, app_node, local_node):
+def volume_group_dialog(element, app_node, local_node):
+    local_node = getnode(app_node, "dialog")
     dialog_action = get_attr(element, "dialog", "accept")
+    default_handler(element, app_node, local_node)
+    context = "GUI|Custom Partitioning|Container Dialog"
+    if dialog_action == "accept":
+        button_text = "_Save"
+    elif dialog_action == "reject":
+        button_text = "_Cancel"
+    else:
+        return (False, "Undefined state")
+    button_text = tr(button_text, context=context)
+    getnode(local_node, "push button", button_text).click()
+
+@handle_act('/new_volume_group')
+def new_volume_group(element, app_node, local_node):
     # Volume Group is not translated, file bug!
     volume_group_label = getnode(local_node, "label", "Volume Group")
     volume_group_combo = getsibling(volume_group_label, 1, "combo box")
@@ -147,15 +160,21 @@ def details_new_volume_group(element, app_node, local_node):
     selection_window = getnode(app_node, "window")
     new_volgroup = getnode(selection_window, "menu item", create_text)
     new_volgroup.click()
-    # dialog appears
-    vg_dialog = getnode(app_node, "dialog")
-    default_handler(element, app_node, vg_dialog)
-    context = "GUI|Custom Partitioning|Container Dialog"
-    if dialog_action == "accept":
-        button_text = "_Save"
-    elif dialog_action == "reject":
-        button_text = "_Cancel"
-    else:
-        return (False, "Undefined state")
-    button_text = tr(button_text, context=context)
-    getnode(vg_dialog, "push button", button_text).click()
+    return volume_group_dialog(element, app_node, local_node)
+
+@handle_act('/edit_volume_group')
+def edit_volume_group(element, app_node, local_node):
+    vg_label = getnode(local_node, "label", "Volume Group")
+    vg_section = getparents(vg_label, "filler")[2]
+    vg_edit_text = tr("_Modify...", context="GUI|Custom Partitioning|Configure")
+    vg_edit_button = getnode(vg_section, "push button", vg_edit_text)
+    vg_edit_button.click()
+    return volume_group_dialog(element, app_node, local_node)
+
+def handle_vg_act(path):
+    handle_act('/new_volume_group' + path)
+    return handle_act('/edit_volume_group' + path)
+
+def handle_vg_chck(path):
+    handle_chck('/new_volume_group' + path)
+    return handle_chck('/edit_volume_group' + path)
