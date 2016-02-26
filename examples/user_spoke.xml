@@ -1,9 +1,6 @@
-<!-- 
-    this is only snippet to document user creation spoke xml
-    it does not work as is
---> 
-<installation>
+<ez:installation>
   <configuration>
+    <ez:root password="fo0m4nchU" />
     <create_user>
         <full_name value="Full Name" />
         <username value="login" />
@@ -32,4 +29,4 @@
         <done />
     </create_user>
   </configuration>
-</installation>
+</ez:installation>
