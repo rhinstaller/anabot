@@ -23,13 +23,13 @@ def _run_hooks(hooks, chroot=None, preexec_fn=None):
             new_dir = os.path.join(chroot, 'tmp')
             shutil.copy(hook, new_dir)
             exec_path = os.path.join(new_dir, os.path.basename(hook))
-            logger.log("Copying hook for chroot to: %s", exec_path)
+            logger.debug("Copying hook for chroot to: %s", exec_path)
         os.chmod(exec_path, stat.S_IEXEC)
-        logger.log("Running hook: %s", exec_path)
+        logger.debug("Running hook: %s", exec_path)
         p = subprocess.Popen([exec_path], preexec_fn=preexec)
         p.wait()
         if chroot is not None:
-            logger.log("Removing hook from chroot: %s", exec_path)
+            logger.debug("Removing hook from chroot: %s", exec_path)
             os.unlink(exec_path)
 
 def run_prehooks():
