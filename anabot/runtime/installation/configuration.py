@@ -14,10 +14,14 @@ handle_chck = lambda x: handle_check(_local_path + x)
 @handle_act('')
 def base_handler(element, app_node, local_node):
     default_handler(element, app_node, local_node)
+
+@handle_act('/reboot')
+def reboot_handler(element, app_node, local_node):
     logger.debug("WAITING FOR REBOOT")
     reboot_button = getnode(app_node, "push button",
                             tr("_Reboot", context="GUI|Progress"),
                             timeout=float("inf"))
+    # Anabot POST hooks will be run here
     reboot_button.click()
 
 @handle_act('/root_password')

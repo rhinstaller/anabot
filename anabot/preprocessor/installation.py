@@ -60,6 +60,9 @@ def replace_configuration(element, default_for=None):
     if len(element.xpathEval("./root_password")) == 0:
         new = load_snippet("/installation/configuration/root_password", default_for, tag_name="_default_for")
         element.addChild(new)
+    if len(element.xpathEval("./reboot")) == 0:
+        new = load_snippet("/installation/configuration/reboot", default_for, tag_name="_default_for")
+        element.addChild(new)
 
 @replace("/installation/configuration/root")
 def replace_rootpw(element):
