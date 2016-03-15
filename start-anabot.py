@@ -24,5 +24,3 @@ from anabot.preprocessor import preprocess
 
 preprocess("/var/run/anabot/raw-recipe.xml", "/var/run/anabot/final-recipe.xml")
 run_test("/var/run/anabot/final-recipe.xml")
-
-shutil.copyfile("/var/log/anabot.log", "/mnt/sysimage/root/anabot.log")
