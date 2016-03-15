@@ -10,8 +10,8 @@ for HOOK_TYPE in pre postnochroot post; do
     HOOK_DEST=$TMPDIR/opt/anabot-hooks/$HOOK_TYPE
     mkdir -p $HOOK_DEST
     for MODULE in `ls $MODULES_DIR`; do
-	if [ -e $MODULES_DIR/$MODULE/$HOOK_TYPE ]; then
-	    cp $MODULES_DIR/$MODULE/$HOOK_TYPE $HOOK_DEST/$MODULE
+	if [ -e $MODULES_DIR/$MODULE/$HOOK_TYPE.hook ]; then
+	    cp $MODULES_DIR/$MODULE/$HOOK_TYPE.hook $HOOK_DEST/$MODULE
 	fi
     done
 done
