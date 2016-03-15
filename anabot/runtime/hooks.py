@@ -12,10 +12,11 @@ def _hooks(event):
 def _run_hooks(hooks, chroot=None, preexec_fn=None):
     preexec = preexec_fn
     if chroot is not None:
-        def preexec():
+        def tmp_preexec():
             if preexec_fn is not None:
                 preexec_fn()
             os.chroot(chroot)
+        preexec = tmp_preexec
     for hook in hooks:
         exec_path = hook
         if chroot is not None:
@@ -29,10 +30,10 @@ def _run_hooks(hooks, chroot=None, preexec_fn=None):
             os.unlink(exec_path)
 
 def run_prehooks():
-    run_hooks(_hooks('pre'))
+    _run_hooks(_hooks('pre'))
 
 def run_postnochroothooks():
-    run_hooks(_hooks('post'))
+    _run_hooks(_hooks('post'))
 
 def run_posthooks():
-    run_hooks(_hooks('post'), chroot='/mnt/sysimage')
+    _run_hooks(_hooks('post'), chroot='/mnt/sysimage')
