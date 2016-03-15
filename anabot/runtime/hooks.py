@@ -33,7 +33,7 @@ def run_prehooks():
     _run_hooks(_hooks('pre'))
 
 def run_postnochroothooks():
-    _run_hooks(_hooks('post'))
+    _run_hooks(_hooks('post-nochroot'))
 
 def run_posthooks():
     _run_hooks(_hooks('post'), chroot='/mnt/sysimage')

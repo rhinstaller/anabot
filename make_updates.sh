@@ -6,7 +6,7 @@ mkdir $TMPDIR/opt
 cp -r * $TMPDIR/opt
 mv $TMPDIR/opt/etc $TMPDIR
 MODULES_DIR=$TMPDIR/opt/modules
-for HOOK_TYPE in pre postnochroot post; do
+for HOOK_TYPE in pre post-nochroot post; do
     HOOK_DEST=$TMPDIR/opt/anabot-hooks/$HOOK_TYPE
     mkdir -p $HOOK_DEST
     for MODULE in `ls $MODULES_DIR`; do
