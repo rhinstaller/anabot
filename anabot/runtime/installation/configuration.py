@@ -6,7 +6,7 @@ from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler
 from anabot.runtime.functions import get_attr, getnode, TimeoutError, getparent, getsibling
 from anabot.runtime.translate import tr
-from anabot.runtime.hooks import run_postnochroothooks, run_posthooks
+from anabot.runtime.hooks import run_posthooks
 
 _local_path = '/installation/configuration'
 handle_act = lambda x: handle_action(_local_path + x)
@@ -22,7 +22,6 @@ def reboot_handler(element, app_node, local_node):
     reboot_button = getnode(app_node, "push button",
                             tr("_Reboot", context="GUI|Progress"),
                             timeout=float("inf"))
-    run_postnochroothooks()
     run_posthooks()
     reboot_button.click()
 

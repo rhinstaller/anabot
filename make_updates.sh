@@ -10,9 +10,12 @@ for HOOK_TYPE in pre post-nochroot post; do
     HOOK_DEST=$TMPDIR/opt/anabot-hooks/$HOOK_TYPE
     mkdir -p $HOOK_DEST
     for MODULE in `ls $MODULES_DIR`; do
-	if [ -e $MODULES_DIR/$MODULE/$HOOK_TYPE.hook ]; then
-	    cp $MODULES_DIR/$MODULE/$HOOK_TYPE.hook $HOOK_DEST/$MODULE
-	fi
+	for HOOK in $MODULES_DIR/$MODULE/*-$HOOK_TYPE.hook; do
+	    if [ -e $HOOK ]; then
+		PRIO=`basename $HOOK | egrep -o '^[0-9]{2}'`
+		cp $HOOK $HOOK_DEST/$PRIO-$MODULE
+	    fi
+	done
     done
 done
 
