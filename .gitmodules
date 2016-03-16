@@ -1,0 +1,3 @@
+[submodule "modules/restraint"]
+	path = modules/restraint
+	url = git@gitlab.example.com:user/anares.git
