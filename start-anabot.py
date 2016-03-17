@@ -1,6 +1,7 @@
 #!/bin/env python2
 
 import os, sys, shutil
+from importlib import import_module
 
 import logging
 from logging.handlers import SysLogHandler
@@ -16,6 +17,18 @@ VIRTIO_CONSOLE = '/dev/virtio-ports/com.redhat.anabot.0'
 if os.path.exists(VIRTIO_CONSOLE):
     logger.addHandler(logging.FileHandler(VIRTIO_CONSOLE))
 logger.addHandler(syslog)
+
+modules_path = os.environ.get('ANABOT_MODULES')
+if modules_path is not None and os.path.isdir(modules_path):
+    sys.path.append(modules_path)
+    for module_name in sorted(os.listdir(modules_path)):
+        try:
+            logger.debug("Importing anabot module: %s", module_name)
+            module = import_module(module_name)
+            logger.debug("Imported anabot module: %s", module_name)
+        except ImportError:
+            logger.debug("Import failed for anabot module: %s", module_name)
+            pass
 
 os.environ["DISPLAY"] = ":1"
 

@@ -18,6 +18,7 @@ for HOOK_TYPE in pre post-nochroot post; do
 	done
     done
 done
+mv $MODULES_DIR $TMPDIR/opt/anabot-modules
 
 tar -C $TMPDIR -czf $DESTINATION .
 
