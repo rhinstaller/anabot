@@ -221,7 +221,7 @@ def vg_raid(element, app_node, local_node):
 
 @handle_vg_act('/encrypt')
 def vg_encrypt(element, app_node, local_node):
-    value = get_attr(element, "value")
+    value = get_attr(element, "value", "yes")
     checkbox = getnode(local_node, "checkbox", tr("Encrypt"))
     if checkbox.checked != (value == "yes"):
         checkbox.click()
