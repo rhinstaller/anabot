@@ -98,6 +98,37 @@ def getparents(child, node_type=None, node_name=None, predicates=None):
         parents.append(parent)
         child = parent
 
+
+def findsibling(items, item, distance, criteria=lambda x: True):
+    if distance == 0:
+        if criteria(item):
+            return item
+        return None
+    elif distance < 0:
+        distance *= -1
+        items = items[::-1]
+
+    for i in xrange(items.index(item), len(items)):
+        if criteria(items[i]):
+            distance -= 1
+        if distance == 0:
+            return items[i]
+    return None
+
+
+def nodematching(node, node_type=None, node_name=None, visible=True,
+               sensitive=True):
+    if node_type is not None and node.roleName != node_type:
+        return False
+    if node_name is not None and node.name != node_name:
+        return False
+    if visible is not None and node.showing != visible:
+        return False
+    if sensitive is not None and node.sensitive != sensitive:
+        return False
+    return True
+
+
 def getsibling(node, vector, node_type=None, node_name=None, visible=True,
                sensitive=True):
     """
@@ -105,35 +136,13 @@ def getsibling(node, vector, node_type=None, node_name=None, visible=True,
     distance of search) sibling node that passes given criterie (node_type,
     node_name, visible and sensitive).
     """
-    parent = getparent(node)
-    index = node.indexInParent
-    nodes = getnodes(parent, node_type, node_name, visible=visible,
-                     sensitive=sensitive, recursive=False)
-    if len(nodes) == 0:
-        return
-    result = None
-    idx = 0
-    sub_zero = False
-    if vector < 0:
-        sub_zero = True
-        vector = vector * (-1)
-        nodes.sort(reverse=True)
 
-    for sibling in nodes:
-        if sibling.indexInParent == index:
-            # sibling == node
-            break
-        elif (sub_zero and (sibling.indexInParent < index)) or ((not sub_zero) and (sibling.indexInParent > index)):
-            # sibling is first after the node
-            vector -= 1
-            break
-        idx += 1
-    try:
-        result = nodes[idx + vector]
-    except IndexError:
-        # not found
-        pass
-    return result
+    def criteria(node):
+        return nodematching(node, node_type, node_name, visible, sensitive)
+
+    nodes = getparent(node).children
+    return findsibling(nodes, node, vector, criteria)
+
 
 def getselected(parent):
     return [child for child in getnodes(parent) if child.selected]
