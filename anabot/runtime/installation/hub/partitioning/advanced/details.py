@@ -10,7 +10,7 @@ from anabot.runtime.default import default_handler
 from anabot.runtime.functions import get_attr, getnode, getnodes, getparent, getparents, getsibling, hold_key, release_key
 from anabot.runtime.errors import TimeoutError
 from anabot.runtime.translate import tr
-from anabot.runtime.installation.hub.partitioning.advanced.common import schema_name
+from anabot.runtime.installation.hub.partitioning.advanced.common import schema_name, raid_name
 
 _local_path = '/installation/hub/partitioning/advanced/details'
 _local_select_path = '/installation/hub/partitioning/advanced/select/details'
@@ -195,3 +195,41 @@ def vg_name(element, app_node, local_node):
     name_label = getnode(local_node, "label", name_label_text)
     name = getsibling(name_label, 1, "text")
     name.typeText(value)
+
+@handle_vg_act('/devices')
+def vg_devices(element, app_node, local_node):
+    devices = getnode(local_node, "table")
+    default_handler(element, app_node, devices)
+
+#@handle_vg_act('/devices/select')
+#def vg_devices_select(element, app_node, local_node):
+#    pass
+
+#@handle_vg_act('/devices/deselect')
+#def vg_devices_deselect(element, app_node, local_node):
+#    pass
+
+@handle_vg_act('/raid')
+def vg_raid(element, app_node, local_node):
+    raid_type = raid_name(get_attr(element, "select"))
+    raid_label = getnode(local_node, "label", tr("RAID Level:"))
+    raid_combo = getsibling(raid_label, 1, "combo box")
+    raid_combo.click()
+    combo_selection = getnode(app_node, "window")
+    combo_target = getnode(combo_selection, "menu item", raid_type)
+    combo_target.click()
+
+@handle_vg_act('/encrypt')
+def vg_encrypt(element, app_node, local_node):
+    value = get_attr(element, "value")
+    checkbox = getnode(local_node, "checkbox", tr("Encrypt"))
+    if checkbox.checked != (value == "yes"):
+        checkbox.click()
+
+@handle_vg_act('/size_policy')
+def vg_size_policy(element, app_node, local_node):
+    pass
+
+@handle_vg_act('/size')
+def vg_size(element, app_node, local_node):
+    pass
