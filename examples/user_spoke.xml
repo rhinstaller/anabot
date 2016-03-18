@@ -1,4 +1,4 @@
-<ez:installation>
+<ez:installation xmlns:ez="http://example.com/path/anabot/easy">
   <configuration>
     <ez:root password="fo0m4nchU" />
     <create_user>
