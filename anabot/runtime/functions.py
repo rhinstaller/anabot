@@ -187,3 +187,7 @@ def key_action(keyName, action):
     keyCode = dogtail.rawinput.keyNameToKeyCode(gtk_name)
     pyatspi.Registry.generateKeyboardEvent(keyCode, None, actions[action])
     dogtail.rawinput.doTypingDelay()
+
+def clear_text(node):
+    node.keyCombo("<Control>a")
+    node.keyCombo("<Delete>")
