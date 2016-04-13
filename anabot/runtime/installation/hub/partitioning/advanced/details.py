@@ -7,7 +7,7 @@ from fnmatch import fnmatchcase
 
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler
-from anabot.runtime.functions import get_attr, getnode, getnodes, getparent, getparents, getsibling, hold_key, release_key
+from anabot.runtime.functions import get_attr, getnode, getnodes, getparent, getparents, getsibling, hold_key, release_key, clear_text
 from anabot.runtime.errors import TimeoutError
 from anabot.runtime.translate import tr
 from anabot.runtime.installation.hub.partitioning.advanced.common import schema_name, raid_name
@@ -222,14 +222,33 @@ def vg_raid(element, app_node, local_node):
 @handle_vg_act('/encrypt')
 def vg_encrypt(element, app_node, local_node):
     value = get_attr(element, "value", "yes")
-    checkbox = getnode(local_node, "checkbox", tr("Encrypt"))
+    checkbox = getnode(local_node, "check box", tr("Encrypt"))
     if checkbox.checked != (value == "yes"):
         checkbox.click()
 
+def size_label(app_node, local_node):
+    context = "GUI|Custom Partitioning|Container Dialog"
+    label_text = tr("Si_ze policy:", context=context)
+    return getnode(local_node, "label", label_text)
+
 @handle_vg_act('/size_policy')
 def vg_size_policy(element, app_node, local_node):
-    pass
+    policies = {
+        "fixed" : tr("Fixed"),
+        "maximum" : tr("As large as possible"),
+        "auto" : tr("Automatic"),
+    }
+    policy = policies[get_attr(element, "select")]
+    size_policy = getsibling(size_label(app_node, local_node), 1, "combo box")
+    size_policy.click()
+    combo_selection = getnode(app_node, "window")
+    combo_target = getnode(combo_selection, "menu item", policy)
+    combo_target.click()
 
 @handle_vg_act('/size')
 def vg_size(element, app_node, local_node):
-    pass
+    size = get_attr(element, "value")
+    size_value = getsibling(size_label(app_node, local_node), 1, "text")
+    size_value.click()
+    clear_text(size_value)
+    size_value.typeText(size)
