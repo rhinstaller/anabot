@@ -26,7 +26,7 @@ def handle_step(element, app_node, local_node):
     node_line = element.lineNo()
     policy = get_attr(element, "policy", "should_pass")
     handler_path = node_path
-    teres.log_debug("Processing: %s", raw_node_path)
+    reporter.log_debug("Processing: %s", raw_node_path)
     if handler_path not in ACTIONS:
         handler_path = None
     if policy in ("should_pass", "should_fail", "may_fail"):
@@ -73,7 +73,7 @@ def default_handler(element, app_node, local_node):
 
 @handle_action(None)
 def unimplemented_handler(element, app_node, local_node):
-    teres.log_error('Unhandled element: %s' % element.nodePath())
+    reporter.log_error('Unhandled element: %s' % element.nodePath())
     default_handler(element, app_node, local_node)
 
 @handle_check(None)
@@ -82,9 +82,9 @@ def unimplemented_handler_check(element, app_node, local_node):
     try:
         result = RESULTS[node_path]
         if result is not None:
-            teres.log_debug('Using result reported by handler for element: %s',
+            reporter.log_debug('Using result reported by handler for element: %s',
                             node_path)
             return result
     except KeyError:
         pass
-    teres.log_error('Unhandled check for element: %s', node_path)
+    reporter.log_error('Unhandled check for element: %s', node_path)
