@@ -18,6 +18,15 @@ if os.path.exists(VIRTIO_CONSOLE):
     logger.addHandler(logging.FileHandler(VIRTIO_CONSOLE))
 logger.addHandler(syslog)
 
+if os.environ.get('TERES_PATH'):
+    sys.path.append(os.environ.get('TERES_PATH'))
+import teres
+import teres.handlers
+reporter = teres.Reporter.get_reporter()
+test_log_handler = logging.FileHandler("/var/log/anabot-test.log")
+reporter.add_handler(teres.handlers.LoggingHandler('anabot.test',
+                                                   test_log_handler))
+
 modules_path = os.environ.get('ANABOT_MODULES')
 if modules_path is not None and os.path.isdir(modules_path):
     sys.path.append(modules_path)
@@ -28,7 +37,8 @@ if modules_path is not None and os.path.isdir(modules_path):
             logger.debug("Imported anabot module: %s", module_name)
         except ImportError:
             logger.debug("Import failed for anabot module: %s", module_name)
-            pass
+        except Exception as e:
+            logger.error("Module failed with message: %s", e)
 
 os.environ["DISPLAY"] = ":1"
 

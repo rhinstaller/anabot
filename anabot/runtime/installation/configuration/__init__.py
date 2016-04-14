@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import logging
 logger = logging.getLogger('anabot')
+import teres
+reporter = teres.Reporter.get_reporter()
 
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler
@@ -25,5 +27,6 @@ def reboot_handler(element, app_node, local_node):
                             tr("_Reboot", context="GUI|Progress"),
                             timeout=float("inf"))
     run_posthooks()
+    reporter.test_end()
     reboot_button.click()
 
