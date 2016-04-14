@@ -25,7 +25,7 @@ ANABOT_DIR=`pwd`
 # 3 means: 1 - fatal message + 2 - error message
 if ! [ -e teres/.git ]; then
     # workaround jenkins git clone behaviour
-    git submodule update teres
+    git submodule update --init teres
 fi
 pylint --init-hook="import sys; sys.path.append('./teres/')" anabot; PYLINT_RETCODE=$?
 test $[PYLINT_RETCODE & 3] -ne 0 && SCORE=$[SCORE+1]
