@@ -151,6 +151,16 @@ def volume_group_dialog(element, app_node, local_node):
     button_text = tr(button_text, context=context)
     getnode(local_node, "push button", button_text).click()
 
+@handle_act('/raid_type')
+def raid_type(element, app_node, local_node):
+    raid_level = raid_name(get_attr(element, "select"))
+    raid_label = getnode(local_node, "label", tr("RAID Level:"))
+    raid_combo = getsibling(raid_label, 1, "combo box")
+    raid_combo.click()
+    combo_selection = getnode(app_node, "window")
+    combo_target = getnode(combo_selection, "menu item", raid_level)
+    combo_target.click()
+
 @handle_act('/new_volume_group')
 def new_volume_group(element, app_node, local_node):
     # Volume Group is not translated, file bug!
@@ -211,12 +221,12 @@ def vg_devices(element, app_node, local_node):
 
 @handle_vg_act('/raid')
 def vg_raid(element, app_node, local_node):
-    raid_type = raid_name(get_attr(element, "select"))
+    raid_level = raid_name(get_attr(element, "select"))
     raid_label = getnode(local_node, "label", tr("RAID Level:"))
     raid_combo = getsibling(raid_label, 1, "combo box")
     raid_combo.click()
     combo_selection = getnode(app_node, "window")
-    combo_target = getnode(combo_selection, "menu item", raid_type)
+    combo_target = getnode(combo_selection, "menu item", raid_level)
     combo_target.click()
 
 @handle_vg_act('/encrypt')
