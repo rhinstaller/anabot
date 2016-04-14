@@ -26,7 +26,7 @@ def handle_step(element, app_node, local_node):
     node_line = element.lineNo()
     policy = get_attr(element, "policy", "should_pass")
     handler_path = node_path
-    reporter.log_debug("Processing: %s", raw_node_path)
+    reporter.log_debug("Processing: %s" % raw_node_path)
     if handler_path not in ACTIONS:
         handler_path = None
     if policy in ("should_pass", "should_fail", "may_fail"):
@@ -53,7 +53,7 @@ def handle_step(element, app_node, local_node):
             reporter.log_fail("Unexpected pass for: %s line: %d" %
                               (node_path, node_line))
     if reason is not None:
-        reporter.log_info("Reason was: %s", reason)
+        reporter.log_info("Reason was: %s" % reason)
     screenshot()
 
 def default_handler(element, app_node, local_node):
@@ -82,9 +82,8 @@ def unimplemented_handler_check(element, app_node, local_node):
     try:
         result = RESULTS[node_path]
         if result is not None:
-            reporter.log_debug('Using result reported by handler for element: %s',
-                            node_path)
+            reporter.log_debug('Using result reported by handler for element: %s' % node_path)
             return result
     except KeyError:
         pass
-    reporter.log_error('Unhandled check for element: %s', node_path)
+    reporter.log_error('Unhandled check for element: %s' % node_path)
