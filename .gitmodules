@@ -4,3 +4,6 @@
 [submodule "teres"]
 	path = teres
 	url = https://github.com/tlamer/teres.git
+[submodule "modules/beaker"]
+	path = modules/beaker
+	url = https://gitlab.example.com/user/anabot-beaker.git
