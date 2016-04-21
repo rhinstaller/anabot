@@ -18,6 +18,13 @@ if os.path.exists(VIRTIO_CONSOLE):
     logger.addHandler(logging.FileHandler(VIRTIO_CONSOLE))
 logger.addHandler(syslog)
 
+
+teres_logger = logging.getLogger("teres")
+teres_logger.setLevel(logging.DEBUG)
+logger.addHandler(logging.FileHandler("/var/log/anabot-teres.log"))
+teres_stdout_handler = logging.StreamHandler(sys.stdout)
+teres_stdout_handler.setFormatter(logging.Formatter("TERES: %(message)s"))
+teres_logger.addHandler(teres_stdout_handler)
 if os.environ.get('TERES_PATH'):
     sys.path.append(os.environ.get('TERES_PATH'))
 import teres
