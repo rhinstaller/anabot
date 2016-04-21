@@ -1,6 +1,3 @@
-[submodule "modules/restraint"]
-	path = modules/restraint
-	url = git@gitlab.example.com:user/anares.git
 [submodule "teres"]
 	path = teres
 	url = https://github.com/tlamer/teres.git
