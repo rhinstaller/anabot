@@ -1,6 +1,7 @@
 #!/bin/env python2
 
 import time
+import os, sys
 import libxml2
 
 import dogtail # pylint: disable=import-error
@@ -9,6 +10,12 @@ import pyatspi # pylint: disable=import-error
 from dogtail.predicate import GenericPredicate # pylint: disable=import-error
 
 from .errors import TimeoutError
+
+import logging
+logger = logging.getLogger('anabot')
+
+import teres
+reporter = teres.Reporter.get_reporter()
 
 _SCREENSHOT_NUM = 0
 
@@ -148,14 +155,15 @@ def getselected(parent):
     return [child for child in getnodes(parent) if child.selected]
 
 def screenshot(wait=None):
-    # DISABLED ATM
-    return
     global _SCREENSHOT_NUM
     _SCREENSHOT_NUM += 1
     if wait is not None:
         time.sleep(wait)
-    dogtail.utils.screenshot('/var/run/anabot/%02d-screenshot.png' %
-                             (_SCREENSHOT_NUM), timeStamp=False)
+    target_path = '/var/run/anabot/%02d-screenshot.png' % _SCREENSHOT_NUM
+    logger.debug('About to do screenshot')
+    os.system('/opt/make_screenshot %s' % target_path)
+    logger.debug('Sending screenshot')
+    reporter.send_file(target_path)
 
 def get_attr(element, name, default=None):
     try:
