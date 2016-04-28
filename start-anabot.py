@@ -32,7 +32,8 @@ import teres.handlers
 reporter = teres.Reporter.get_reporter()
 test_log_handler = logging.FileHandler("/var/log/anabot-test.log")
 reporter.add_handler(teres.handlers.LoggingHandler('anabot.test',
-                                                   test_log_handler))
+                                                   test_log_handler,
+                                                   dest=None))
 
 from anabot.exceptions import UnrelatedException
 modules_path = os.environ.get('ANABOT_MODULES')
