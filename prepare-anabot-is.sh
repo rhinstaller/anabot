@@ -1,14 +1,14 @@
 #!/bin/bash
 
-while [ ! -e /tmp/.X11-unix/X1 ]; do
+while [ ! -e /tmp/.X11-unix/X9 ]; do
     echo "Waiting for X server to start"
     sleep 5
 done
 sleep 5
 
 pushd /opt/dogtail
-tar xzf /opt/dogtail/dogtail-0.9.0.tar.gz
-pushd dogtail-0.9.0
+tar xzf /opt/dogtail/dogtail-0.9.1.tar.gz
+pushd dogtail-0.9.1
 python setup.py install --prefix /opt/
 popd
 

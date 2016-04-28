@@ -14,7 +14,7 @@ syslog = SysLogHandler(address="/dev/log", facility=SysLogHandler.LOG_LOCAL3)
 syslog.setFormatter(logging.Formatter("anabot-is: %(message)s"))
 logger.addHandler(syslog)
 
-os.environ["DISPLAY"] = ":1"
+os.environ["DISPLAY"] = ":9"
 
 preprocess("/var/run/anabot/raw-recipe.xml", "/var/run/anabot/final-recipe.xml", "initial-setup")
 run_test("/var/run/anabot/final-recipe.xml", "__main__.py")
