@@ -10,7 +10,7 @@ from anabot.runtime.functions import getnode
 from anabot.runtime.translate import tr
 
 # submodules
-from . import license, subscription_manager
+from . import license, subscription_manager, create_user
 
 @handle_action('/initial_setup')
 def initial_setup_handler(element, app_node, local_node):
