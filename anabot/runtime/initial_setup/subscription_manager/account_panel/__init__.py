@@ -44,14 +44,14 @@ def password_handler(element, app_node, local_node):
 # but it is not implemented yet (ToDo)
 
 @handle_act('/system_name')
-def password_handler(element, app_node, local_node):
+def system_name_handler(element, app_node, local_node):
     name = get_attr(element, 'value')
     system_input = getnode(local_node, 'text', 'consumer_name')
     system_input.actions['activate'].do()
     system_input.typeText(name)
 
 @handle_chck('/system_name')
-def password_chck(element, app_node, local_node):
+def system_name_chck(element, app_node, local_node):
     name = get_attr(element, 'value')
     system_input = getnode(local_node, 'text', 'consumer_name')
     return system_input.text == name
