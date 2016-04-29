@@ -6,7 +6,6 @@ from anabot.runtime.default import default_handler
 from anabot.runtime.functions import get_attr, getnode, getnodes
 from anabot.runtime.translate import tr
 from anabot.runtime.errors import TimeoutError
-from time import sleep
 
 
 _local_path = '/initial_setup/subscription_manager/subscription_panel'
@@ -44,12 +43,12 @@ def attach_button_handler(element, app_node, local_node):
     attach_button = getnode(local_node.parent.parent, "push button", tr("Attach", False))
     attach_button.click()
     # attaching subscriptions takes some time, wait until progress bar disappears
-    sleep(1)
     try:
-        while True:
-            progress_bar = getnode(local_node, 'progress bar', 'register_progressbar')
+        getnode(local_node, 'progress bar', 'register_progressbar')
     except TimeoutError:
+        #ToDo show warning that progress bar was not visible
         pass
+    getnode(local_node, 'progress bar', 'register_progressbar', visible=False, timeout=float('inf'))
 
 @handle_chck('/attach')
 def attach_button_chck(element, app_node, local_node):
