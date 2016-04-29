@@ -5,7 +5,7 @@ logger = logging.getLogger('anabot')
 import teres
 reporter = teres.Reporter.get_reporter()
 
-from .functions import get_attr, screenshot
+from .functions import get_attr, log_screenshot
 from .decorators import ACTIONS, CHECKS, handle_action, handle_check
 
 NODE_NUM = re.compile(r'\[[0-9]+\]')
@@ -54,7 +54,7 @@ def handle_step(element, app_node, local_node):
                               (node_path, node_line))
     if reason is not None:
         reporter.log_info("Reason was: %s" % reason)
-    screenshot()
+    log_screenshot()
 
 def default_handler(element, app_node, local_node):
     if element.name == 'debug_stop':

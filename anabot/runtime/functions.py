@@ -3,6 +3,7 @@
 import time
 import os, sys
 import libxml2
+import hashlib
 
 import dogtail # pylint: disable=import-error
 import dogtail.utils # pylint: disable=import-error
@@ -18,6 +19,7 @@ import teres
 reporter = teres.Reporter.get_reporter()
 
 _SCREENSHOT_NUM = 0
+_SCREENSHOT_SUM = None
 
 def inrange(what, border1, border2):
     if border1 == border2:
@@ -43,10 +45,10 @@ def waiton(node, predicates, timeout=7, make_screenshot=False, visible=True, sen
             found = node.findChild(predicate, retry=False, requireResult=False, recursive=recursive)
             if found is not None and visibility(found, visible) and sensitivity(found, sensitive):
                 if make_screenshot:
-                    screenshot()
+                    log_screenshot()
                 return found
         time.sleep(1)
-    screenshot()
+    log_screenshot()
     raise TimeoutError("No predicate matches within timeout period")
 
 def waiton_all(node, predicates, timeout=7, make_screenshot=False, visible=True, sensitive=True, recursive=True):
@@ -62,10 +64,10 @@ def waiton_all(node, predicates, timeout=7, make_screenshot=False, visible=True,
                      visibility(x, visible) and sensitivity(x, sensitive)]
             if len(found):
                 if make_screenshot:
-                    screenshot()
+                    log_screenshot()
                 return found
         time.sleep(1)
-    screenshot()
+    log_screenshot()
     raise TimeoutError("No predicate matches within timeout period")
 
 def getnodes(parent, node_type=None, node_name=None, timeout=None,
@@ -154,16 +156,32 @@ def getsibling(node, vector, node_type=None, node_name=None, visible=True,
 def getselected(parent):
     return [child for child in getnodes(parent) if child.selected]
 
-def screenshot(wait=None):
+def log_screenshot(wait=None):
+    """Make screenshot. Check digest of new screenshot, if it's same as
+    previous one, ignore it. Otherwise, log it
+
+    """
     global _SCREENSHOT_NUM
+    global _SCREENSHOT_SUM
+    target_path = '/var/run/anabot/%02d-screenshot.png' % (_SCREENSHOT_NUM+1)
+    screenshot(target_path, wait)
+    sha1sum = hashlib.sha1()
+    with open(target_path) as new_file:
+        sha1sum.update(new_file.read())
+    new_sum = sha1sum.digest()
+    if _SCREENSHOT_SUM == new_sum:
+        os.unlink(target_path)
+        logger.debug('Removing duplicit screenshot')
+        return
+    logger.debug('Using new screenshot')
     _SCREENSHOT_NUM += 1
+    _SCREENSHOT_SUM = new_sum
+    reporter.send_file(target_path)
+
+def screenshot(target_path, wait=None):
     if wait is not None:
         time.sleep(wait)
-    target_path = '/var/run/anabot/%02d-screenshot.png' % _SCREENSHOT_NUM
-    logger.debug('About to do screenshot')
     os.system('/opt/make_screenshot %s' % target_path)
-    logger.debug('Sending screenshot')
-    reporter.send_file(target_path)
 
 def get_attr(element, name, default=None):
     try:
