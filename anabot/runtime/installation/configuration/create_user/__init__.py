@@ -4,7 +4,7 @@ logger = logging.getLogger('anabot')
 
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler
-from anabot.runtime.functions import get_attr, getnode, TimeoutError, getparent, getsibling
+from anabot.runtime.functions import get_attr, getnode, TimeoutError, getparent, getsibling, handle_checkbox, check_checkbox
 from anabot.runtime.translate import tr
 from anabot.runtime.hooks import run_posthooks
 
@@ -62,49 +62,22 @@ def user_username_check(element, app_node, local_node):
 @handle_act('/is_admin')
 def user_is_admin_handler(element, app_node, local_node):
     checkbox = getnode(local_node, "check box", tr('Make this user administrator', context="GUI|User")) # translation bug: "Udělat tohot uživatele správcem"
-    value = get_attr(element, 'checked')
-    if value == 'yes':
-        value = True
-    else:
-        value = False
-    if checkbox.checked != value:
-        checkbox.click()
+    handle_checkbox(checkbox, element)
 
 @handle_chck('/is_admin')
 def user_is_admin_check(element, app_node, local_node):
     checkbox = getnode(local_node, "check box", tr('Make this user administrator', context="GUI|User"))
-    value = get_attr(element, 'checked')
-    if value == 'yes':
-        value = True
-    else:
-        value = False
-    if checkbox.checked == value:
-        return True
-    return False
-        
+    return check_checkbox(checkbox, element)
 
 @handle_act('/require_password')
 def user_require_passwd_handler(element, app_node, local_node):
     checkbox = getnode(local_node, "check box", tr('Require a password to use this account', context="GUI|User"))
-    value = get_attr(element, 'checked')
-    if value == 'yes':
-        value = True
-    else:
-        value = False
-    if checkbox.checked != value:
-        checkbox.click()
+    handle_checkbox(checkbox, element)
 
 @handle_chck('/require_password')
 def user_require_passwd_check(element, app_node, local_node):
     checkbox = getnode(local_node, "check box", tr('Require a password to use this account', context="GUI|User"))
-    value = get_attr(element, 'checked')
-    if value == 'yes':
-        value = True
-    else:
-        value = False
-    if checkbox.checked == value:
-        return True
-    return False
+    return check_checkbox(checkbox, element)
 
 @handle_act('/password')
 def user_password_handler(element, app_node, local_node):

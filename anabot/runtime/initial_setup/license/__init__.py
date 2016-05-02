@@ -3,7 +3,7 @@ logger = logging.getLogger('anabot')
 
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler
-from anabot.runtime.functions import get_attr, getnode
+from anabot.runtime.functions import get_attr, getnode, handle_checkbox, check_checkbox
 from anabot.runtime.translate import tr
 
 
@@ -53,18 +53,11 @@ def eula_chck(element, app_node, local_node):
     license_text = getnode(license_panel, 'text', '')
     displayed_eula = license_text.text
     return displayed_eula == reformat_eula(license_file)
-    
 
 @handle_act('/accept_license')
 def accept_license_handler(element, app_node, local_node):
     license_checkbox = getnode(app_node, "check box", tr("I accept the license agreement."))
-    should_check = get_attr(element, 'checked')
-    if should_check == 'yes':
-        if not license_checkbox.checked:
-            license_checkbox.click()
-    else:
-        if license_checkbox.checked:
-            license_checkbox.click()
+    handle_checkbox(license_checkbox, element)
 
 @handle_chck('/accept_license')
 def accept_license_check(element, app_node, local_node):
@@ -75,6 +68,4 @@ def accept_license_check(element, app_node, local_node):
 def done_handler(element, app_node, local_node):
     done_button = getnode(local_node, "push button", tr("_Done", False))
     done_button.click()
-
-
 

@@ -4,7 +4,7 @@ logger = logging.getLogger('anabot')
 
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler
-from anabot.runtime.functions import get_attr, getnode, TimeoutError, getparent, getsibling
+from anabot.runtime.functions import get_attr, getnode, TimeoutError, getparent, getsibling, handle_checkbox, check_checkbox
 from anabot.runtime.translate import tr
 from anabot.runtime.hooks import run_posthooks
 
@@ -45,25 +45,12 @@ def user_adv_homedir_check(element, app_node, local_node):
 @handle_act('/manual_uid')
 def user_adv_manual_uid_handler(element, app_node, local_node):
     checkbox = getnode(local_node, "check box", tr('Specify a _user ID manually:', context="GUI|Advanced User"))
-    value = get_attr(element, 'checked')
-    if value == 'yes':
-        value = True
-    else:
-        value = False
-    if checkbox.checked != value:
-        checkbox.click()
+    handle_checkbox(checkbox, element)
 
 @handle_chck('/manual_uid')
 def user_adv_manual_uid_check(element, app_node, local_node):
     checkbox = getnode(local_node, "check box", tr('Specify a _user ID manually:', context="GUI|Advanced User"))
-    value = get_attr(element, 'checked')
-    if value == 'yes':
-        value = True
-    else:
-        value = False
-    if checkbox.checked == value:
-        return True
-    return False
+    return check_checkbox(checkbox, element)
 
 @handle_act('/uid')
 def user_adv_uid_handler(element, app_node, local_node):
@@ -75,25 +62,13 @@ def user_adv_uid_handler(element, app_node, local_node):
 @handle_act('/manual_gid')
 def user_adv_manual_gid_handler(element, app_node, local_node):
     checkbox = getnode(local_node, "check box", tr('Specify a _group ID manually:', context="GUI|Advanced User"))
-    value = get_attr(element, 'checked')
-    if value == 'yes':
-        value = True
-    else:
-        value = False
-    if checkbox.checked != value:
-        checkbox.click()
+    handle_checkbox(checkbox, element)
+
 
 @handle_chck('/manual_gid')
 def user_adv_manual_gid_check(element, app_node, local_node):
     checkbox = getnode(local_node, "check box", tr('Specify a _group ID manually:', context="GUI|Advanced User"))
-    value = get_attr(element, 'checked')
-    if value == 'yes':
-        value = True
-    else:
-        value = False
-    if checkbox.checked == value:
-        return True
-    return False
+    return check_checkbox(checkbox, element)
 
 @handle_act('/gid')
 def user_adv_gid_handler(element, app_node, local_node):

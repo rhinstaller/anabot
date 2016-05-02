@@ -448,3 +448,16 @@ def combo_scroll(item, point=True, click=None, doubleclick=None):
         menu.click(MOUSE_SCROLL_DOWN)
 
     do_actions()
+
+
+def handle_checkbox(node, element):
+    value = get_attr(element, 'checked')
+    req_checked = (value == 'yes')
+    if node.checked == req_checked:
+        node.click()
+
+def check_checkbox(node, element):
+    value = get_attr(element, 'checked')
+    req_checked = (value == 'yes')
+    return (node.checked == req_checked)
+
