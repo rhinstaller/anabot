@@ -18,7 +18,7 @@ handle_chck = lambda x: handle_check(_local_path + x)
 def proxy_dialog_handler(element, app_node, local_node):
     proxy_btn = getnode(local_node, "push button", 'proxy_button')
     proxy_btn.click()
-    proxy_dialog = getnode(app_node,'dialog',tr('Proxy Configuration'))
+    proxy_dialog = getnode(app_node, 'dialog', tr('Proxy Configuration'))
     default_handler(element, app_node, proxy_dialog)
 
 @handle_act('/use_proxy')

@@ -5,8 +5,8 @@ logger = logging.getLogger('anabot')
 from anabot.runtime.decorators import handle_action, handle_check
 
 _local_path = '/initial_setup/create_user'
-handle_act = lambda x,y: handle_action(_local_path + x, y)
-handle_chck = lambda x,y: handle_check(_local_path + x, y)
+handle_act = lambda x, y: handle_action(_local_path + x, y)
+handle_chck = lambda x, y: handle_check(_local_path + x, y)
 
 # user spoke should be the same as in anaconda installer
 # we will reuse handlers and checks (but with different XML tree)
