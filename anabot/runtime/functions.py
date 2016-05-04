@@ -20,6 +20,7 @@ reporter = teres.Reporter.get_reporter()
 
 _SCREENSHOT_NUM = 0
 _SCREENSHOT_SUM = None
+_SCREENSHOT_PROGRESS_SUM = None
 
 def inrange(what, border1, border2):
     if border1 == border2:
@@ -48,7 +49,7 @@ def waiton(node, predicates, timeout=7, make_screenshot=False, visible=True, sen
                     log_screenshot()
                 return found
         time.sleep(1)
-    log_screenshot()
+    log_screenshot(progress_only=True)
     raise TimeoutError("No predicate matches within timeout period")
 
 def waiton_all(node, predicates, timeout=7, make_screenshot=False, visible=True, sensitive=True, recursive=True):
@@ -67,7 +68,7 @@ def waiton_all(node, predicates, timeout=7, make_screenshot=False, visible=True,
                     log_screenshot()
                 return found
         time.sleep(1)
-    log_screenshot()
+    log_screenshot(progress_only=True)
     raise TimeoutError("No predicate matches within timeout period")
 
 def getnodes(parent, node_type=None, node_name=None, timeout=None,
@@ -156,20 +157,36 @@ def getsibling(node, vector, node_type=None, node_name=None, visible=True,
 def getselected(parent):
     return [child for child in getnodes(parent) if child.selected]
 
-def log_screenshot(wait=None):
+def log_screenshot(wait=None, progress_only=False):
     """Make screenshot. Check digest of new screenshot, if it's same as
     previous one, ignore it. Otherwise, log it
 
     """
     global _SCREENSHOT_NUM
     global _SCREENSHOT_SUM
-    target_path = '/var/run/anabot/%02d-screenshot.png' % (_SCREENSHOT_NUM+1)
+    global _SCREENSHOT_PROGRESS_SUM
+    last_sum = _SCREENSHOT_SUM
+    num = _SCREENSHOT_NUM+1
+    target_path = '/var/run/anabot/%02d-screenshot.png' % num
+    last_progress_sum = _SCREENSHOT_PROGRESS_SUM
+    progress_name = '999-last-screenshot.png'
+
     screenshot(target_path, wait)
+
     sha1sum = hashlib.sha1()
     with open(target_path) as new_file:
         sha1sum.update(new_file.read())
     new_sum = sha1sum.digest()
-    if _SCREENSHOT_SUM == new_sum:
+
+    _SCREENSHOT_PROGRESS_SUM = new_sum
+
+    if last_progress_sum != new_sum:
+        logger.debug('Sending "progress" screenshot')
+        reporter.send_file(target_path, progress_name)
+    if progress_only:
+        return
+
+    if last_sum == new_sum:
         os.unlink(target_path)
         logger.debug('Removing duplicit screenshot')
         return

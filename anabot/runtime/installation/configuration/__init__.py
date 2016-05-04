@@ -29,8 +29,8 @@ def reboot_handler(element, app_node, local_node):
                                     tr("_Reboot", context="GUI|Progress"),
                                     timeout=15)
             break
-        except:
-            log_screenshot()
+        except TimeoutError:
+            pass
 
     run_posthooks()
     reporter.test_end()
