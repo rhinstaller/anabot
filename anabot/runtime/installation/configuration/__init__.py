@@ -6,7 +6,7 @@ reporter = teres.Reporter.get_reporter()
 
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler
-from anabot.runtime.functions import get_attr, getnode, TimeoutError, getparent, getsibling
+from anabot.runtime.functions import get_attr, getnode, TimeoutError, getparent, getsibling, log_screenshot
 from anabot.runtime.translate import tr
 from anabot.runtime.hooks import run_posthooks
 
@@ -23,9 +23,15 @@ def base_handler(element, app_node, local_node):
 @handle_act('/reboot')
 def reboot_handler(element, app_node, local_node):
     logger.debug("WAITING FOR REBOOT")
-    reboot_button = getnode(app_node, "push button",
-                            tr("_Reboot", context="GUI|Progress"),
-                            timeout=float("inf"))
+    while True:
+        try:
+            reboot_button = getnode(app_node, "push button",
+                                    tr("_Reboot", context="GUI|Progress"),
+                                    timeout=15)
+            break
+        except:
+            log_screenshot()
+
     run_posthooks()
     reporter.test_end()
     reboot_button.click()
