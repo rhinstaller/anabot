@@ -5,6 +5,7 @@ from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler
 from anabot.runtime.functions import get_attr, getnode, getselected
 from anabot.runtime.translate import set_languages_by_name
+from anabot.runtime.errors import TimeoutError
 
 import time
 
@@ -19,6 +20,14 @@ def base_handler(element, app_node, local_node):
     locales = getnode(welcome, "table", "Locales")
     set_languages_by_name(getselected(locales)[0].name)
     getnode(welcome, "push button", "_Continue").click()
+
+@handle_chck('')
+def base_check(element, app_node, local_node):
+    try:
+        welcome = getnode(app_node, "panel", "WELCOME", visible=False)
+        return True
+    except TimeoutError:
+        return False
 
 @handle_act('/language')
 def language_handler(element, app_node, local_node):

@@ -25,8 +25,7 @@ def base_handler(element, app_node, local_node):
                                  tr("INSTALLATION DESTINATION"))
     default_handler(element, app_node, partitioning_panel)
 
-@handle_act('/disk')
-def disk_handler(element, app_node, local_node):
+def disk_manipulate(element, app_node, local_node, dryrun):
     name = get_attr(element, "name")
     action = get_attr(element, "action", "select")
     disks = getnodes(local_node, node_type="disk overview")
@@ -36,9 +35,25 @@ def disk_handler(element, app_node, local_node):
         # selected disk has icon without name
         icon = getnode(disk, node_type="icon")
         if action == "select" and icon.name != "":
-            disk.click()
+            if dryrun:
+                return False
+            else:
+                disk.click()
         elif action == "deselect" and icon.name == "":
-            disk.click()
+            if dryrun:
+                return False
+            else:
+                disk.click()
+    if dryrun:
+        return True
+
+@handle_act('/disk')
+def disk_handler(element, app_node, local_node):
+    disk_manipulate(element, app_node, local_node, False)
+
+@handle_chck('/disk')
+def disk_check(element, app_node, local_node):
+    return disk_manipulate(element, app_node, local_node, True)
 
 @handle_act('/mode')
 def mode_handler(element, app_node, local_node):
