@@ -4,7 +4,7 @@ logger = logging.getLogger('anabot')
 from fnmatch import fnmatchcase
 
 from anabot.runtime.decorators import handle_action, handle_check
-from anabot.runtime.default import default_handler
+from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.functions import get_attr, getnode, getnodes
 from anabot.runtime.errors import TimeoutError
 from anabot.runtime.translate import tr
@@ -55,8 +55,7 @@ def disk_handler(element, app_node, local_node):
 def disk_check(element, app_node, local_node):
     return disk_manipulate(element, app_node, local_node, True)
 
-@handle_act('/mode')
-def mode_handler(element, app_node, local_node):
+def mode_manipulate(element, app_node, local_node, dryrun):
     mode = get_attr(element, "mode")
     if mode == "default":
         return
@@ -65,8 +64,18 @@ def mode_handler(element, app_node, local_node):
     if mode == "manual":
         radio_text = tr("_I will configure partitioning.")
     radio = getnode(local_node, "radio button", radio_text)
+    if dryrun:
+        return radio.checked
     if not radio.checked:
         radio.click()
+
+@handle_act('/mode')
+def mode_handler(element, app_node, local_node):
+    mode_manipulate(element, app_node, local_node, False)
+
+@handle_chck('/mode')
+def mode_check(element, app_node, local_node):
+    return mode_manipulate(element, app_node, local_node, True)
 
 @handle_act('/additional_space')
 def additional_space_handler(element, app_node, local_node):
@@ -80,6 +89,16 @@ def additional_space_handler(element, app_node, local_node):
 def done_handler(element, app_node, local_node):
     done_button = getnode(local_node, "push button", tr("_Done", False))
     done_button.click()
+    return True
+
+@handle_chck('/done')
+def done_check(element, app_node, local_node):
+    try:
+        done_button = getnode(local_node, "push button", tr("_Done", False),
+                              visible=False)
+        return action_result(element)
+    except:
+        return False
 
 @handle_act('/reclaim')
 def reclaim_handler(element, app_node, local_node):
