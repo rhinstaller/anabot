@@ -1,5 +1,6 @@
 import re
 
+import libxml2
 import logging
 logger = logging.getLogger('anabot')
 import teres
@@ -11,6 +12,11 @@ from .decorators import ACTIONS, CHECKS, handle_action, handle_check
 NODE_NUM = re.compile(r'\[[0-9]+\]')
 
 RESULTS = {}
+
+def action_result(node_path):
+    if isinstance(node_path, libxml2.xmlNode):
+        node_path = node_path.nodePath()
+    return RESULTS[node_path]
 
 def _check_result_reason(result):
     if result is None:
@@ -80,7 +86,7 @@ def unimplemented_handler(element, app_node, local_node):
 def unimplemented_handler_check(element, app_node, local_node):
     node_path = element.nodePath()
     try:
-        result = RESULTS[node_path]
+        result = action_result(node_path)
         if result is not None:
             reporter.log_debug('Using result reported by handler for element: %s' % node_path)
             return result
