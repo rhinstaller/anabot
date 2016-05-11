@@ -12,7 +12,7 @@ import time
 import logging
 logger = logging.getLogger('anabot')
 
-_local_path = '/installation/hub/language'
+_local_path = '/installation/hub/language_spoke'
 
 
 def handle_act(suffix):
@@ -36,6 +36,15 @@ def base_handler(element, app_node, local_node):
     lang_panel = getnodes(lang_filler, "panel", recursive=False)[1]
 
     default_handler(element, app_node, lang_panel)
+
+@handle_act('/language')
+def language_handler(element, app_node, local_node):
+    pass
+
+
+@handle_act('/language/locality')
+def locality_handler(element, app_node, local_node):
+    pass
 
 
 @handle_act('/done')

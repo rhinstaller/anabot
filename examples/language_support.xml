@@ -1,12 +1,17 @@
 <installation xmlns:ez="http://example.com/path/anabot/easy">
   <ez:welcome language="English (United Kingdom)" />
   <hub>
-    <language>
+    <language_spoke>
+        <debug_stop />
+        <language select="*">
+            <locality name="*" action="select" />
+        </language>
+        <language select="Slovak">
+            <locality name="*" action="*" />
+        </language>
         <done />
-    </language>
-    <debug_stop />
+    </language_spoke>
     <ez:autopart />
-    <debug_stop />
   </hub>
   <configuration>
     <ez:root password="fo0m4nchU" />
