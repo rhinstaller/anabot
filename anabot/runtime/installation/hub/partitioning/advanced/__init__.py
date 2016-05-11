@@ -6,7 +6,7 @@ logger = logging.getLogger('anabot')
 from fnmatch import fnmatchcase
 
 from anabot.runtime.decorators import handle_action, handle_check
-from anabot.runtime.default import default_handler
+from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.functions import get_attr, waiton, getnode, getnodes, getparent, getsibling
 from anabot.runtime.errors import TimeoutError
 from anabot.runtime.translate import tr
@@ -19,6 +19,8 @@ import anabot.runtime.installation.hub.partitioning.advanced.details
 _local_path = '/installation/hub/partitioning/advanced'
 handle_act = lambda x: handle_action(_local_path + x)
 handle_chck = lambda x: handle_check(_local_path + x)
+
+_current_selection = None
 
 @handle_act('')
 def base_handler(element, app_node, local_node):
@@ -59,6 +61,7 @@ def schema_handler(element, app_node, local_node):
 
 @handle_act('/select')
 def select_handler(element, app_node, local_node):
+    global _current_selection
     def devs(parent, device=None, mountpoint=None):
         def dname(icon):
             return icon.parent.children[0].name
@@ -83,6 +86,7 @@ def select_handler(element, app_node, local_node):
     mountpoint = get_attr(element, "mountpoint", None)
     processed = []
     done = False
+    _current_selection = None
     while not done:
         done = True
         for device in devs(local_node, fndevice, mountpoint):
@@ -92,11 +96,19 @@ def select_handler(element, app_node, local_node):
                 if not device.showing:
                     group_node = getparent(device, "toggle button")
                     group_node.click()
+                _current_selection = device
                 device.click()
                 default_handler(element, app_node, local_node)
                 processed.append(name)
                 done = False
                 break
+    return True
+
+@handle_chck('/select')
+def select_check(element, app_node, local_node):
+    logger.warning("I have no idea how to implement check for select ATM")
+    logger.debug("Check for select is using just result of action itself")
+    return action_result(element)
 
 @handle_act('/remove')
 @handle_act('/select/remove')
@@ -127,9 +139,19 @@ def remove_handler(element, app_node, local_node):
     default_handler(element, app_node, remove_dialog)
     getnode(remove_dialog, "push button", button_text).click()
 
-@handle_act('/remove/also_related')
-@handle_act('/select/remove/also_related')
-def remove_related_handler(element, app_node, local_node):
+@handle_chck('/remove')
+@handle_chck('/select/remove')
+def remove_check(element, app_node, local_node):
+    dialog_action = get_attr(element, "dialog", "accept")
+    logger.debug("Is device dead?: %s", _current_selection.dead)
+    logger.debug("Is device showing?: %s", _current_selection.showing)
+    if dialog_action in ("no dialog", "accept"):
+        return _current_selection.dead and not _current_selection.showing
+    elif dialog_action == "reject":
+        return not _current_selection.dead and _current_selection.showing
+    return (False, "Undefined state")
+
+def remove_related_handler_manipulate(element, app_node, local_node, dry_run):
     check = get_attr(element, "value", "yes") == "yes"
     checkbox_text = tr("Delete _all other file systems in the %s root as well.",
                        context="GUI|Custom Partitioning|Confirm Delete Dialog")
@@ -141,8 +163,21 @@ def remove_related_handler(element, app_node, local_node):
     if len(checkboxes) != 1:
         return (False, "No or more checkboxes for removing related partitions found. Check screenshot")
     checkbox = checkboxes[0]
+    if dry_run:
+        return checkbox.checked == check
     if checkbox.checked != check:
         checkbox.click()
+
+@handle_act('/remove/also_related')
+@handle_act('/select/remove/also_related')
+def remove_related_handler(element, app_node, local_node):
+    remove_related_handler_manipulate(element, app_node, local_node, False)
+
+@handle_chck('/remove/also_related')
+@handle_chck('/select/remove/also_related')
+def remove_related_check(element, app_node, local_node):
+    return remove_related_handler_manipulate(element, app_node, local_node,
+                                             True)
 
 @handle_act('/rescan')
 def rescan_handler(element, app_node, local_node):
@@ -176,6 +211,16 @@ def rescan_push_rescan_check(element, app_node, local_node):
 def autopart_handler(element, app_node, local_node):
     autopart = getnode(local_node, "push button", tr("_Click here to create them automatically."))
     autopart.click()
+
+@handle_chck('/autopart')
+def autopart_check(element, app_node, local_node):
+    try:
+        error_bar = getnode(app_node, "info bar", tr("Error"))
+        warn_icon = getnode(error_bar, "icon", tr("Warnings"))
+        warn_text = getsibling(warn_icon, 1, "label")
+        return (False, warn_text.text)
+    except TimeoutError:
+        return True
 
 @handle_act('/add')
 def add_handler(element, app_node, local_node):
