@@ -22,6 +22,15 @@ handle_chck = lambda x: handle_check(_local_path + x)
 
 _current_selection = None
 
+def check_partitioning_error(app_node):
+    try:
+        error_bar = getnode(app_node, "info bar", tr("Error"))
+        warn_icon = getnode(error_bar, "icon", tr("Warnings"))
+        warn_text = getsibling(warn_icon, 1, "label")
+        return (False, warn_text.text)
+    except TimeoutError:
+        return True
+
 @handle_act('')
 def base_handler(element, app_node, local_node):
     try:
@@ -212,16 +221,6 @@ def autopart_handler(element, app_node, local_node):
     autopart = getnode(local_node, "push button", tr("_Click here to create them automatically."))
     autopart.click()
 
-@handle_chck('/autopart')
-def autopart_check(element, app_node, local_node):
-    try:
-        error_bar = getnode(app_node, "info bar", tr("Error"))
-        warn_icon = getnode(error_bar, "icon", tr("Warnings"))
-        warn_text = getsibling(warn_icon, 1, "label")
-        return (False, warn_text.text)
-    except TimeoutError:
-        return True
-
 @handle_act('/add')
 def add_handler(element, app_node, local_node):
     accept = get_attr(element, "dialog", "accept") == "accept"
@@ -239,20 +238,45 @@ def add_handler(element, app_node, local_node):
     button_text = tr(button_text, context=context)
     getnode(add_dialog, "push button", button_text).click()
 
-@handle_act('/add/mountpoint')
-def add_mountpoint_handler(element, app_node, local_node):
+@handle_chck('/add')
+@handle_chck('/autopart')
+def partitioning_check(element, app_node, local_node):
+    return check_partitioning_error(app_node)
+
+def add_mountpoint_handler_manipulate(element, app_node, local_node, dryrun):
     mountpoint = get_attr(element, "value")
     combo = getnode(local_node, "combo box")
     textfield = getnode(combo, "text")
-    textfield.typeText(mountpoint)
+    if not dryrun:
+        textfield.typeText(mountpoint)
+    else:
+        return textfield.text == mountpoint
 
-@handle_act('/add/size')
-def add_size_handler(element, app_node, local_node):
+@handle_act('/add/mountpoint')
+def add_mountpoint_handler(element, app_node, local_node):
+    add_mountpoint_handler_manipulate(element, app_node, local_node, False)
+
+@handle_chck('/add/mountpoint')
+def add_mountpoint_check(element, app_node, local_node):
+    add_mountpoint_handler_manipulate(element, app_node, local_node, True)
+
+def add_size_handler_manipulate(element, app_node, local_node, dryrun):
     size = get_attr(element, "value")
     mountpoint = getnode(local_node, "combo box")
     # textfield for size is next to mountpoint combo box
     textfield = getsibling(mountpoint, 1, "text")
-    textfield.typeText(size)
+    if not dryrun:
+        textfield.typeText(size)
+    else:
+        return textfield.text == size
+
+@handle_act('/add/size')
+def add_size_handler(element, app_node, local_node):
+    add_size_handler_manipulate(element, app_node, local_node, False)
+
+@handle_chck('/add/size')
+def add_size_check(element, app_node, local_node):
+    add_size_handler_manipulate(element, app_node, local_node, True)
 
 @handle_act('/done')
 def done_handler(element, app_node, local_node):
