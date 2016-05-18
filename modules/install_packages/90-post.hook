@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if [ -z "$INSTALL_PACKAGES" ]; then
+   echo "No packages specified to install"
+   exit 0
+fi
+
+yum -y install $INSTALL_PACKAGES
