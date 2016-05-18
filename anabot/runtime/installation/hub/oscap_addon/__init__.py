@@ -89,9 +89,37 @@ def apply_policy_handler(element, app_node, local_node):
     apply_policy_label = getnode(local_node, "label", _tr("Apply security policy:"))
     policy_button = getsibling(apply_policy_label, 2)
     policy_button.click()
-    if (policy_action == "enable" and not policy_button.checked or
-        policy_action == "disable" and policy_button.checked):
+    if (policy_action == "enable" and not policy_button.checked
+        or policy_action == "disable" and policy_button.checked):
         policy_button.click()
+
+@handle_act('/select_datastream')
+def datastream_handler(element, app_node, local_node):
+    datastream = get_attr(element, "id")
+    mode = get_attr(element, "mode", "manual")
+    ds_label = getnode(local_node, "label", _tr("Data stream:"))
+    ds_combo = getsibling(ds_label, 2)
+    ds_combo.click()
+    ds_items = getnodes(ds_combo, "menu item")
+    if mode == "manual":
+        ds_item = getnode(ds_combo, "menu item", datastream)
+    elif mode == "random":
+        ds_item = ds_items[randint(0, len(ds_items)-1)]
+    ds_item.click()
+
+@handle_act('/select_checklist')
+def checklist_handler(element, app_node, local_node):
+    checklist = get_attr(element, "id")
+    mode = get_attr(element, "mode", "manual")
+    checklist_label = getnode(local_node, "label", _tr("Checklist:"))
+    checklist_combo = getsibling(checklist_label, 2)
+    checklist_combo.click()
+    checklist_items = getnodes(checklist_combo, "menu item")
+    if mode == "manual":
+        checklist_item = getnode(checklist_combo, "menu item", checklist)
+    elif mode == "random":
+        checklist_item = checklist_items[randint(0, len(checklist_items)-1)]
+    checklist_item.click()
 
 @handle_act('/done')
 def done_handler(element, app_node, local_node):
