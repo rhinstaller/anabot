@@ -54,5 +54,10 @@ os.environ["DISPLAY"] = ":1"
 from anabot.runtime import run_test
 from anabot.preprocessor import preprocess
 
-preprocess("/var/run/anabot/raw-recipe.xml", "/var/run/anabot/final-recipe.xml")
-run_test("/var/run/anabot/final-recipe.xml")
+if not os.path.exists("/var/run/anabot/raw-recipe.xml"):
+    reporter.log_error("No anabot recipe found!")
+    reporter.test_end()
+else:
+    preprocess("/var/run/anabot/raw-recipe.xml",
+               "/var/run/anabot/final-recipe.xml")
+    run_test("/var/run/anabot/final-recipe.xml")

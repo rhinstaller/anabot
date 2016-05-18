@@ -22,7 +22,3 @@ for PREEXEC in /opt/anabot-hooks/preexec/*; do
     chmod +x $PREEXEC
     $PREEXEC
 done
-
-if ! [ -e /var/run/anabot/raw-recipe.xml ]; then
-    cp /opt/examples/minimal.xml /var/run/anabot/raw-recipe.xml
-fi
