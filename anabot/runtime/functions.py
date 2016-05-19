@@ -7,6 +7,7 @@ import hashlib
 
 import dogtail # pylint: disable=import-error
 import dogtail.utils # pylint: disable=import-error
+import dogtail.dump # pylint: disable=import-error
 import pyatspi # pylint: disable=import-error
 from dogtail.predicate import GenericPredicate # pylint: disable=import-error
 
@@ -234,3 +235,8 @@ def key_action(keyName, action):
 def clear_text(node):
     node.keyCombo("<Control>a")
     node.keyCombo("<Delete>")
+
+def dump(node, filename=None):
+    reporter.log_debug("Dumping node")
+    dogtail.dump.plain(node, fileName=filename)
+    reporter.log_debug("Node dumped")

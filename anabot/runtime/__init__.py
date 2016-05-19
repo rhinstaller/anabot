@@ -22,6 +22,7 @@ def run_test(file_path):
     dogtail.utils.enableA11y()
     import dogtail.config # pylint: disable=import-error
     dogtail.config.config.typingDelay = 0.2
+    dogtail.config.config.childrenLimit = 10000
     from dogtail.predicate import GenericPredicate # pylint: disable=import-error
     import dogtail.tree # pylint: disable=import-error
     anaconda = dogtail.tree.root.child(roleName="application", name="anaconda")

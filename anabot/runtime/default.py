@@ -6,7 +6,7 @@ logger = logging.getLogger('anabot')
 import teres
 reporter = teres.Reporter.get_reporter()
 
-from .functions import get_attr, log_screenshot
+from .functions import get_attr, log_screenshot, dump
 from .decorators import ACTIONS, CHECKS, handle_action, handle_check
 
 NODE_NUM = re.compile(r'\[[0-9]+\]')
@@ -67,8 +67,8 @@ def default_handler(element, app_node, local_node):
         from time import sleep
         import os
         RESUME_FILEPATH = '/var/run/anabot/resume'
-        logger.debug('Running /opt/dump.py due to DEBUG STOP')
-        os.system('/opt/dump.py')
+        sleep(5)
+        dump(app_node, '/tmp/dogtail.dump')
         logger.debug('DEBUG STOP at %s, touch %s to resume',
                      element.nodePath(), RESUME_FILEPATH)
         while not os.path.exists(RESUME_FILEPATH):
