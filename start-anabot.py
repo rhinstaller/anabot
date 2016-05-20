@@ -58,6 +58,10 @@ if not os.path.exists("/var/run/anabot/raw-recipe.xml"):
     reporter.log_error("No anabot recipe found!")
     reporter.test_end()
 else:
+    reporter.send_file("/var/run/anabot/raw-recipe.xml",
+                       "raw-anabot-recipe.xml")
     preprocess("/var/run/anabot/raw-recipe.xml",
                "/var/run/anabot/final-recipe.xml")
+    reporter.send_file("/var/run/anabot/final-recipe.xml",
+                       "final-anabot-recipe.xml")
     run_test("/var/run/anabot/final-recipe.xml")
