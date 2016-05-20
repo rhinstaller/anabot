@@ -1,8 +1,18 @@
 # -*- coding: utf-8 -*-
 import logging
 logger = logging.getLogger('anabot')
+import teres
+reporter = teres.Reporter.get_reporter()
 
 import os, shutil, subprocess, stat
+
+_post_hooks = []
+
+def register_post_hook(priority=None):
+    def decorator(f):
+        _post_hooks.append((priority, f))
+        return f
+    return decorator
 
 def _hooks(event):
     hooks_dir = os.path.join('/', 'opt', 'anabot-hooks', event)
@@ -56,3 +66,9 @@ def run_posthooks():
             _run_hook(chroots.pop(), chroot='/mnt/sysimage')
         else:
             _run_hook(nochroots.pop())
+    # run also registered post hooks
+    for prio, hook in sorted(_post_hooks, lambda x: x[0]):
+        try:
+            hook()
+        except Exception as e:
+            reporter.log_error("Post hook raised exception: %s" % e)
