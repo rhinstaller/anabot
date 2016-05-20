@@ -3,11 +3,13 @@
 import libxml2, sys
 import time, re
 import logging
+import signal
 
 logger = logging.getLogger('anabot')
 logger.addHandler(logging.NullHandler()) # pylint: disable=no-member
 
 from .default import handle_step
+from .default import dump
 from . import installation
 import pyatspi # pylint: disable=import-error
 
@@ -29,6 +31,7 @@ def run_test(file_path):
     # atspi sometimes has connection issues when asking for parents, so cache
     # them
     anaconda.setCacheMask(pyatspi.cache.PARENT)
+    signal.signal(signal.SIGUSR1, lambda x,y: dump(anaconda, '/tmp/dogtail.dump'))
     doc = libxml2.parseFile(file_path)
     handle_step(doc.getRootElement(), anaconda, None)
     doc.freeDoc()
