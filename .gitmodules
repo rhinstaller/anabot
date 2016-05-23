@@ -4,3 +4,6 @@
 [submodule "modules/beaker"]
 	path = modules/beaker
 	url = https://gitlab.example.com/user/anabot-beaker.git
+[submodule "modules/animated_progress/pngs2apng"]
+	path = modules/animated_progress/pngs2apng
+	url = https://github.com/pholica/pngs2apng.git
