@@ -5,7 +5,7 @@ from fnmatch import fnmatchcase
 
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler, action_result
-from anabot.runtime.functions import getnode
+from anabot.runtime.functions import getnode, TimeoutError
 from anabot.runtime.translate import tr
 
 # submodules
