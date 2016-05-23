@@ -3,7 +3,7 @@ import logging
 logger = logging.getLogger('anabot')
 
 from anabot.runtime.decorators import handle_action, handle_check
-from anabot.runtime.default import default_handler
+from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.functions import get_attr, getnode, TimeoutError, getparent, getsibling
 from anabot.runtime.translate import tr
 from anabot.runtime.hooks import run_posthooks
@@ -22,21 +22,56 @@ def root_password_handler(element, app_node, local_node):
     except TimeoutError:
         return (False, "Root password spoke not found")
     default_handler(element, app_node, root_password_panel)
+    return True
+
+@handle_chck('')
+def root_password_check(element, app_node, local_node):
+    if not action_result(element)[0]:
+        return action_result(element)
+    try:
+        getnode(app_node, "panel", tr("ROOT PASSWORD"))
+        return (False, "Root password panel is still visible")
+    except TimeoutError:
+        return True
+
+BLACK_CIRCLE = u'\u25cf'
+
+def root_password_text_manipulate(element, app_node, local_node, dry_run):
+    value = get_attr(element, "value")
+    password_entry = getnode(local_node, "password text", tr("Password"))
+    if not dry_run:
+        password_entry.click()
+        password_entry.typeText(value)
+    else:
+        # the password length is trippled in ATK
+        return len(value)*BLACK_CIRCLE == unicode(password_entry.text)
 
 @handle_act('/password')
 def root_password_text_handler(element, app_node, local_node):
-    value = get_attr(element, "value")
-    password_entry = getnode(local_node, "password text", tr("Password"))
-    password_entry.click()
-    password_entry.typeText(value)
+    root_password_text_manipulate(element, app_node, local_node, False)
 
-@handle_act('/confirm_password')
-def root_password_confirm_handler(element, app_node, local_node):
+@handle_chck('/password')
+def root_password_text_check(element, app_node, local_node):
+    return root_password_text_manipulate(element, app_node, local_node, True)
+
+def root_password_confirm_manipulate(element, app_node, local_node, dry_run):
     value = get_attr(element, "value")
     password_entry = getnode(local_node, "password text",
                              tr("Confirm Password"))
-    password_entry.click()
-    password_entry.typeText(value)
+    if not dry_run:
+        password_entry.click()
+        password_entry.typeText(value)
+    else:
+        # the password length is trippled in ATK
+        return len(value)*BLACK_CIRCLE == unicode(password_entry.text)
+
+@handle_act('/confirm_password')
+def root_password_confirm_handler(element, app_node, local_node):
+    root_password_confirm_manipulate(element, app_node, local_node, False)
+
+@handle_chck('/confirm_password')
+def root_password_confirm_check(element, app_node, local_node):
+    return root_password_confirm_manipulate(element, app_node, local_node, True)
 
 @handle_act('/done')
 def root_password_done_handler(element, app_node, local_node):
