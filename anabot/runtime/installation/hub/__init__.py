@@ -4,7 +4,7 @@ logger = logging.getLogger('anabot')
 from fnmatch import fnmatchcase
 
 from anabot.runtime.decorators import handle_action, handle_check
-from anabot.runtime.default import default_handler
+from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.functions import getnode
 from anabot.runtime.translate import tr
 
@@ -14,6 +14,14 @@ from . import partitioning
 @handle_action('/installation/hub')
 def hub_handler(element, app_node, local_node):
     default_handler(element, app_node, local_node)
-    begin_button = getnode(app_node, "push button",
-                           tr("_Begin Installation", context="GUI|Summary"))
+    try:
+        begin_button = getnode(app_node, "push button",
+                               tr("_Begin Installation", context="GUI|Summary"))
+    except TimeoutError:
+        return (False, 'Couln\'t find "Begin installation" button.')
     begin_button.click()
+    return True
+
+@handle_check('/installation/hub')
+def hub_check(element, app_node, local_node):
+    return action_result(element)
