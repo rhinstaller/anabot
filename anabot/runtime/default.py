@@ -36,9 +36,8 @@ def handle_step(element, app_node, local_node):
     if handler_path not in ACTIONS:
         handler_path = None
     if policy in ("should_pass", "should_fail", "may_fail"):
-        RESULTS[raw_node_path] = ACTIONS.get(handler_path)(element,
-                                                           app_node,
-                                                           local_node)
+        result = ACTIONS.get(handler_path)(element, app_node, local_node)
+        RESULTS[raw_node_path] = _check_result_reason(result)
     if handler_path is None:
         return
     if handler_path not in CHECKS:
