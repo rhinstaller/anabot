@@ -280,8 +280,19 @@ def add_size_check(element, app_node, local_node):
 
 @handle_act('/done')
 def done_handler(element, app_node, local_node):
-    done_button = getnode(local_node.parent, "push button", tr("_Done", False))
-    done_button.click()
+    try:
+        done_button = getnode(local_node.parent, "push button", tr("_Done", False))
+        done_button.click()
+        return True
+    except TimeoutError:
+        return (False, "Didn't find visible and clickable Done button")
+
+@handle_chck('/done')
+def done_check(element, app_node, local_node):
+    # Dogtail unfortunatelly thinks, that the button is still visible and
+    # clickable when summary dialog is shown, so we can rely only on the
+    # action result
+    return action_result(element)
 
 @handle_act('/summary')
 def summary_handler(element, app_node, local_node):
@@ -292,6 +303,23 @@ def summary_handler(element, app_node, local_node):
     else:
         button_text = "_Cancel & Return to Custom Partitioning"
     button_text = tr(button_text, context=context)
-    dialog = getnode(app_node, "dialog", tr("SUMMARY OF CHANGES"))
-    dialog_button = getnode(dialog, "push button", button_text)
+    try:
+        dialog = getnode(app_node, "dialog", tr("SUMMARY OF CHANGES"))
+    except TimeoutError:
+        return (False, "Didn't find summary dialog")
+    try:
+        dialog_button = getnode(dialog, "push button", button_text)
+    except TimeoutError:
+        return (False, "Didn't find desired button in summary dialog")
     dialog_button.click()
+    return True
+
+@handle_chck('/summary')
+def summary_check(element, app_node, local_node):
+    if not action_result(element)[0]:
+        return action_result(element)
+    try:
+        dialog = getnode(app_node, "dialog", tr("SUMMARY OF CHANGES"))
+        return (False, "Summary dialog is still visible")
+    except TimeoutError:
+        return True
