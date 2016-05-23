@@ -25,6 +25,14 @@ def base_handler(element, app_node, local_node):
                                  tr("INSTALLATION DESTINATION"))
     default_handler(element, app_node, partitioning_panel)
 
+@handle_chck('')
+def base_check(element, app_node, local_node):
+    try:
+        getnode(app_node, "panel", tr("INSTALLATION DESTINATION"))
+        return (False, "Installation destination panel is still visible.")
+    except TimeoutError:
+        return True
+
 def disk_manipulate(element, app_node, local_node, dryrun):
     name = get_attr(element, "name")
     action = get_attr(element, "action", "select")
@@ -77,13 +85,23 @@ def mode_handler(element, app_node, local_node):
 def mode_check(element, app_node, local_node):
     return mode_manipulate(element, app_node, local_node, True)
 
-@handle_act('/additional_space')
-def additional_space_handler(element, app_node, local_node):
+def additional_space_manipulate(element, app_node, local_node, dry_run):
     action = get_attr(element, "action", "enable")
     checkbox_text = tr("I would like to _make additional space available.")
     additional_checkbox = getnode(local_node, "check box", checkbox_text)
-    if (action == "enable") != additional_checkbox.checked:
-        additional_checkbox.click()
+    if not dry_run:
+        if (action == "enable") != additional_checkbox.checked:
+            additional_checkbox.click()
+    else:
+        return (action == "enable") == additional_checkbox.checked
+
+@handle_act('/additional_space')
+def additional_space_handler(element, app_node, local_node):
+    additional_space_manipulate(element, app_node, local_node, False)
+
+@handle_chck('/additional_space')
+def additional_space_check(element, app_node, local_node):
+    return additional_space_manipulate(element, app_node, local_node, True)
 
 @handle_act('/done')
 def done_handler(element, app_node, local_node):
@@ -93,12 +111,7 @@ def done_handler(element, app_node, local_node):
 
 @handle_chck('/done')
 def done_check(element, app_node, local_node):
-    try:
-        done_button = getnode(local_node, "push button", tr("_Done", False),
-                              visible=False)
-        return action_result(element)
-    except:
-        return False
+    return action_result(element)
 
 @handle_act('/reclaim')
 def reclaim_handler(element, app_node, local_node):
@@ -116,9 +129,30 @@ def reclaim_handler(element, app_node, local_node):
     reclaim_button = getnode(reclaim_dialog, "push button",
                              tr("_Reclaim space", context="GUI|Reclaim Dialog"))
     reclaim_button.click()
+    return True
+
+@handle_chck('/reclaim')
+def reclaim_check(element, app_node, local_node):
+    return action_result(element)
 
 @handle_act('/reclaim/delete_all')
 def reclaim_delete_all_handler(element, app_node, local_node):
-    delete_all_button = getnode(local_node, "push button",
-                                tr("Delete _all", context="GUI|Reclaim Dialog"))
+    try:
+        delete_all_button = getnode(local_node, "push button",
+                                    tr("Delete _all", context="GUI|Reclaim Dialog"))
+    except TimeoutError:
+        return (False, 'Didn\'t find "Delete all" button.')
     delete_all_button.click()
+    return True
+
+@handle_chck('/reclaim/delete_all')
+def reclaim_delete_all_check(element, app_node, local_node):
+    if not action_result(element)[0]:
+        return action_result(element)
+    table = getnode(local_node, "tree table")
+    counter = -1
+    for cell in getnodes(table, "table cell", visible=None):
+        counter += 1
+        if counter % 5 == 4 and cell.text != tr("Delete"):
+            return (False, "Not all disks/partitions are scheduled to be deleted")
+    return True
