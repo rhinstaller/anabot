@@ -19,7 +19,7 @@ handle_chck = lambda x: handle_check(_local_path + x)
 @handle_act('')
 def base_handler(element, app_node, local_node):
     partitioning = getnode(app_node, "spoke selector",
-                           tr("INSTALLATION DESTINATION"))
+                           tr("_INSTALLATION DESTINATION", context="GUI|Spoke"))
     partitioning.click()
     partitioning_panel = getnode(app_node, "panel",
                                  tr("INSTALLATION DESTINATION"))
