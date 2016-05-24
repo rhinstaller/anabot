@@ -3,6 +3,7 @@
 import re
 import gettext
 import langtable # pylint: disable=import-error
+from .comps import get_comps
 __translate = None
 __language = None
 __locality = None
@@ -16,9 +17,10 @@ def set_languages_by_name(locality):
                    "en"])
 
 def set_languages(languages):
-    global __translate
+    global __translate, __languages
     __translate = gettext.translation('anaconda', languages=languages,
                                       fallback=True)
+    __languages = languages
 
 def tr(intext, drop_underscore=True, context=None):
     # Some translations have context but python gettext doesn't support
@@ -35,7 +37,24 @@ def tr(intext, drop_underscore=True, context=None):
     return outtext
 
 
-def comps_tr():
-    pass
+def comps_tr_env(env_id):
+    comps = get_comps()
+    return comps.tr_env(env_id, __languages)
+
+def comps_tr_env_rev(env_id):
+    comps = get_comps()
+    return comps.tr_env_rev(env_id, __languages)
+
+def comps_tr_env_desc(env_id):
+    comps = get_comps()
+    return comps.tr_env_desc(env_id, __languages)
+
+def comps_tr_group(group_id):
+    comps = get_comps()
+    return comps.tr_group(group_id, __languages)
+
+def comps_tr_group_desc(group_id):
+    comps = get_comps()
+    return comps.tr_group_desc(group_id, __languages)
 
 set_languages(['en'])
