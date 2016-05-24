@@ -9,6 +9,7 @@ __translate_keyboard = None
 __translate_lang = None
 __translate_country = None
 __languages = None
+__oscap_translate = None
 __locality = None
 __locality_re = re.compile(r"(?P<lang>[^(]*) (?:\((?P<loc>[^)]*)\))?")
 
@@ -23,7 +24,7 @@ def set_languages_by_name(locality):
                    "en"])
 
 def set_languages(languages):
-    global __translate, __languages, __translate_keyboard, __translate_lang, __translate_coutntry
+    global __translate, __languages, __oscap_translate, __translate_keyboard, __translate_lang, __translate_coutntry
     __translate = gettext.translation('anaconda', languages=languages,
                                       fallback=True)
     __translate_keyboard = gettext.translation('xkeyboard-config',
@@ -36,8 +37,11 @@ def set_languages(languages):
                                               languages=languages,
                                               fallback=True)
     __languages = languages
+    __oscap_translate = gettext.translation('oscap-anaconda-addon',
+                                            languages=languages,
+                                            fallback=True)
 
-def tr(intext, drop_underscore=True, context=None):
+def _tr(translate, intext, drop_underscore=True, context=None):
     # Some translations have context but python gettext doesn't support
     # contexts. There is workaround for this issue:
     # https://bugs.python.org/issue2504#msg106121
@@ -50,6 +54,12 @@ def tr(intext, drop_underscore=True, context=None):
     if drop_underscore:
         outtext = outtext.replace('_', '', 1)
     return outtext
+
+def tr(intext, drop_underscore=True, context=None):
+    return _tr(__translate, intext, drop_underscore, context)
+
+def oscap_tr(intext, drop_underscore=True, context=None):
+    return _tr(__oscap_translate, intext, drop_underscore, context)
 
 
 def comps_tr_env(env_id):
