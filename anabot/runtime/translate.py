@@ -34,4 +34,8 @@ def tr(intext, drop_underscore=True, context=None):
         outtext = outtext.replace('_', '', 1)
     return outtext
 
+
+def comps_tr():
+    pass
+
 set_languages(['en'])
