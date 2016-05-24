@@ -9,10 +9,11 @@ from anabot.runtime.functions import getnode, TimeoutError
 from anabot.runtime.translate import tr
 
 # submodules
-from . import partitioning
+from . import partitioning, package_selection
 
 @handle_action('/installation/hub')
 def hub_handler(element, app_node, local_node):
+    local_node = getnode(app_node, "panel", tr("INSTALLATION SUMMARY"))
     default_handler(element, app_node, local_node)
     try:
         begin_button = getnode(app_node, "push button",
