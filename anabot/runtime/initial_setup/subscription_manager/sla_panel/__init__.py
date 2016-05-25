@@ -16,6 +16,10 @@ handle_chck = lambda x: handle_check(_local_path + x)
 @handle_act('')
 def sla_panel_handler(element, app_node, local_node):
     sla_panel = local_node
+    try:
+        sla_label = getnode(local_node, 'label', tr("Select a common service level for this system's subscriptions:"))
+    except TimeoutError:
+        return (False, "Cannot find SLA label - not in SLA panel.")
     default_handler(element, app_node, sla_panel)
 
 @handle_act('/sla')

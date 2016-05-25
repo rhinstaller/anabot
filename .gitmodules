@@ -7,3 +7,6 @@
 [submodule "modules/animated_progress/pngs2apng"]
 	path = modules/animated_progress/pngs2apng
 	url = https://github.com/pholica/pngs2apng.git
+[submodule "modules/harness-beaker"]
+	path = modules/harness-beaker
+	url = git@gitlab.example.com:user/anabot-harness-beaker.git
