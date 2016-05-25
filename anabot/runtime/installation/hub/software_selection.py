@@ -21,8 +21,11 @@ handle_chck = lambda x: handle_check(_local_path + x)
 @handle_act('')
 def base_handler(element, app_node, local_node):
     try:
-        spoke_selector = getnode(local_node, "spoke selector",
-                                 tr("_SOFTWARE SELECTION", context="GUI|Spoke"))
+        spoke_selector = getnode(
+            local_node, "spoke selector",
+            tr("_SOFTWARE SELECTION", context="GUI|Spoke"),
+            timeout=300,
+        )
     except TimeoutError:
         return (False, "Couldn't find software selection in hub.")
     reload_comps()
