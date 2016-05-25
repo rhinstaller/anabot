@@ -101,7 +101,7 @@ def addon_handler_manipulate(element, app_node, local_node, dry_run):
     logger.debug("Current environment is: %s", env)
     check = get_attr(element, "action", "select") == "select"
     group_match = get_attr(element, "id")
-    all_checked = True
+    result = check
     try:
         # group list is second list box
         group_list = getnodes(local_node, "list box")[1]
@@ -116,18 +116,18 @@ def addon_handler_manipulate(element, app_node, local_node, dry_run):
             group_label = getnode(group_list, "label", group_label_text)
         except TimeoutError:
             reporter.log_fail("Couldn't find label for group: %s" % group_id)
-            all_checked = False
+            result = not check
             continue
         group_checkbox = getsibling(group_label, -1, "check box")
         if group_checkbox.checked != check:
             if not dry_run:
                 group_checkbox.click()
             else:
-                all_checked = False
+                result = not check
     if not found:
         return (False, "Desired groups (%s) are not available for current environment (%s)." % (group_match, env))
-    if not all_checked:
-        return (False, "Not all desired groups were selected.")
+    if result != check:
+        return (False, "Not all desired groups were (de)selected.")
     return True
 
 @handle_act('/addon')
