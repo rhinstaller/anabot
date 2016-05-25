@@ -34,7 +34,7 @@ class Comps(object):
         candidates = [x.content for x in self.root.xpathEval(xpath)]
         # shown are those that are visible and have non-zero count of
         # non-optional packages
-        common_xpath = '/comps/group[uservisible/text() = "true" and count(packagelist/packagereq[@type != "optional"])]/id/text()'
+        common_xpath = '/comps/group[uservisible/text() = "true" and count(packagelist/packagereq[@type != "optional" and @type != "conditional"])]/id/text()'
         common_candidates = [x.content for x in self.root.xpathEval(common_xpath)]
         return candidates + common_candidates
 
