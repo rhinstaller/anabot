@@ -2,6 +2,8 @@
 
 import logging
 logger = logging.getLogger('anabot')
+import teres
+reporter = teres.Reporter.get_reporter()
 
 from fnmatch import fnmatchcase
 
