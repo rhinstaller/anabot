@@ -2,18 +2,16 @@ import logging
 logger = logging.getLogger('anabot')
 
 from random import randint
-import gettext
 
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler
 from anabot.runtime.functions import get_attr, getnode, getnodes, getsibling
 from anabot.runtime.functions import getparents, TimeoutError
-from anabot.runtime.translate import tr
+from anabot.runtime.translate import tr, oscap_tr
 
 _local_path = '/installation/hub/oscap_addon'
 handle_act = lambda x: handle_action(_local_path + x)
 handle_chck = lambda x: handle_check(_local_path + x)
-_tr = lambda x: str(gettext.ldgettext("oscap-anaconda-addon", x))
 _chosen_profile = None
 _selected_profile = None
 _oscap_addon_visited = False
@@ -23,9 +21,9 @@ _change_content_visited = False
 def base_handler(element, app_node, local_node):
     global _oscap_addon_visited
     _oscap_addon_visited = False
-    oscap_addon = getnode(app_node, "spoke selector", _tr("SECURITY POLICY"))
+    oscap_addon = getnode(app_node, "spoke selector", oscap_tr("SECURITY POLICY"))
     oscap_addon.click()
-    oscap_addon_label = getnode(app_node, "label", _tr("SECURITY POLICY"))
+    oscap_addon_label = getnode(app_node, "label", oscap_tr("SECURITY POLICY"))
     oscap_addon_panel = getparents(oscap_addon_label, predicates={'roleName': 'panel'})[2]
     _oscap_addon_visited = True
     default_handler(element, app_node, oscap_addon_panel)
@@ -36,7 +34,7 @@ def base_check(element, app_node, local_node):
 
 def choose_manipulate(element, app_node, local_node, dryrun):
     mode = get_attr(element, "mode", "manual")
-    profiles_label = getnode(local_node, "label", _tr("Choose profile below:"))
+    profiles_label = getnode(local_node, "label", oscap_tr("Choose profile below:"))
     profiles_table = getsibling(profiles_label, 2)
     available_profiles = [p for p in getnodes(profiles_table, "table cell")
                           if p.text]
@@ -106,12 +104,12 @@ def choose_check(element, app_node, local_node):
 
 @handle_act('/select')
 def select_handler(element, app_node, local_node):
-    select_button = getnode(local_node, "push button", _tr("Select profile"), sensitive=None)
+    select_button = getnode(local_node, "push button", oscap_tr("_Select profile"), sensitive=None)
     select_button.click()
 
 @handle_chck('/select')
 def select_check(element, app_node, local_node):
-    select_button = getnode(local_node, "push button", _tr("Select profile"), sensitive=False)
+    select_button = getnode(local_node, "push button", oscap_tr("_Select profile"), sensitive=False)
     if _selected_profile is None or select_button.sensitive:
         result = False
     else:
@@ -120,11 +118,11 @@ def select_check(element, app_node, local_node):
 
 @handle_act('/change_content')
 def change_content_handler(element, app_node, local_node):
-    change_button = getnode(local_node, "push button", _tr("Change content"))
+    change_button = getnode(local_node, "push button", oscap_tr("_Change content"))
     change_button.click()
     global _change_content_visited
     try:
-        getnode(local_node, "push button", _tr("Use SCAP Security Guide"))
+        getnode(local_node, "push button", oscap_tr("_Use SCAP Security Guide"))
         _change_content_visited = True
     except TimeoutError:
         _change_content_visited = False
@@ -136,28 +134,28 @@ def change_content_check(element, app_node, local_node):
 
 @handle_act('/change_content/source')
 def change_content_source_handler(element, app_node, local_node):
-    fetch_button = getnode(local_node, "push button", _tr("Fetch"))
+    fetch_button = getnode(local_node, "push button", oscap_tr("_Fetch"))
     datastream_url_input = getsibling(fetch_button, -2)
     url = get_attr(element, "url")
     datastream_url_input.typeText(url)
 
 @handle_chck('/change_content/source')
 def change_content_source_check(element, app_node, local_node):
-    fetch_button = getnode(local_node, "push button", _tr("Fetch"))
+    fetch_button = getnode(local_node, "push button", oscap_tr("_Fetch"))
     datastream_url_input = getsibling(fetch_button, -2)
     url = get_attr(element, "url")
     return datastream_url_input.text == url
 
 @handle_act('/change_content/fetch')
 def change_content_fetch_handler(element, app_node, local_node):
-    fetch_button = getnode(app_node, "push button", _tr("Fetch"))
+    fetch_button = getnode(app_node, "push button", oscap_tr("_Fetch"))
     fetch_button.click()
 
 @handle_chck('/change_content/fetch')
 def change_content_fetch_check(element, app_node, local_node):
     try:
         infobar = getnode(local_node, "info bar",
-                          predicates={"name": str(tr("Error"))})
+                          predicates={"name": tr("Error")})
         error = getnode(infobar, "label").text
         logger.info("SCAP content fetch error: \"%s\"" % error)
         result = False
@@ -167,13 +165,13 @@ def change_content_fetch_check(element, app_node, local_node):
 
 @handle_act('/change_content/use_ssg')
 def change_content_use_ssg_handler(element, app_node, local_node):
-    use_ssg_button = getnode(local_node, "push button", _tr("Use SCAP Security Guide"))
+    use_ssg_button = getnode(local_node, "push button", oscap_tr("_Use SCAP Security Guide"))
     use_ssg_button.click()
 
 @handle_chck('/change_content/use_ssg')
 def change_content_use_ssg_check(element, app_node, local_node):
     try:
-        getnode(local_node, "push button", _tr("Use SCAP Security Guide"), visible=False)
+        getnode(local_node, "push button", oscap_tr("_Use SCAP Security Guide"), visible=False)
         result = True
     except TimeoutError:
         result = False
@@ -182,7 +180,7 @@ def change_content_use_ssg_check(element, app_node, local_node):
 @handle_act('/apply_policy')
 def apply_policy_handler(element, app_node, local_node):
     policy_action = get_attr(element, "action")
-    apply_policy_label = getnode(local_node, "label", _tr("Apply security policy:"))
+    apply_policy_label = getnode(local_node, "label", oscap_tr("Apply security policy:"))
     policy_button = getsibling(apply_policy_label, 2)
     policy_button.click()
     if (policy_action == "enable" and not policy_button.checked
@@ -192,7 +190,7 @@ def apply_policy_handler(element, app_node, local_node):
 @handle_chck('/apply_policy')
 def apply_policy_check(element, app_node, local_node):
     policy_action = get_attr(element, "action")
-    apply_policy_label = getnode(local_node, "label", _tr("Apply security policy:"))
+    apply_policy_label = getnode(local_node, "label", oscap_tr("Apply security policy:"))
     policy_button = getsibling(apply_policy_label, 2)
     return  (policy_action == "enable" and policy_button.checked
              or policy_action == "disable" and not policy_button.checked)
@@ -201,7 +199,7 @@ def apply_policy_check(element, app_node, local_node):
 def datastream_handler(element, app_node, local_node):
     datastream = get_attr(element, "id")
     mode = get_attr(element, "mode", "manual")
-    ds_label = getnode(local_node, "label", _tr("Data stream:"))
+    ds_label = getnode(local_node, "label", oscap_tr("Data stream:"))
     ds_combo = getsibling(ds_label, 2)
     ds_combo.click()
     ds_items = getnodes(ds_combo, "menu item")
@@ -224,7 +222,7 @@ def datastream_chck(element, app_node, local_node):
         result = True
     elif mode == "manual":
         datastream = get_attr(element, "id")
-        ds_label = getnode(local_node, "label", _tr("Data stream:"))
+        ds_label = getnode(local_node, "label", oscap_tr("Data stream:"))
         ds_combo = getsibling(ds_label, 2)
         result = ds_combo.name == datastream
     return result
@@ -233,7 +231,7 @@ def datastream_chck(element, app_node, local_node):
 def checklist_handler(element, app_node, local_node):
     checklist = get_attr(element, "id")
     mode = get_attr(element, "mode", "manual")
-    checklist_label = getnode(local_node, "label", _tr("Checklist:"))
+    checklist_label = getnode(local_node, "label", oscap_tr("Checklist:"))
     checklist_combo = getsibling(checklist_label, 2)
     checklist_combo.click()
     checklist_items = getnodes(checklist_combo, "menu item")
