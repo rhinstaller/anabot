@@ -151,8 +151,11 @@ def reclaim_delete_all_check(element, app_node, local_node):
         return action_result(element)
     table = getnode(local_node, "tree table")
     counter = -1
+    free_space = tr("Free space")
     for cell in getnodes(table, "table cell", visible=None):
         counter += 1
-        if counter % 5 == 4 and cell.text != tr("Delete"):
+        if counter % 5 == 0:
+            part_label = cell.text
+        if counter % 5 == 4 and part_label != free_space and cell.text != tr("Delete"):
             return (False, "Not all disks/partitions are scheduled to be deleted")
     return True
