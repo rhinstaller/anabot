@@ -9,7 +9,7 @@ from anabot.runtime.functions import getnode, TimeoutError
 from anabot.runtime.translate import tr
 
 # submodules
-from . import partitioning, package_selection
+from . import partitioning, software_selection
 
 @handle_action('/installation/hub')
 def hub_handler(element, app_node, local_node):

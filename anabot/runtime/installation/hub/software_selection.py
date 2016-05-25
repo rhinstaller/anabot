@@ -14,7 +14,7 @@ from anabot.runtime.comps import reload_comps, get_comps
 from anabot.runtime.errors import TimeoutError
 from anabot.runtime.translate import tr, comps_tr_env, comps_tr_group, comps_tr_env_desc, comps_tr_group_desc, comps_tr_env_rev
 
-_local_path = '/installation/hub/package_selection'
+_local_path = '/installation/hub/software_selection'
 handle_act = lambda x: handle_action(_local_path + x)
 handle_chck = lambda x: handle_check(_local_path + x)
 
