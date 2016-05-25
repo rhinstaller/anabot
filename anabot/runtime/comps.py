@@ -45,7 +45,11 @@ class Comps(object):
                 return self.root.xpathEval(xpath)[0].content
             except IndexError:
                 pass
-        return None
+        xpath = '/comps/environment[id/text() = "%s"]/name[not(@xml:lang)]/text()' % env_id
+        try:
+            return self.root.xpathEval(xpath)[0].content
+        except IndexError:
+            return None
 
     def tr_env_rev(self, env_name, languages):
         for lang in languages:
@@ -54,7 +58,11 @@ class Comps(object):
                 return self.root.xpathEval(xpath)[0].content
             except IndexError:
                 pass
-        return None
+        xpath = '/comps/environment[name[not(@xml:lang)]/text()="%s"]/id/text()' % env_name
+        try:
+            return self.root.xpathEval(xpath)[0].content
+        except IndexError:
+            return None
 
     def tr_env_desc(self, env_id, languages):
         for lang in languages:
@@ -63,7 +71,11 @@ class Comps(object):
                 return self.root.xpathEval(xpath)[0].content
             except IndexError:
                 pass
-        return None
+        xpath = '/comps/environment[id/text() = "%s"]/description[not(@xml:lang)]/text()' % env_id
+        try:
+            return self.root.xpathEval(xpath)[0].content
+        except IndexError:
+            return None
 
     def tr_group(self, group_id, languages):
         for lang in languages:
@@ -72,7 +84,11 @@ class Comps(object):
                 return self.root.xpathEval(xpath)[0].content
             except IndexError:
                 pass
-        return None
+        xpath = '/comps/group[id/text() = "%s"]/name[not(@xml:lang)]/text()' % group_id
+        try:
+            return self.root.xpathEval(xpath)[0].content
+        except IndexError:
+            return None
 
     def tr_group_desc(self, group_id, languages):
         for lang in languages:
@@ -81,4 +97,8 @@ class Comps(object):
                 return self.root.xpathEval(xpath)[0].content
             except IndexError:
                 pass
-        return None
+        xpath = '/comps/group[id/text() = "%s"]/description[not(@xml:lang)]/text()' % group_id
+        try:
+            return self.root.xpathEval(xpath)[0].content
+        except IndexError:
+            return None
