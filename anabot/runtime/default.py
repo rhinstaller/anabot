@@ -16,10 +16,7 @@ RESULTS = {}
 def action_result(node_path):
     if isinstance(node_path, libxml2.xmlNode):
         node_path = node_path.nodePath()
-    try:
-        return RESULTS[node_path]
-    except KeyError:
-        return (None, None)
+    return RESULTS.get(node_path, (None, None))
 
 def _check_result_reason(result):
     if result is None:
