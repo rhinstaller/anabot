@@ -26,7 +26,7 @@ def root_password_handler(element, app_node, local_node):
 
 @handle_chck('')
 def root_password_check(element, app_node, local_node):
-    if not action_result(element)[0]:
+    if action_result(element)[0] == False:
         return action_result(element)
     try:
         getnode(app_node, "panel", tr("ROOT PASSWORD"))

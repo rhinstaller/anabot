@@ -316,7 +316,7 @@ def summary_handler(element, app_node, local_node):
 
 @handle_chck('/summary')
 def summary_check(element, app_node, local_node):
-    if not action_result(element)[0]:
+    if action_result(element)[0] == False:
         return action_result(element)
     try:
         dialog = getnode(app_node, "dialog", tr("SUMMARY OF CHANGES"))

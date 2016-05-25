@@ -147,7 +147,7 @@ def reclaim_delete_all_handler(element, app_node, local_node):
 
 @handle_chck('/reclaim/delete_all')
 def reclaim_delete_all_check(element, app_node, local_node):
-    if not action_result(element)[0]:
+    if action_result(element)[0] == False:
         return action_result(element)
     table = getnode(local_node, "tree table")
     counter = -1
