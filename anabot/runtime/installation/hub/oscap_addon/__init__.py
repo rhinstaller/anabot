@@ -4,7 +4,7 @@ logger = logging.getLogger('anabot')
 from random import randint
 
 from anabot.runtime.decorators import handle_action, handle_check
-from anabot.runtime.default import default_handler
+from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.functions import get_attr, getnode, getnodes, getsibling
 from anabot.runtime.functions import getparents, TimeoutError
 from anabot.runtime.translate import tr, oscap_tr
@@ -254,28 +254,34 @@ def checklist_check(element, app_node, local_node):
         result = True
     elif mode == "manual":
         datastream = get_attr(element, "id")
-        checklist_label = getnode(local_node, "label", _tr("Checklist:"))
+        checklist_label = getnode(local_node, "label", oscap_tr("Checklist:"))
         checklist_combo = getsibling(checklist_label, 2)
         result = checklist_combo.name == datastream
     return result
 
 @handle_act('/done')
 def done_handler(element, app_node, local_node):
-    done_button = getnode(local_node, "push button", tr("_Done", False))
+    try:
+        done_button = getnode(local_node, "push button", tr("_Done", False))
+    except TimeoutError:
+        logger.debug([str(x) for x in getnodes(local_node, "push button")])
+        logger.debug(tr("_Done"))
+        return (False, "Couldn't find \"Done\" button.")
     done_button.click()
 
 @handle_chck('/done')
 def done_check(element, app_node, local_node):
-    result = False
-    try:
-        oscap_addon_selector = getnode(app_node, "spoke selector",
-                                       _tr("SECURITY POLICY"))
-        oscap_addon_status = str(getnode(oscap_addon_selector, "label").text)
-        if oscap_addon_status == _tr("Everything okay"):
-            result = True
-        else:
-            logger.info("OSCAP addon status: \"%s\"" % oscap_addon_status)
-    except TimeoutError:
-        pass
+    result = action_result(element)
+    if result[0] is None:
+        result[0] = True
+    if result[0]:
+        try:
+            oscap_addon_selector = getnode(app_node, "spoke selector",
+                                        oscap_tr("SECURITY POLICY"))
+            oscap_addon_status = getnode(oscap_addon_selector, "label").text
+            if not oscap_addon_status == oscap_tr("Everything okay"):
+                return(False, "OSCAP addon status: \"%s\"" % oscap_addon_status)
+        except TimeoutError as e:
+            return(False, "OSCAP addon selector button or status label not found: %s" % e)
     return result
 
