@@ -216,8 +216,11 @@ def change_content_use_ssg_check(element, app_node, local_node):
 
 def apply_policy_manipulate(element, app_node, local_node, dryrun):
     policy_action = get_attr(element, "action")
-    apply_policy_label = getnode(local_node, "label", oscap_tr("Apply security policy:"))
-    policy_button = getsibling(apply_policy_label, 2)
+    try:
+        apply_policy_label = getnode(local_node, "label", oscap_tr("Apply security policy:"))
+        policy_button = getsibling(apply_policy_label, 2)
+    except TimeoutError:
+        return (False, "Couldn't find \"Apply security policy:\" label or policy button/switch.")
     if dryrun:
         return (policy_action == "enable" and policy_button.checked
                 or policy_action == "disable" and not policy_button.checked)
