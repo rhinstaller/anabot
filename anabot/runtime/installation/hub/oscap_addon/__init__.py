@@ -44,10 +44,16 @@ def base_check(element, app_node, local_node):
 
 def choose_manipulate(element, app_node, local_node, dryrun):
     mode = get_attr(element, "mode", "manual")
-    profiles_label = getnode(local_node, "label", oscap_tr("Choose profile below:"))
-    profiles_table = getsibling(profiles_label, 2)
-    available_profiles = [p for p in getnodes(profiles_table, "table cell")
-                          if p.text]
+    try:
+        profiles_label = getnode(local_node, "label", oscap_tr("Choose profile below:"))
+        profiles_table = getsibling(profiles_label, 2)
+    except TimeoutError:
+        return (False, "Couldn't find \"Choose profile below:\" label or profiles table.")
+    try:
+        available_profiles = [p for p in getnodes(profiles_table, "table cell")
+                            if p.text]
+    except TimeoutError:
+        return (False, "Couldn't find profiles (table cells)")
     profile = None # profile to be selected
 
     # selected profile needs to be remembered before selecting another one
@@ -106,7 +112,7 @@ def choose_manipulate(element, app_node, local_node, dryrun):
 
 @handle_act('/choose')
 def choose_handler(element, app_node, local_node):
-    choose_manipulate(element, app_node, local_node, False)
+    return choose_manipulate(element, app_node, local_node, False)
 
 @handle_chck('/choose')
 def choose_check(element, app_node, local_node):
@@ -114,16 +120,30 @@ def choose_check(element, app_node, local_node):
 
 @handle_act('/select')
 def select_handler(element, app_node, local_node):
-    select_button = getnode(local_node, "push button", oscap_tr("_Select profile"), sensitive=None)
+    try:
+        select_button = getnode(local_node, "push button", oscap_tr("_Select profile"),
+                                sensitive=None)
+    except TimeoutError:
+        return (False, "Couldn't find \"Select profile\" button.")
     select_button.click()
 
 @handle_chck('/select')
 def select_check(element, app_node, local_node):
-    select_button = getnode(local_node, "push button", oscap_tr("_Select profile"), sensitive=False)
-    if _selected_profile is None or select_button.sensitive:
-        result = False
+    try:
+        select_button = getnode(local_node, "push button", oscap_tr("_Select profile"),
+                                sensitive=False)
+    except TimeoutError:
+        return (False, "Couldn't find \"Select profile\" button.")
+
+    if _selected_profile is None:
+        result = (False, "No profile has been selected.")
+    elif select_button.sensitive:
+        result = (False, "\"Select profile\" button is sensitive.")
+    elif not _selected_profile.selected:
+        result = (False, "Profile \"%s\" hasn't been selected." %
+                  _selected_profile.name.splitlines()[0])
     else:
-        result = _selected_profile.selected and not select_button.sensitive
+        result = True
     return result
 
 def change_content_manipulate(element, app_node, local_node, dryrun):
@@ -191,7 +211,7 @@ def change_content_use_ssg_check(element, app_node, local_node):
         getnode(local_node, "push button", oscap_tr("_Use SCAP Security Guide"), visible=False)
         result = True
     except TimeoutError:
-        result = False
+        result = (False, "Couldn't find \"Use SCAP Security Guide\" button.")
     return result
 
 def apply_policy_manipulate(element, app_node, local_node, dryrun):
@@ -231,7 +251,7 @@ def datastream_manipulate(element, app_node, local_node, dryrun):
         if not result[0]:
             return result
         if mode == "random":
-            result = True
+            result = ds_combo.name != ""
         elif mode == "manual":
             result = ds_combo.name == datastream
         return result
@@ -278,7 +298,7 @@ def checklist_manipulate(element, app_node, local_node, dryrun):
                 return (False, "Couldn't find \"Checklist:\" label or combo box.")
             result = checklist_combo.name == datastream
         elif mode == "random":
-            return True
+            return checklist_combo.name != ""
         return result
     else:
         if mode == "manual":
