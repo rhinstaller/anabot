@@ -40,7 +40,7 @@ def base_handler(element, app_node, local_node):
 
 @handle_chck('')
 def base_check(element, app_node, local_node):
-    return action_result(element)
+    return default_result(element)
 
 def choose_manipulate(element, app_node, local_node, dryrun):
     mode = get_attr(element, "mode", "manual")
@@ -126,33 +126,42 @@ def select_check(element, app_node, local_node):
         result = _selected_profile.selected and not select_button.sensitive
     return result
 
+def change_content_manipulate(element, app_node, local_node, dryrun):
+    change_button = getnode(local_node, "push button", oscap_tr("_Change content"))
+    if dryrun:
+        return default_result(element)
+    else:
+        change_button.click()
+        try:
+            getnode(local_node, "push button", oscap_tr("_Use SCAP Security Guide"))
+        except TimeoutError:
+            return (False, "Couldn't find \"Use SCAP Security Guide\" button.")
+        default_handler(element, app_node, local_node)
+
 @handle_act('/change_content')
 def change_content_handler(element, app_node, local_node):
-    change_button = getnode(local_node, "push button", oscap_tr("_Change content"))
-    change_button.click()
-    try:
-        getnode(local_node, "push button", oscap_tr("_Use SCAP Security Guide"))
-    except TimeoutError:
-        return (False, "Couldn't find \"Use SCAP Security Guide\" button.")
-    default_handler(element, app_node, local_node)
+    return change_content_manipulate(element, app_node, local_node, False)
 
 @handle_chck('/change_content')
 def change_content_check(element, app_node, local_node):
-    return default_result(element)
+    return change_content_manipulate(element, app_node, local_node, True)
+
+def change_content_source_manipulate(element, app_node, local_node, dryrun):
+    fetch_button = getnode(local_node, "push button", oscap_tr("_Fetch"))
+    datastream_url_input = getsibling(fetch_button, -2)
+    url = get_attr(element, "url")
+    if dryrun:
+        return datastream_url_input.text == url
+    else:
+        datastream_url_input.typeText(url)
 
 @handle_act('/change_content/source')
 def change_content_source_handler(element, app_node, local_node):
-    fetch_button = getnode(local_node, "push button", oscap_tr("_Fetch"))
-    datastream_url_input = getsibling(fetch_button, -2)
-    url = get_attr(element, "url")
-    datastream_url_input.typeText(url)
+    return change_content_source_manipulate(element, app_node, local_node, False)
 
 @handle_chck('/change_content/source')
 def change_content_source_check(element, app_node, local_node):
-    fetch_button = getnode(local_node, "push button", oscap_tr("_Fetch"))
-    datastream_url_input = getsibling(fetch_button, -2)
-    url = get_attr(element, "url")
-    return datastream_url_input.text == url
+    return change_content_source_manipulate(element, app_node, local_node, True)
 
 @handle_act('/change_content/fetch')
 def change_content_fetch_handler(element, app_node, local_node):
@@ -185,102 +194,112 @@ def change_content_use_ssg_check(element, app_node, local_node):
         result = False
     return result
 
-@handle_act('/apply_policy')
-def apply_policy_handler(element, app_node, local_node):
+def apply_policy_manipulate(element, app_node, local_node, dryrun):
     policy_action = get_attr(element, "action")
     apply_policy_label = getnode(local_node, "label", oscap_tr("Apply security policy:"))
     policy_button = getsibling(apply_policy_label, 2)
-    policy_button.click()
-    if (policy_action == "enable" and not policy_button.checked
-        or policy_action == "disable" and policy_button.checked):
-        policy_button.click()
+    if dryrun:
+        return (policy_action == "enable" and policy_button.checked
+                or policy_action == "disable" and not policy_button.checked)
+    else:
+        if (policy_action == "enable" and not policy_button.checked
+            or policy_action == "disable" and policy_button.checked):
+            policy_button.click()
+
+@handle_act('/apply_policy')
+def apply_policy_handler(element, app_node, local_node):
+    return apply_policy_manipulate(element, app_node, local_node, False)
 
 @handle_chck('/apply_policy')
 def apply_policy_check(element, app_node, local_node):
-    policy_action = get_attr(element, "action")
-    apply_policy_label = getnode(local_node, "label", oscap_tr("Apply security policy:"))
-    policy_button = getsibling(apply_policy_label, 2)
-    return  (policy_action == "enable" and policy_button.checked
-             or policy_action == "disable" and not policy_button.checked)
+    return apply_policy_manipulate(element, app_node, local_node, True)
 
-@handle_act('/select_datastream')
-def datastream_handler(element, app_node, local_node):
+def datastream_manipulate(element, app_node, local_node, dryrun):
     datastream = get_attr(element, "id")
     mode = get_attr(element, "mode", "manual")
     try:
         ds_label = getnode(local_node, "label", oscap_tr("Data stream:"))
         ds_combo = getsibling(ds_label, 2)
-        ds_combo.click()
-        ds_items = getnodes(ds_combo, "menu item")
+        if not dryrun:
+            ds_combo.click()
+            ds_items = getnodes(ds_combo, "menu item")
     except TimeoutError:
         return (False,
                 "Couldn't find \"Data stream:\" label or data stream combo box or menu items.")
-    if mode == "manual":
-        try:
-            ds_item = getnode(ds_combo, "menu item", datastream)
-        except TimeoutError:
-            ds_combo.click()
-            return (False, "Data stream '%s' not found" % datastream)
-    elif mode == "random":
-        ds_item = ds_items[randint(0, len(ds_items)-1)]
-    ds_item.click()
+    if dryrun:
+        result = default_result(element)
+        if not result[0]:
+            return result
+        if mode == "random":
+            result = True
+        elif mode == "manual":
+            result = ds_combo.name == datastream
+        return result
+    else:
+        if mode == "manual":
+            try:
+                ds_item = getnode(ds_combo, "menu item", datastream)
+            except TimeoutError:
+                ds_combo.click()
+                return (False, "Data stream '%s' not found" % datastream)
+        elif mode == "random":
+            ds_item = ds_items[randint(0, len(ds_items)-1)]
+        ds_item.click()
+
+@handle_act('/select_datastream')
+def datastream_handler(element, app_node, local_node):
+    return datastream_manipulate(element, app_node, local_node, False)
 
 @handle_chck('/select_datastream')
 def datastream_chck(element, app_node, local_node):
-    result = default_result(element)
-    if not result[0]:
-        return result
-    mode = get_attr(element, "mode", "manual")
-    if mode == "random":
-        result = True
-    elif mode == "manual":
-        datastream = get_attr(element, "id")
-        try:
-            ds_label = getnode(local_node, "label", oscap_tr("Data stream:"))
-            ds_combo = getsibling(ds_label, 2)
-            result = ds_combo.name == datastream
-        except TimeoutError:
-            result = (False, "Couldn't find \"Data stream:\" label or data stream combo box.")
-    return result
+    return datastream_manipulate(element, app_node, local_node, True)
 
-@handle_act('/select_checklist')
-def checklist_handler(element, app_node, local_node):
+def checklist_manipulate(element, app_node, local_node, dryrun):
     checklist = get_attr(element, "id")
     mode = get_attr(element, "mode", "manual")
     try:
         checklist_label = getnode(local_node, "label", oscap_tr("Checklist:"))
         checklist_combo = getsibling(checklist_label, 2)
-        checklist_combo.click()
-        checklist_items = getnodes(checklist_combo, "menu item")
+        if not dryrun:
+            checklist_combo.click()
+            checklist_items = getnodes(checklist_combo, "menu item")
     except TimeoutError:
         return (False, "Couldn't find \"Checklist:\" label, combo box or menu items")
-    if mode == "manual":
-        try:
-            checklist_item = getnode(checklist_combo, "menu item", checklist)
-        except TimeoutError:
-            checklist_combo.click()
-            return(False, "Checklist '%s' not found" % checklist)
-    elif mode == "random":
-        checklist_item = checklist_items[randint(0, len(checklist_items)-1)]
-    checklist_item.click()
+    if dryrun:
+        result = default_result(element)
+        if not result[0]:
+            return result
+        if mode == "manual":
+            datastream = get_attr(element, "id")
+            try:
+                checklist_label = getnode(local_node, "label", oscap_tr("Checklist:"))
+                checklist_combo = getsibling(checklist_label, 2)
+            except TimeoutError:
+                return (False, "Couldn't find \"Checklist:\" label or combo box.")
+            result = checklist_combo.name == datastream
+        elif mode == "random":
+            return True
+        return result
+    else:
+        if mode == "manual":
+            try:
+                checklist_item = getnode(checklist_combo, "menu item", checklist)
+            except TimeoutError:
+                checklist_combo.click()
+                return(False, "Checklist \"%s\" not found" % checklist)
+        elif mode == "random":
+            checklist_item = checklist_items[randint(0, len(checklist_items)-1)]
+        else:
+            return (False, "Unknown mode: \"%s\"" % mode)
+        checklist_item.click()
+
+@handle_act('/select_checklist')
+def checklist_handler(element, app_node, local_node):
+    return checklist_manipulate(element, app_node, local_node, False)
 
 @handle_chck('/select_checklist')
 def checklist_check(element, app_node, local_node):
-    result = default_result(element)
-    if not result[0]:
-        return result
-    mode = get_attr(element, "mode", "manual")
-    if mode == "random":
-        result = True
-    elif mode == "manual":
-        datastream = get_attr(element, "id")
-        try:
-            checklist_label = getnode(local_node, "label", oscap_tr("Checklist:"))
-            checklist_combo = getsibling(checklist_label, 2)
-        except TimeoutError:
-            return (False, "Couldn't find \"Checklist:\" label or combo box.")
-        result = checklist_combo.name == datastream
-    return result
+    return checklist_manipulate(element, app_node, local_node, True)
 
 @handle_act('/done')
 def done_handler(element, app_node, local_node):
