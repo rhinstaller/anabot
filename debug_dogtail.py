@@ -33,6 +33,6 @@ import dogtail.tree
 
 app_node = dogtail.tree.root.child(roleName="application", name=app_name)
 
-from anabot.runtime.functions import waiton, waiton_all, getnode, getnodes, getparent, getparents, getsibling, hold_key, release_key, dump
+from anabot.runtime.functions import waiton, waiton_all, getnode, getnode_scroll, getnodes, getparent, getparents, getsibling, hold_key, release_key, dump, scrollto
 from anabot.runtime.translate import set_languages, tr
 set_languages(['cs_CZ', 'cs'])
