@@ -5,7 +5,7 @@ from fnmatch import fnmatchcase
 
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler, action_result
-from anabot.runtime.functions import get_attr, getnode, getnodes, getnode_scroll
+from anabot.runtime.functions import get_attr, getnode, getnodes, getnode_scroll, scrollto
 from anabot.runtime.errors import TimeoutError
 from anabot.runtime.translate import tr
 
@@ -37,11 +37,12 @@ def base_check(element, app_node, local_node):
 def disk_manipulate(element, app_node, local_node, dryrun):
     name = get_attr(element, "name")
     action = get_attr(element, "action", "select")
-    disks = getnodes(local_node, node_type="disk overview")
+    disks = getnodes(local_node, node_type="disk overview", visible=None)
     disks = [disk for disk in disks
              if fnmatchcase(disk.children[0].children[3].text, name)]
     for disk in disks:
         # selected disk has icon without name
+        scrollto(disk)
         icon = getnode(disk, node_type="icon")
         if action == "select" and icon.name != "":
             if dryrun:
@@ -72,7 +73,7 @@ def mode_manipulate(element, app_node, local_node, dryrun):
         radio_text = tr("A_utomatically configure partitioning.")
     if mode == "manual":
         radio_text = tr("_I will configure partitioning.")
-    radio = getnode(local_node, "radio button", radio_text)
+    radio = getnode_scroll(local_node, "radio button", radio_text)
     if dryrun:
         return radio.checked
     if not radio.checked:
@@ -89,7 +90,7 @@ def mode_check(element, app_node, local_node):
 def additional_space_manipulate(element, app_node, local_node, dry_run):
     action = get_attr(element, "action", "enable")
     checkbox_text = tr("I would like to _make additional space available.")
-    additional_checkbox = getnode(local_node, "check box", checkbox_text)
+    additional_checkbox = getnode_scroll(local_node, "check box", checkbox_text)
     if not dry_run:
         if (action == "enable") != additional_checkbox.checked:
             additional_checkbox.click()
