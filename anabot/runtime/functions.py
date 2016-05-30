@@ -240,3 +240,89 @@ def dump(node, filename=None):
     reporter.log_debug("Dumping node")
     dogtail.dump.plain(node, fileName=filename)
     reporter.log_debug("Node dumped")
+
+MOUSE_SCROLL_UP = 4
+MOUSE_SCROLL_DOWN = 5
+MOUSE_SCROLL_LEFT = 6
+MOUSE_SCROLL_RIGHT = 7
+OUTSIDE = -2147483648
+
+def scrollto(node):
+    def getcenter(node):
+        return (
+            node.position[0] + node.size[0] / 2,
+            node.position[1] + node.size[1] / 2
+        )
+
+    def getcorners(node):
+        return (
+            (node.position[0], node.position[1]),
+            (node.position[0] + node.size[0], node.position[1] + node.size[1])
+        )
+    scroll = getparent(node, "scroll pane")
+    corners = getcorners(scroll)
+    def scroll_dirs():
+        # directions are in fact
+        # widget may be completely off screen
+        if node.position == (-(2**31), -(2**31)):
+            return None, None
+        center = getcenter(node)
+        dirx, diry = 0, 0
+        if center[0] < corners[0][0]:
+            dirx = MOUSE_SCROLL_LEFT
+        if center[0] > corners[1][0]:
+            dirx = MOUSE_SCROLL_RIGHT
+        if center[1] < corners[0][1]:
+            diry = MOUSE_SCROLL_UP
+        if center[1] > corners[1][1]:
+            diry = MOUSE_SCROLL_DOWN
+        return dirx, diry
+
+    def scroll_to_screen():
+        # widget is outside
+        def inside():
+            return scroll_dirs() != (None, None)
+        if not inside():
+            scrollbars = getnodes(scroll, "scroll bar", recursive=False)
+            xbar = None
+            ybar = None
+            scroll_up = lambda: None
+            scroll_down = lambda: None
+            scroll_left = lambda: None
+            scroll_right = lambda: None
+            for scrollbar in scrollbars:
+                if scrollbar.size[0] > scrollbar.size[1]:
+                    xbar = scrollbar
+                    scroll_left = lambda: scroll.click(MOUSE_SCROLL_LEFT)
+                    scroll_right = lambda: scroll.click(MOUSE_SCROLL_RIGHT)
+                else:
+                    ybar = scrollbar
+                    scroll_up = lambda: scroll.click(MOUSE_SCROLL_UP)
+                    scroll_down = lambda: scroll.click(MOUSE_SCROLL_DOWN)
+            def toUp():
+                if ybar is not None:
+                    while ybar.value != 0:
+                        scroll_up()
+            def toLeft():
+                if xbar is not None:
+                    while xbar.value != 0:
+                        scroll_left()
+            # scroll through all possible points in view
+            # this is done similar way as typewriter types
+            toUp()
+            toLeft()
+            while not inside():
+                if xbar is not None:
+                    while xbar.value < xbar.maxValue:
+                        scroll_right()
+                        if inside():
+                            return
+                    toLeft()
+                scroll_down()
+
+    scroll_to_screen()
+    while scroll_dirs() != (0,0):
+        if scroll_dirs()[0] != 0:
+            scroll.click(scroll_dirs()[0])
+        if scroll_dirs()[1] != 0:
+            scroll.click(scroll_dirs()[1])
