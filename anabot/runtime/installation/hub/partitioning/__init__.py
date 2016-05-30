@@ -5,7 +5,7 @@ from fnmatch import fnmatchcase
 
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler, action_result
-from anabot.runtime.functions import get_attr, getnode, getnodes
+from anabot.runtime.functions import get_attr, getnode, getnodes, getnode_scroll
 from anabot.runtime.errors import TimeoutError
 from anabot.runtime.translate import tr
 
@@ -18,8 +18,9 @@ handle_chck = lambda x: handle_check(_local_path + x)
 
 @handle_act('')
 def base_handler(element, app_node, local_node):
-    partitioning = getnode(app_node, "spoke selector",
-                           tr("_INSTALLATION DESTINATION", context="GUI|Spoke"))
+    partitioning_label = tr("_INSTALLATION DESTINATION", context="GUI|Spoke")
+    partitioning = getnode_scroll(app_node, "spoke selector",
+                                  partitioning_label)
     partitioning.click()
     partitioning_panel = getnode(app_node, "panel",
                                  tr("INSTALLATION DESTINATION"))
