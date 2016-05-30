@@ -280,9 +280,10 @@ def scrollto(node):
             (node.position[0], node.position[1]),
             (node.position[0] + node.size[0], node.position[1] + node.size[1])
         )
+
     scroll = getparent(node, "scroll pane")
-    corners = getcorners(scroll)
     def scroll_dirs():
+        corners = getcorners(scroll)
         # directions are in fact mouse button numbers
         # widget may be completely off screen
         if node.position == (-(2**31), -(2**31)):
@@ -290,44 +291,52 @@ def scrollto(node):
         center = getcenter(node)
         dirx, diry = 0, 0
         if center[0] < corners[0][0]:
-            dirx = MOUSE_SCROLL_LEFT
+            dirx = -1
         if center[0] > corners[1][0]:
-            dirx = MOUSE_SCROLL_RIGHT
+            dirx = 1
         if center[1] < corners[0][1]:
-            diry = MOUSE_SCROLL_UP
+            diry = -1
         if center[1] > corners[1][1]:
-            diry = MOUSE_SCROLL_DOWN
+            diry = 1
         return dirx, diry
+
+    if scroll_dirs() == (0, 0):
+        return
+
+    xbar = None
+    ybar = None
+    scroll_up = lambda: None
+    scroll_down = lambda: None
+    scroll_left = lambda: None
+    scroll_right = lambda: None
+    scrollbars = getnodes(scroll, "scroll bar", recursive=False)
+    for scrollbar in scrollbars:
+        if scrollbar.size[0] > scrollbar.size[1]:
+            xbar = scrollbar
+            scroll_left = lambda: xbar.click(MOUSE_SCROLL_LEFT)
+            scroll_right = lambda: xbar.click(MOUSE_SCROLL_RIGHT)
+        else:
+            ybar = scrollbar
+            scroll_up = lambda: ybar.click(MOUSE_SCROLL_UP)
+            scroll_down = lambda: ybar.click(MOUSE_SCROLL_DOWN)
+
+    def toUp():
+        if ybar is not None:
+            while ybar.value != 0:
+                scroll_up()
+
+    def toLeft():
+        if xbar is not None:
+            while xbar.value != 0:
+                scroll_left()
 
     def scroll_to_screen():
         # widget is outside
         def inside():
             return scroll_dirs() != (None, None)
         if not inside():
-            scrollbars = getnodes(scroll, "scroll bar", recursive=False)
             xbar = None
             ybar = None
-            scroll_up = lambda: None
-            scroll_down = lambda: None
-            scroll_left = lambda: None
-            scroll_right = lambda: None
-            for scrollbar in scrollbars:
-                if scrollbar.size[0] > scrollbar.size[1]:
-                    xbar = scrollbar
-                    scroll_left = lambda: scroll.click(MOUSE_SCROLL_LEFT)
-                    scroll_right = lambda: scroll.click(MOUSE_SCROLL_RIGHT)
-                else:
-                    ybar = scrollbar
-                    scroll_up = lambda: scroll.click(MOUSE_SCROLL_UP)
-                    scroll_down = lambda: scroll.click(MOUSE_SCROLL_DOWN)
-            def toUp():
-                if ybar is not None:
-                    while ybar.value != 0:
-                        scroll_up()
-            def toLeft():
-                if xbar is not None:
-                    while xbar.value != 0:
-                        scroll_left()
             # scroll through all possible points in view
             # this is done similar way as typewriter types
             toUp()
@@ -343,7 +352,14 @@ def scrollto(node):
 
     scroll_to_screen()
     while scroll_dirs() != (0,0):
-        if scroll_dirs()[0] != 0:
-            scroll.click(scroll_dirs()[0])
-        if scroll_dirs()[1] != 0:
-            scroll.click(scroll_dirs()[1])
+        logger.debug("Node: %s" % node)
+        logger.debug("Location: %s" % repr(node.position))
+        logger.debug("Scroll direction: %s" % repr(scroll_dirs()))
+        if scroll_dirs()[0] == -1:
+            scroll_left()
+        if scroll_dirs()[0] == 1:
+            scroll_right()
+        if scroll_dirs()[1] == -1:
+            scroll_up()
+        if scroll_dirs()[1] == 1:
+            scroll_down()
