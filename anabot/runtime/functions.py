@@ -91,6 +91,27 @@ def getnode(parent, node_type=None, node_name=None, timeout=None,
             predicates=None, visible=True, sensitive=True, recursive=True):
     return getnodes(parent, node_type, node_name, timeout, predicates, visible, sensitive, recursive)[0]
 
+def getnode_scroll(parent, node_type=None, node_name=None, timeout=None,
+            predicates=None, sensitive=True, recursive=True):
+    if timeout is None:
+        timeout = 7
+    for x in range(timeout):
+        try:
+            nodes = getnodes(parent, node_type, node_name, None, predicates,
+                             None, sensitive, recursive)
+        except TimeoutError:
+            continue
+        try:
+            node = [n for n in nodes if getparent(n, "scroll pane").showing][0]
+            break
+        except IndexError:
+            pass
+        time.sleep(1)
+    else:
+        return TimeoutError("No predicate matches within timeout period")
+    scrollto(node)
+    return node
+
 def getparent(child, node_type=None, node_name=None, predicates=None):
     if predicates is None:
         predicates = {}
@@ -262,7 +283,7 @@ def scrollto(node):
     scroll = getparent(node, "scroll pane")
     corners = getcorners(scroll)
     def scroll_dirs():
-        # directions are in fact
+        # directions are in fact mouse button numbers
         # widget may be completely off screen
         if node.position == (-(2**31), -(2**31)):
             return None, None
