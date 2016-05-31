@@ -47,7 +47,7 @@ def _tr(translate, intext, drop_underscore=True, context=None):
     # https://bugs.python.org/issue2504#msg106121
     if context is not None:
         intext = context + "\x04" + intext
-    outtext = __translate.ugettext(intext)
+    outtext = translate.ugettext(intext)
     # drop context if there is no translation
     if context is not None and outtext == intext:
         outtext = outtext[len(context)+1:]
