@@ -108,7 +108,7 @@ def getnode_scroll(parent, node_type=None, node_name=None, timeout=None,
             pass
         time.sleep(1)
     else:
-        return TimeoutError("No predicate matches within timeout period")
+        raise TimeoutError("No predicate matches within timeout period")
     scrollto(node)
     return node
 
