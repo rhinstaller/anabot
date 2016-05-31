@@ -9,6 +9,7 @@ from anabot.runtime.functions import get_attr, getnode, getnodes, getsibling
 from anabot.runtime.functions import getparents, TimeoutError
 from anabot.runtime.translate import tr
 from anabot.runtime.translate import oscap_tr as oscap_tr_
+import re
 
 _local_path = '/installation/hub/oscap_addon'
 handle_act = lambda x: handle_action(_local_path + x)
@@ -331,6 +332,46 @@ def checklist_handler(element, app_node, local_node):
 @handle_chck('/select_checklist')
 def checklist_check(element, app_node, local_node):
     return checklist_manipulate(element, app_node, local_node, True)
+
+@handle_act('/check_changes')
+def check_changes_handler(element, app_node, local_node):
+    default_handler(element, app_node, local_node)
+
+@handle_chck('/check_changes')
+def check_changes_check(element, app_node, local_node):
+    return True
+
+@handle_act('/check_changes/line')
+def check_changes_line_handler(element, app_node, local_node):
+    pass
+
+@handle_chck('/check_changes/line')
+def check_changes_line_check(element, app_node, local_node):
+    raw_text = get_attr(element, "text")
+    params = get_attr(element, "params")
+    if params is not None:
+        params = tuple(params.split())
+    # ugly workaround for broken translations:
+    if raw_text == "No rules for the pre-installation phase":
+        translated_text = oscap_tr_(raw_text)
+    else:
+        translated_text = raw_text
+
+    # regex is not 100% accurate, but should be sufficient for these purposes
+    translated_text = re.sub(r'%((\(\w+\)(\d+\.)?\d*\w)|(\d+\.)?\d*\w)', '%s', translated_text)
+    if params is not None:
+        translated_text = translated_text % params
+    try:
+        changes_label = getnode(local_node, "label",
+                                oscap_tr("Changes that were done or need to be done:"))
+        changes_table = getsibling(changes_label, 2)
+    except TimeoutError:
+        return(False, "Couldn't find \"Changes that were done...\" label or table with changes.")
+    try:
+        getnode(changes_table, "table cell", predicates={"name": translated_text})
+        return True
+    except TimeoutError:
+        return (False, "Couldn't find line \"%s\" in changes table." % translated_text)
 
 @handle_act('/done')
 def done_handler(element, app_node, local_node):
