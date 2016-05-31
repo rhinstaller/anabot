@@ -215,13 +215,16 @@ def change_content_fetch_handler(element, app_node, local_node):
 @handle_chck('/change_content/fetch')
 def change_content_fetch_check(element, app_node, local_node):
     try:
-        infobar = getnode(local_node, "info bar",
-                          predicates={"name": tr("Error")})
-        error = getnode(infobar, "label").text
-        logger.info("SCAP content fetch error: \"%s\"" % error)
-        result = False
-    except TimeoutError:
+        getnode(local_node, "push button", "_Fetch", visible=False)
         result = True
+    except TimeoutError:
+        try:
+            infobar = getnode(local_node, "info bar",
+                            predicates={"name": tr("Error")})
+            error = getnode(infobar, "label").text
+            result = (False, "SCAP content fetch error: \"%s\"" % error)
+        except TimeoutError:
+            result = (False, "Couldn't get SCAP content fetch error.")
     return result
 
 @handle_act('/change_content/use_ssg')
