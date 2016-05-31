@@ -9,7 +9,7 @@ from fnmatch import fnmatchcase
 
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler, action_result
-from anabot.runtime.functions import get_attr, getnode, getnodes, getparent, getsibling
+from anabot.runtime.functions import get_attr, getnode, getnode_scroll, getnodes, getparent, getsibling
 from anabot.runtime.comps import reload_comps, get_comps
 from anabot.runtime.errors import TimeoutError
 from anabot.runtime.translate import tr, comps_tr_env, comps_tr_group, comps_tr_env_desc, comps_tr_group_desc, comps_tr_env_rev
@@ -112,7 +112,7 @@ def addon_handler_manipulate(element, app_node, local_node, dry_run):
         group_label_text = comps_tr_group(group_id)+"\n"+comps_tr_group_desc(group_id)
         logger.debug("Using group label: %s", group_label_text)
         try:
-            group_label = getnode(group_list, "label", group_label_text)
+            group_label = getnode_scroll(group_list, "label", group_label_text)
         except TimeoutError:
             reporter.log_fail("Couldn't find label for group: %s" % group_id)
             result = not check
