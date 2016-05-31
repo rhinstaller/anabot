@@ -80,7 +80,7 @@ def choose_manipulate(element, app_node, local_node, dryrun):
             profile = [p for p in available_profiles
                     if p.name.splitlines()[0] == profile_name][0]
         except IndexError:
-            return
+            return (False, "Couldn't find profile \"%s\"." % profile_name)
     elif mode == "random":
         profile = available_profiles[randint(0, len(available_profiles) - 1)]
     # choose a random profile other than already selected
@@ -95,23 +95,23 @@ def choose_manipulate(element, app_node, local_node, dryrun):
         else:
             profile = available_profiles[0]
     else:
-        if dryrun:
-            return False
-        else:
-            logger.warning("Unknown selection mode: %s" % mode)
-            return
+        return (False, "Unknown selection mode: %s" % mode)
 
     if dryrun:
+        result = default_result(element)
+        if not result[0]:
+            return result
         selected = lambda x: x.selected
         if mode == "manual":
-            result = profile.selected
+            if not profile.selected:
+                result = (False, "Profile %s hasn't been chosen." % profile.name)
         elif mode == "random":
-            result = any(map(selected, available_profiles))
+            if not any(map(selected, available_profiles)):
+                result = (False, "No profile has been chosen.")
         elif mode == "random_strict":
-            result = any(map(selected, [p for p in available_profiles
-                                        if p is not _chosen_profile]))
-        else:
-            result = False
+            if not any(map(selected, [p for p in available_profiles
+                                      if p is not _chosen_profile])):
+                result = (False, "Profile choice hasn't changed.")
         return result
     else:
         global _selected_profile
