@@ -48,11 +48,10 @@ def base_check(element, app_node, local_node):
     if action_result(element)[0] == False:
         return action_result(element)
     try:
-        spoke_label = getnode(app_node, "label", tr("SOFTWARE SELECTION"))
-        local_node = getparent(spoke_label, "filler")
-        return (False, "Package selection spoke is still visible.")
-    except TimeoutError:
+        spoke_label = getnode(app_node, "label", tr("SOFTWARE SELECTION"), visible=False)
         return True
+    except TimeoutError:
+        return (False, "Software selection spoke is still visible.")
 
 def env_list_node(local_node):
     return getnode(local_node, "list box")
