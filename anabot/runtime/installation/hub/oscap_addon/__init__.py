@@ -7,13 +7,21 @@ from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.functions import get_attr, getnode, getnodes, getsibling
 from anabot.runtime.functions import getparents, TimeoutError
-from anabot.runtime.translate import tr, oscap_tr
+from anabot.runtime.translate import tr
+from anabot.runtime.translate import oscap_tr as oscap_tr_
 
 _local_path = '/installation/hub/oscap_addon'
 handle_act = lambda x: handle_action(_local_path + x)
 handle_chck = lambda x: handle_check(_local_path + x)
 _chosen_profile = None
 _selected_profile = None
+
+# temporary workaround for broken translation
+def oscap_tr(intext, drop_underscore=True):
+    if drop_underscore:
+        return(intext.replace("_", ""))
+    else:
+        return intext
 
 def default_result(element):
     result = action_result(element)
@@ -342,7 +350,7 @@ def done_check(element, app_node, local_node):
             oscap_addon_selector = getnode(app_node, "spoke selector",
                                         oscap_tr("SECURITY POLICY"))
             oscap_addon_status = getnode(oscap_addon_selector, "label").text
-            if not oscap_addon_status == oscap_tr("Everything okay"):
+            if not oscap_addon_status == oscap_tr_("Everything okay"):
                 return(False, "OSCAP addon status: \"%s\"" % oscap_addon_status)
         except TimeoutError as e:
             return(False, "OSCAP addon selector button or status label not found: %s" % e)
