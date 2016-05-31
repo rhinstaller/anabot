@@ -363,3 +363,17 @@ def scrollto(node):
             scroll_up()
         if scroll_dirs()[1] == 1:
             scroll_down()
+
+def combo_scroll(item):
+    def center():
+        return item.position[1] + item.size[1]/2
+    menu = getparent(item, "menu")
+    first = getnode(menu, "menu item")
+    margin = first.position[1] - menu.position[1]
+    if margin == 0:
+        return
+    miny, maxy = margin, menu.size[1] - margin
+    while center() < miny:
+        menu.click(MOUSE_SCROLL_UP)
+    while center() > maxy:
+        menu.click(MOUSE_SCROLL_DOWN)
