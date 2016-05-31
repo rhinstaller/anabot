@@ -12,15 +12,15 @@
     <datetime>
       <region value="Americas" />
       <city value="New York" />
-      <ntp>
-	<enabled value="true" />
+      <ntp action="enable" />
+      <ntp_settings>
 	<server hostname="*" action="delete" />
 	<server hostname="*" action="disable" />
 	<server hostname="0.rhel.pool.ntp.org" action="disable" />
 	<server hostname="clock.corp.redhat.com" action="add" />
 	<server hostname="test.clock.corp.redhat.com" action="add" />
 	<server hostname="test.clock.corp.redhat.com" action="disable" />
-      </ntp>
+      </ntp_settings>
       <time>
 	<hours value="08" />
 	<minutes value="09" />
