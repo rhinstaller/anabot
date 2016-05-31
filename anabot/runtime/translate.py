@@ -57,4 +57,12 @@ def comps_tr_group_desc(group_id):
     comps = get_comps()
     return comps.tr_group_desc(group_id, __languages)
 
+def datetime_tr(name):
+    for lang in __languages:
+        translated = langtable.timezone_name(timezoneId=name,
+                                             languageIdQuery=lang)
+        if translated != name:
+            return translated
+    return name
+
 set_languages(['en'])
