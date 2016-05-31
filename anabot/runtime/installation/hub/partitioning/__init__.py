@@ -18,7 +18,7 @@ handle_chck = lambda x: handle_check(_local_path + x)
 
 @handle_act('')
 def base_handler(element, app_node, local_node):
-    partitioning_label = tr("_INSTALLATION DESTINATION", context="GUI|Spoke")
+    partitioning_label = tr("INSTALLATION _DESTINATION", context="GUI|Spoke")
     partitioning = getnode_scroll(app_node, "spoke selector",
                                   partitioning_label)
     partitioning.click()
