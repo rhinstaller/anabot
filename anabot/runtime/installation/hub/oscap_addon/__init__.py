@@ -33,18 +33,21 @@ def default_result(element):
 
 @handle_act('')
 def base_handler(element, app_node, local_node):
-    logger.debug(element.nodePath())
     global _oscap_addon_visited
     try:
-        oscap_addon = getnode(app_node, "spoke selector", oscap_tr("SECURITY POLICY"))
+        oscap_addon = getnode(app_node, "spoke selector",
+                              oscap_tr("SECURITY POLICY"))
         oscap_addon.click()
     except TimeoutError:
         return (False, "Couldn't find \"SECURITY POLICY\" spoke selector")
     try:
-        oscap_addon_label = getnode(app_node, "label", oscap_tr("SECURITY POLICY"))
-        oscap_addon_panel = getparents(oscap_addon_label, predicates={'roleName': 'panel'})[2]
+        oscap_addon_label = getnode(app_node, "label",
+                                    oscap_tr("SECURITY POLICY"))
+        oscap_addon_panel = getparents(oscap_addon_label,
+                                       predicates={'roleName': 'panel'})[2]
     except TimeoutError:
-        return (False, "Couldn't find \"SECURITY POLICY\" label or OSCAP addon panel")
+        return (False, "Couldn't find \"SECURITY POLICY\" "
+                "label or OSCAP addon panel")
     default_handler(element, app_node, oscap_addon_panel)
 
 @handle_chck('')
@@ -54,13 +57,15 @@ def base_check(element, app_node, local_node):
 def choose_manipulate(element, app_node, local_node, dryrun):
     mode = get_attr(element, "mode", "manual")
     try:
-        profiles_label = getnode(local_node, "label", oscap_tr("Choose profile below:"))
+        profiles_label = getnode(local_node, "label",
+                                 oscap_tr("Choose profile below:"))
         profiles_table = getsibling(profiles_label, 2)
     except TimeoutError:
-        return (False, "Couldn't find \"Choose profile below:\" label or profiles table.")
+        return (False, "Couldn't find \"Choose profile below:\" "
+                "label or profiles table.")
     try:
         available_profiles = [p for p in getnodes(profiles_table, "table cell")
-                            if p.text]
+                              if p.text]
     except TimeoutError:
         return (False, "Couldn't find profiles (table cells)")
     profile = None # profile to be selected
@@ -88,11 +93,14 @@ def choose_manipulate(element, app_node, local_node, dryrun):
     elif mode == "random_strict":
         if len(available_profiles) > 1:
             if len(selected_profile) == 0:
-                profile = available_profiles[randint(0, len(available_profiles) - 1)]
+                profile = available_profiles[
+                    randint(0, len(available_profiles) - 1)]
             elif len(selected_profile) == 1:
                 profile_no = available_profiles.index(selected_profile[0])
-                while profile == None or profile_no == available_profiles.index(profile):
-                    profile = available_profiles[randint(0, len(available_profiles) - 1)]
+                while (profile == None
+                       or profile_no == available_profiles.index(profile)):
+                    profile = available_profiles[
+                        randint(0, len(available_profiles) - 1)]
         else:
             profile = available_profiles[0]
     else:
@@ -105,7 +113,8 @@ def choose_manipulate(element, app_node, local_node, dryrun):
         selected = lambda x: x.selected
         if mode == "manual":
             if not profile.selected:
-                result = (False, "Profile %s hasn't been chosen." % profile.name)
+                result = (False, "Profile %s hasn't been chosen."
+                          % profile.name)
         elif mode == "random":
             if not any(map(selected, available_profiles)):
                 result = (False, "No profile has been chosen.")
@@ -130,7 +139,8 @@ def choose_check(element, app_node, local_node):
 @handle_act('/select')
 def select_handler(element, app_node, local_node):
     try:
-        select_button = getnode(local_node, "push button", oscap_tr("_Select profile"),
+        select_button = getnode(local_node, "push button",
+                                oscap_tr("_Select profile"),
                                 sensitive=None)
     except TimeoutError:
         return (False, "Couldn't find \"Select profile\" button.")
@@ -139,7 +149,8 @@ def select_handler(element, app_node, local_node):
 @handle_chck('/select')
 def select_check(element, app_node, local_node):
     try:
-        select_button = getnode(local_node, "push button", oscap_tr("_Select profile"),
+        select_button = getnode(local_node, "push button",
+                                oscap_tr("_Select profile"),
                                 sensitive=False)
     except TimeoutError:
         return (False, "Couldn't find \"Select profile\" button.")
@@ -156,13 +167,15 @@ def select_check(element, app_node, local_node):
     return result
 
 def change_content_manipulate(element, app_node, local_node, dryrun):
-    change_button = getnode(local_node, "push button", oscap_tr("_Change content"))
+    change_button = getnode(local_node, "push button",
+                            oscap_tr("_Change content"))
     if dryrun:
         return default_result(element)
     else:
         change_button.click()
         try:
-            getnode(local_node, "push button", oscap_tr("_Use SCAP Security Guide"))
+            getnode(local_node, "push button",
+                    oscap_tr("_Use SCAP Security Guide"))
         except TimeoutError:
             return (False, "Couldn't find \"Use SCAP Security Guide\" button.")
         default_handler(element, app_node, local_node)
@@ -186,11 +199,13 @@ def change_content_source_manipulate(element, app_node, local_node, dryrun):
 
 @handle_act('/change_content/source')
 def change_content_source_handler(element, app_node, local_node):
-    return change_content_source_manipulate(element, app_node, local_node, False)
+    return change_content_source_manipulate(element, app_node,
+                                            local_node, False)
 
 @handle_chck('/change_content/source')
 def change_content_source_check(element, app_node, local_node):
-    return change_content_source_manipulate(element, app_node, local_node, True)
+    return change_content_source_manipulate(element, app_node,
+                                            local_node, True)
 
 @handle_act('/change_content/fetch')
 def change_content_fetch_handler(element, app_node, local_node):
@@ -211,13 +226,15 @@ def change_content_fetch_check(element, app_node, local_node):
 
 @handle_act('/change_content/use_ssg')
 def change_content_use_ssg_handler(element, app_node, local_node):
-    use_ssg_button = getnode(local_node, "push button", oscap_tr("_Use SCAP Security Guide"))
+    use_ssg_button = getnode(local_node, "push button",
+                             oscap_tr("_Use SCAP Security Guide"))
     use_ssg_button.click()
 
 @handle_chck('/change_content/use_ssg')
 def change_content_use_ssg_check(element, app_node, local_node):
     try:
-        getnode(local_node, "push button", oscap_tr("_Use SCAP Security Guide"), visible=False)
+        getnode(local_node, "push button",
+                oscap_tr("_Use SCAP Security Guide"), visible=False)
         result = True
     except TimeoutError:
         result = (False, "Couldn't find \"Use SCAP Security Guide\" button.")
@@ -226,10 +243,13 @@ def change_content_use_ssg_check(element, app_node, local_node):
 def apply_policy_manipulate(element, app_node, local_node, dryrun):
     policy_action = get_attr(element, "action")
     try:
-        apply_policy_label = getnode(local_node, "label", oscap_tr("Apply security policy:"))
+        apply_policy_label = getnode(local_node, "label",
+                                     oscap_tr("Apply security policy:"))
         policy_button = getsibling(apply_policy_label, 2)
     except TimeoutError:
-        return (False, "Couldn't find \"Apply security policy:\" label or policy button/switch.")
+        return (False, "Couldn't find \"Apply security policy:\" label "
+                "or policy button/switch.")
+
     if dryrun:
         return (policy_action == "enable" and policy_button.checked
                 or policy_action == "disable" and not policy_button.checked)
@@ -256,8 +276,8 @@ def datastream_manipulate(element, app_node, local_node, dryrun):
             ds_combo.click()
             ds_items = getnodes(ds_combo, "menu item")
     except TimeoutError:
-        return (False,
-                "Couldn't find \"Data stream:\" label or data stream combo box or menu items.")
+        return (False, "Couldn't find \"Data stream:\" label or data stream "
+                "combo box or menu items.")
     if dryrun:
         result = default_result(element)
         if not result[0]:
@@ -275,7 +295,7 @@ def datastream_manipulate(element, app_node, local_node, dryrun):
                 ds_combo.click()
                 return (False, "Data stream '%s' not found" % datastream)
         elif mode == "random":
-            ds_item = ds_items[randint(0, len(ds_items)-1)]
+            ds_item = ds_items[randint(0, len(ds_items) - 1)]
         ds_item.click()
 
 @handle_act('/select_datastream')
@@ -296,7 +316,8 @@ def checklist_manipulate(element, app_node, local_node, dryrun):
             checklist_combo.click()
             checklist_items = getnodes(checklist_combo, "menu item")
     except TimeoutError:
-        return (False, "Couldn't find \"Checklist:\" label, combo box or menu items")
+        return (False, "Couldn't find \"Checklist:\" label, combo box "
+                "or menu items")
     if dryrun:
         result = default_result(element)
         if not result[0]:
@@ -304,10 +325,12 @@ def checklist_manipulate(element, app_node, local_node, dryrun):
         if mode == "manual":
             datastream = get_attr(element, "id")
             try:
-                checklist_label = getnode(local_node, "label", oscap_tr("Checklist:"))
+                checklist_label = getnode(local_node, "label",
+                                          oscap_tr("Checklist:"))
                 checklist_combo = getsibling(checklist_label, 2)
             except TimeoutError:
-                return (False, "Couldn't find \"Checklist:\" label or combo box.")
+                return (False, "Couldn't find \"Checklist:\" "
+                        "label or combo box.")
             result = checklist_combo.name == datastream
         elif mode == "random":
             return checklist_combo.name != ""
@@ -315,12 +338,14 @@ def checklist_manipulate(element, app_node, local_node, dryrun):
     else:
         if mode == "manual":
             try:
-                checklist_item = getnode(checklist_combo, "menu item", checklist)
+                checklist_item = getnode(checklist_combo, "menu item",
+                                         checklist)
             except TimeoutError:
                 checklist_combo.click()
                 return(False, "Checklist \"%s\" not found" % checklist)
         elif mode == "random":
-            checklist_item = checklist_items[randint(0, len(checklist_items)-1)]
+            checklist_item = checklist_items[
+                randint(0, len(checklist_items) - 1)]
         else:
             return (False, "Unknown mode: \"%s\"" % mode)
         checklist_item.click()
@@ -358,28 +383,32 @@ def check_changes_line_check(element, app_node, local_node):
         translated_text = raw_text
 
     # regex is not 100% accurate, but should be sufficient for these purposes
-    translated_text = re.sub(r'%((\(\w+\)(\d+\.)?\d*\w)|(\d+\.)?\d*\w)', '%s', translated_text)
+    translated_text = re.sub(r'%((\(\w+\)(\d+\.)?\d*\w)|(\d+\.)?\d*\w)', '%s',
+                             translated_text)
     if params is not None:
         translated_text = translated_text % params
     try:
         changes_label = getnode(local_node, "label",
-                                oscap_tr("Changes that were done or need to be done:"))
+                                oscap_tr("Changes that were done or need "
+                                         "to be done:"))
         changes_table = getsibling(changes_label, 2)
     except TimeoutError:
-        return(False, "Couldn't find \"Changes that were done...\" label or table with changes.")
+        return(False, "Couldn't find \"Changes that were done...\" label "
+               "or table with changes.")
     try:
-        getnode(changes_table, "table cell", predicates={"name": translated_text})
+        getnode(changes_table, "table cell",
+                predicates={"name": translated_text})
         return True
     except TimeoutError:
-        return (False, "Couldn't find line \"%s\" in changes table." % translated_text)
+        return (False,
+                "Couldn't find line \"%s\" in changes table."
+                % translated_text)
 
 @handle_act('/done')
 def done_handler(element, app_node, local_node):
     try:
         done_button = getnode(local_node, "push button", tr("_Done", False))
     except TimeoutError:
-        logger.debug([str(x) for x in getnodes(local_node, "push button")])
-        logger.debug(tr("_Done"))
         return (False, "Couldn't find \"Done\" button.")
     done_button.click()
 
@@ -392,8 +421,10 @@ def done_check(element, app_node, local_node):
                                         oscap_tr("SECURITY POLICY"))
             oscap_addon_status = getnode(oscap_addon_selector, "label").text
             if not oscap_addon_status == oscap_tr_("Everything okay"):
-                return(False, "OSCAP addon status: \"%s\"" % oscap_addon_status)
+                return(False, "OSCAP addon status: \"%s\""
+                       % oscap_addon_status)
         except TimeoutError as e:
-            return(False, "OSCAP addon selector button or status label not found: %s" % e)
+            return(False, "OSCAP addon selector button or status label not "
+                   "found: %s" % e)
     return result
 
