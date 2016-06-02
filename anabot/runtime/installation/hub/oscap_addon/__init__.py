@@ -395,20 +395,28 @@ def checklist_handler(element, app_node, local_node):
 def checklist_check(element, app_node, local_node):
     return checklist_manipulate(element, app_node, local_node, True)
 
-@handle_act('/check_changes')
-def check_changes_handler(element, app_node, local_node):
+@handle_act('/changes')
+def changes_handler(element, app_node, local_node):
     default_handler(element, app_node, local_node)
 
-@handle_chck('/check_changes')
-def check_changes_check(element, app_node, local_node):
+@handle_chck('/changes')
+def changes_check(element, app_node, local_node):
     return True
 
-@handle_act('/check_changes/line')
-def check_changes_line_handler(element, app_node, local_node):
-    pass
+@handle_act('/changes/info')
+@handle_act('/changes/warning')
+@handle_act('/changes/error')
+def changes_line_handler(element, app_node, local_node):
+    # TODO: implement separate info/warning/error handlers when/if it becomes
+    # possible to recognize the different message types through ATK
+    if element in {'/changes/info', '/changes/warning', '/changes/error'}:
+        logger.warn("Specialized handler for %s not available, using "
+                    "generic one." % element)
 
-@handle_chck('/check_changes/line')
-def check_changes_line_check(element, app_node, local_node):
+@handle_chck('/changes/info')
+@handle_chck('/changes/warning')
+@handle_chck('/changes/error')
+def changes_line_check(element, app_node, local_node):
     raw_text = get_attr(element, "text")
     params = get_attr(element, "params")
     if params is not None:
