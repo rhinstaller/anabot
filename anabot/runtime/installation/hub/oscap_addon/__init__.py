@@ -167,8 +167,11 @@ def select_check(element, app_node, local_node):
     return result
 
 def change_content_manipulate(element, app_node, local_node, dryrun):
-    change_button = getnode(local_node, "push button",
-                            oscap_tr("_Change content"))
+    try:
+        change_button = getnode(local_node, "push button",
+                                oscap_tr("_Change content"))
+    except TimeoutError:
+        return (False, "Couldn't find \"_Change content\" button.")
     if dryrun:
         return default_result(element)
     else:
@@ -192,8 +195,11 @@ def change_content_check(element, app_node, local_node):
     return result
 
 def change_content_source_manipulate(element, app_node, local_node, dryrun):
-    fetch_button = getnode(local_node, "push button", oscap_tr("_Fetch"))
-    datastream_url_input = getsibling(fetch_button, -2)
+    try:
+        fetch_button = getnode(local_node, "push button", oscap_tr("_Fetch"))
+        datastream_url_input = getsibling(fetch_button, -2)
+    except TimeoutError:
+        return (False, "Couldn't find \"_Fetch\" button or URL input box.")
     url = get_attr(element, "url")
     if dryrun:
         return datastream_url_input.text == url
