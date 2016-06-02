@@ -49,6 +49,8 @@ def region_handler(element, app_node, local_node):
 
 @handle_chck('/region')
 def region_check(element, app_node, local_node):
+    if action_result(element)[0] == False:
+        return action_result(element)
     value = get_attr(element, "value")
     # I don't know why, but the region is not translated in name of widget
     #region_name = datetime_tr(value)
@@ -56,7 +58,9 @@ def region_check(element, app_node, local_node):
     region_label = getnode(local_node, "label",
                            tr("_Region:", context="GUI|Date and Time"))
     region_combo = getsibling(region_label, 1, "combo box")
-    return unicode(region_combo.name) == unicode(region_name)
+    if unicode(region_combo.name) == unicode(region_name):
+        return True
+    return (False, "Expected region: '%s', saw: '%s'" % (region_combo.name, region_name))
 
 @handle_act('/city')
 def city_handler(element, app_node, local_node):
@@ -69,11 +73,12 @@ def city_handler(element, app_node, local_node):
     city_combo.actions['press'].do()
     combo_window = getnode(app_node, "window")
     city_item = getnode(combo_window, "menu item", city_name)
-    combo_scroll(city_item)
-    city_item.click()
+    combo_scroll(city_item, click=1)
 
 @handle_chck('/city')
 def city_check(element, app_node, local_node):
+    if action_result(element)[0] == False:
+        return action_result(element)
     value = get_attr(element, "value")
     # I don't know why, but the city is not translated in name of widget
     #city_name = datetime_tr(value)
@@ -81,18 +86,22 @@ def city_check(element, app_node, local_node):
     city_label = getnode(local_node, "label",
                          tr("_City:", context="GUI|Date and Time"))
     city_combo = getsibling(city_label, 1, "combo box")
-    return unicode(city_combo.name) == unicode(city_name)
+    if unicode(city_combo.name) == unicode(city_name):
+        return True
+    return (False, "Expected city: '%s', saw: '%s'" % (city_combo.name, city_name))
 
 @handle_act('/ntp')
 def ntp_handler(element, app_node, local_node):
-    enable = get_attr(element, "value") == "enable"
+    enable = get_attr(element, "action", "enable") == "enable"
     ntp_toggle = getnode(local_node, "toggle button", tr("Use Network Time"))
     if ntp_toggle.checked != enable:
         ntp_toggle.click()
 
 @handle_chck('/ntp')
 def ntp_check(element, app_node, local_node):
-    enable = get_attr(element, "value") == "enable"
+    if action_result(element)[0] == False:
+        return action_result(element)
+    enable = get_attr(element, "action", "enable") == "enable"
     ntp_toggle = getnode(local_node, "toggle button", tr("Use Network Time"))
     if ntp_toggle.checked != enable:
         return (False, "")
@@ -130,6 +139,8 @@ def ntp_settings_add_handler(element, app_node, local_node):
 
 @handle_chck('/ntp_settings/add')
 def ntp_settings_add_check(element, app_node, local_node):
+    if action_result(element)[0] == False:
+        return action_result(element)
     hostname = unicode(get_attr(element, "hostname"))
     table = getnode(local_node, "table")
     for candidate in getnodes(table, "table cell")[::3]:
@@ -187,6 +198,8 @@ def ntp_settings_enable_handler(element, app_node, local_node):
 
 @handle_chck('/ntp_settings/enable')
 def ntp_settings_enable_check(element, app_node, local_node):
+    if action_result(element)[0] == False:
+        return action_result(element)
     return ntp_settings_enable_manipulate(element, app_node, local_node, True, True)
 
 @handle_act('/ntp_settings/disable')
@@ -195,6 +208,8 @@ def ntp_settings_disable_handler(element, app_node, local_node):
 
 @handle_chck('/ntp_settings/disable')
 def ntp_settings_disable_check(element, app_node, local_node):
+    if action_result(element)[0] == False:
+        return action_result(element)
     return ntp_settings_enable_manipulate(element, app_node, local_node, False, True)
 
 @handle_act('/time')
@@ -220,6 +235,8 @@ def time_hours_handler(element, app_node, local_node):
 
 @handle_chck('/time/hours')
 def time_hours_check(element, app_node, local_node):
+    if action_result(element)[0] == False:
+        return action_result(element)
     value = get_attr(element, "value")
     hours_label = getnode(local_node, "label", tr("Hours"))
     if hours_label.text == value:
@@ -239,6 +256,8 @@ def time_minutes_handler(element, app_node, local_node):
 
 @handle_chck('/time/minutes')
 def time_minutes_check(element, app_node, local_node):
+    if action_result(element)[0] == False:
+        return action_result(element)
     value = get_attr(element, "value")
     minutes_label = getnode(local_node, "label", tr("Minutes"))
     if minutes_label.text == value:
@@ -266,10 +285,14 @@ def time_format_handler(element, app_node, local_node):
 
 @handle_chck('/time/format')
 def time_format_check(element, app_node, local_node):
+    if action_result(element)[0] == False:
+        return action_result(element)
     return time_format_manipulate(element, app_node, local_node, True)
 
 @handle_act('/time/ampm')
 def time_ampm_handler(element, app_node, local_node):
+    if action_result(element)[0] == False:
+        return action_result(element)
     value = tr(get_attr(element, "value"))
     am = tr("AM")
     pm = tr("PM")
@@ -290,6 +313,8 @@ def time_ampm_handler(element, app_node, local_node):
 
 @handle_chck('/time/ampm')
 def time_ampm_check(element, app_node, local_node):
+    if action_result(element)[0] == False:
+        return action_result(element)
     value = tr(get_attr(element, "value"))
     try:
         ampm_label = getnode(local_node, "label", value)
@@ -317,36 +342,63 @@ def date_month_handler(element, app_node, local_node):
     month_combo = local_node[0]
     month_combo.click()
     window = getnode(app_node, "window")
-    item = getnode(window, "menu item", value)
-    combo_scroll(item)
-    item.click()
+    try:
+        item = getnode(window, "menu item", value)
+    except TimeoutError:
+        press_key('esc')
+        return (False, "Specified month is not available")
+    combo_scroll(item, click=1)
+    return True
 
 @handle_chck('/date/month')
 def date_month_check(element, app_node, local_node):
+    if action_result(element)[0] == False:
+        return action_result(element)
     value = get_attr(element, "value")
     month_combo = local_node[0]
-    pass
+    if month_combo.name == value:
+        return True
+    return (False, "Expected month: %s, saw: %s" % (month_combo.name, value))
 
 @handle_act('/date/day')
 def date_day_handler(element, app_node, local_node):
     value = get_attr(element, "value")
     day_combo = local_node[1]
-    pass
+    day_combo.click()
+    window = getnode(app_node, "window")
+    try:
+        item = getnode(window, "menu item", value)
+    except TimeoutError:
+        press_key('esc')
+        return (False, "Specified day is not available (maybe wrong month)")
+    combo_scroll(item, click=1)
+    return True
 
 @handle_chck('/date/day')
 def date_day_check(element, app_node, local_node):
+    if action_result(element)[0] == False:
+        return action_result(element)
     value = get_attr(element, "value")
     day_combo = local_node[1]
-    pass
+    if day_combo.name == value:
+        return True
+    return (False, "Expected day: %s, saw: %s" % (day_combo.name, value))
 
 @handle_act('/date/year')
 def date_year_handler(element, app_node, local_node):
     value = get_attr(element, "value")
     year_combo = local_node[2]
-    pass
+    year_combo.click()
+    window = getnode(app_node, "window")
+    item = getnode(window, "menu item", value)
+    combo_scroll(item, click=1)
 
 @handle_chck('/date/year')
 def date_year_check(element, app_node, local_node):
+    if action_result(element)[0] == False:
+        return action_result(element)
     value = get_attr(element, "value")
     year_combo = local_node[2]
-    pass
+    if year_combo.name == value:
+        return True
+    return (False, "Expected year: %s, saw: %s" % (year_combo.name, value))
