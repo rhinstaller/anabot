@@ -153,7 +153,7 @@ def select_check(element, app_node, local_node):
                                 oscap_tr("_Select profile"),
                                 sensitive=False)
     except TimeoutError:
-        return (False, "Couldn't find \"Select profile\" button.")
+        return (False, "Couldn't find sensitive \"Select profile\" button.")
 
     if _selected_profile is None:
         result = (False, "No profile has been selected.")
@@ -186,7 +186,10 @@ def change_content_handler(element, app_node, local_node):
 
 @handle_chck('/change_content')
 def change_content_check(element, app_node, local_node):
-    return change_content_manipulate(element, app_node, local_node, True)
+    result = default_result(element)
+    if result[0]:
+        result = change_content_manipulate(element, app_node, local_node, True)
+    return result
 
 def change_content_source_manipulate(element, app_node, local_node, dryrun):
     fetch_button = getnode(local_node, "push button", oscap_tr("_Fetch"))
@@ -209,38 +212,55 @@ def change_content_source_check(element, app_node, local_node):
 
 @handle_act('/change_content/fetch')
 def change_content_fetch_handler(element, app_node, local_node):
-    fetch_button = getnode(app_node, "push button", oscap_tr("_Fetch"))
+    try:
+        fetch_button = getnode(app_node, "push button", oscap_tr("_Fetch"))
+    except TimeoutError:
+        return (False, "Couldn't find \"_Fetch\" button.")
     fetch_button.click()
 
 @handle_chck('/change_content/fetch')
 def change_content_fetch_check(element, app_node, local_node):
-    try:
-        getnode(local_node, "push button", "_Fetch", visible=False)
-        result = True
-    except TimeoutError:
+    global _selected_profile
+    result = default_result(element)
+    if result[0]:
         try:
-            infobar = getnode(local_node, "info bar",
-                            predicates={"name": tr("Error")})
-            error = getnode(infobar, "label").text
-            result = (False, "SCAP content fetch error: \"%s\"" % error)
+            getnode(local_node, "push button", oscap_tr("_Change content"))
+            result = True
+            _selected_profile = None
         except TimeoutError:
-            result = (False, "Couldn't get SCAP content fetch error.")
+            try:
+                infobar = getnode(local_node, "info bar",
+                                predicates={"name": tr("Error")})
+                error = getnode(infobar, "label").text
+                url = get_attr(element, "url")
+                result = (False, "SCAP content fetch error: \"%s\", URL: %s"
+                          % (error, url))
+            except TimeoutError:
+                result = (False, "Couldn't get SCAP content fetch error.")
     return result
 
 @handle_act('/change_content/use_ssg')
 def change_content_use_ssg_handler(element, app_node, local_node):
-    use_ssg_button = getnode(local_node, "push button",
-                             oscap_tr("_Use SCAP Security Guide"))
-    use_ssg_button.click()
+    global _selected_profile
+    try:
+        use_ssg_button = getnode(local_node, "push button",
+                                oscap_tr("_Use SCAP Security Guide"))
+        use_ssg_button.click()
+        _selected_profile = None
+    except TimeoutError:
+        return (False, "Couldn't find \"Use SCAP Security Guide\" button.")
 
 @handle_chck('/change_content/use_ssg')
 def change_content_use_ssg_check(element, app_node, local_node):
-    try:
-        getnode(local_node, "push button",
-                oscap_tr("_Use SCAP Security Guide"), visible=False)
-        result = True
-    except TimeoutError:
-        result = (False, "Couldn't find \"Use SCAP Security Guide\" button.")
+    result = default_result(element)
+    if default_result[0]:
+        try:
+            getnode(local_node, "push button",
+                    oscap_tr("_Use SCAP Security Guide"), visible=False)
+            result = True
+        except TimeoutError:
+            result = (False, "Couldn't find \"Use SCAP Security Guide\" "
+                      "button.")
     return result
 
 def apply_policy_manipulate(element, app_node, local_node, dryrun):
@@ -270,6 +290,7 @@ def apply_policy_check(element, app_node, local_node):
     return apply_policy_manipulate(element, app_node, local_node, True)
 
 def datastream_manipulate(element, app_node, local_node, dryrun):
+    global _selected_profile
     datastream = get_attr(element, "id")
     mode = get_attr(element, "mode", "manual")
     try:
@@ -291,6 +312,7 @@ def datastream_manipulate(element, app_node, local_node, dryrun):
             result = ds_combo.name == datastream
         return result
     else:
+        current_ds = ds_combo.name
         if mode == "manual":
             try:
                 ds_item = getnode(ds_combo, "menu item", datastream)
@@ -300,6 +322,8 @@ def datastream_manipulate(element, app_node, local_node, dryrun):
         elif mode == "random":
             ds_item = ds_items[randint(0, len(ds_items) - 1)]
         ds_item.click()
+        if current_ds != ds_combo.name:
+            _selected_profile = None
 
 @handle_act('/select_datastream')
 def datastream_handler(element, app_node, local_node):
@@ -310,6 +334,7 @@ def datastream_chck(element, app_node, local_node):
     return datastream_manipulate(element, app_node, local_node, True)
 
 def checklist_manipulate(element, app_node, local_node, dryrun):
+    global _selected_profile
     checklist = get_attr(element, "id")
     mode = get_attr(element, "mode", "manual")
     try:
@@ -339,6 +364,7 @@ def checklist_manipulate(element, app_node, local_node, dryrun):
             return checklist_combo.name != ""
         return result
     else:
+        current_checklist = checklist_combo.name
         if mode == "manual":
             try:
                 checklist_item = getnode(checklist_combo, "menu item",
@@ -352,6 +378,8 @@ def checklist_manipulate(element, app_node, local_node, dryrun):
         else:
             return (False, "Unknown mode: \"%s\"" % mode)
         checklist_item.click()
+        if checklist_combo.name != current_checklist:
+            _selected_profile = None
 
 @handle_act('/select_checklist')
 def checklist_handler(element, app_node, local_node):
