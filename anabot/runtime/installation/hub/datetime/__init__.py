@@ -3,8 +3,6 @@
 import logging
 logger = logging.getLogger('anabot')
 
-#import pytz
-
 import fnmatch
 import random
 
@@ -17,33 +15,6 @@ from anabot.runtime.translate import tr, datetime_tr
 _local_path = '/installation/hub/datetime'
 handle_act = lambda x: handle_action(_local_path + x)
 handle_chck = lambda x: handle_check(_local_path + x)
-
-# ignore for the moment
-"""
-# ugly hack copied from anaconda code
-ETC_ZONES = ['GMT+1', 'GMT+2', 'GMT+3', 'GMT+4', 'GMT+5', 'GMT+6', 'GMT+7',
-             'GMT+8', 'GMT+9', 'GMT+10', 'GMT+11', 'GMT+12',
-             'GMT-1', 'GMT-2', 'GMT-3', 'GMT-4', 'GMT-5', 'GMT-6', 'GMT-7',
-             'GMT-8', 'GMT-9', 'GMT-10', 'GMT-11', 'GMT-12', 'GMT-13',
-             'GMT-14', 'UTC', 'GMT']
-
-def all_timezones():
-    result = {}
-    for zone in pytz.common_timezones:
-        try:
-            region, city = zone.split("/", 1)
-        except ValueError:
-            continue
-        try:
-            result[region].append(city)
-        except KeyError:
-            result[region] = [city]
-    result["Etc"] = ETC_ZONES
-    return result
-
-def all_regions():
-    return all_timezones().keys()
-"""
 
 @handle_act('')
 def base_handler(element, app_node, local_node):
