@@ -2,7 +2,7 @@ import logging
 logger = logging.getLogger('anabot')
 
 from anabot.runtime.decorators import handle_action, handle_check
-from anabot.runtime.default import default_handler
+from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.functions import get_attr, getnode, handle_checkbox, check_checkbox
 from anabot.runtime.translate import tr
 
@@ -21,6 +21,12 @@ def base_handler(element, app_node, local_node):
     license_panel = license_label.parent.parent
     license_text = getnode(license_panel, 'text', '')
     default_handler(element, app_node, license_panel.parent)
+    return (True, None)
+
+@handle_chck('')
+def base_check(element, app_node, local_node):
+    # no check
+    return action_result(element) 
 
 @handle_act('/eula')
 def empty_handler(element, app_node, local_node):
@@ -68,4 +74,12 @@ def accept_license_check(element, app_node, local_node):
 def done_handler(element, app_node, local_node):
     done_button = getnode(local_node, "push button", tr("_Done", False))
     done_button.click()
+
+@handle_chck('/done')
+def done_check(element, app_node, local_node):
+    # we should be back in hub
+    license = getnode(app_node, "spoke selector", tr("LICENSE INFORMATION"))
+    if (license != None):
+        return (True,"Hub is showing")
+    return (False, "Cannot find license spoke selector")
 

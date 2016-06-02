@@ -2,7 +2,7 @@ import logging
 logger = logging.getLogger('anabot')
 
 from anabot.runtime.decorators import handle_action, handle_check
-from anabot.runtime.default import default_handler
+from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.functions import get_attr, getnode, getnodes
 from anabot.runtime.translate import tr
 from anabot.runtime.errors import TimeoutError
@@ -17,6 +17,11 @@ handle_chck = lambda x: handle_check(_local_path + x)
 def subscription_panel_handler(element, app_node, local_node):
     panel = local_node
     default_handler(element, app_node, panel)
+    return (True, None)
+
+@handle_chck('')
+def subscription_panel_chck(element, app_node, local_node):
+    return action_result(element)   
 
 @handle_act('/subscriptions')
 def empty_handler(element, app_node, local_node):
