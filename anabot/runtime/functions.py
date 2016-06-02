@@ -374,15 +374,23 @@ def scrollto(node):
             scroll_down()
 
 def combo_scroll(item):
-    def center():
-        return item.position[1] + item.size[1]/2
+    # I'm aware of problem with not detectable arrows that cover menu items
+    # However, following code should work
+    def yborders(i):
+        return i.position[1], i.position[1] + i.size[1]
     menu = getparent(item, "menu")
-    first = getnode(menu, "menu item")
-    margin = first.position[1] - menu.position[1]
-    if margin == 0:
+    miny, maxy = yborders(menu)
+    # item should be inside of menu borders, so don't scroll
+    if yborders(item)[0] > miny and yborders(item)[1] < maxy:
         return
-    miny, maxy = margin, menu.size[1] - margin
-    while center() < miny:
+
+    previous, following = item, item
+    if getnode(menu, "menu item") != item: # item is not first
+        previous = getsibling(item, -1, "menu item")
+    if getnodes(menu, "menu item")[-1] != item: # item is not last
+        following = getsibling(item, 1, "menu item")
+
+    while yborders(previous)[0] < miny:
         menu.click(MOUSE_SCROLL_UP)
-    while center() > maxy:
+    while yborders(following)[1] > maxy:
         menu.click(MOUSE_SCROLL_DOWN)
