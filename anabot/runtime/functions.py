@@ -382,9 +382,25 @@ def combo_scroll(item, point=True, click=None, doubleclick=None):
     def yborders(i):
         return i.position[1], i.position[1] + i.size[1]
     menu = getparent(item, "menu")
+
+    def do_actions():
+        centerx = item.position[0] + item.size[0]/2
+        if abs(yborders(item)[0] - yborders(menu)[0]) > abs(yborders(item)[1] - yborders(menu)[1]):
+            posy = yborders(item)[0]+1
+        else:
+            posy = yborders(item)[1]-1
+        # ensure that the item is fully visible by pointing at it
+        if point:
+            dogtail.rawinput.absoluteMotion(centerx, posy)
+        if click is not None:
+            dogtail.rawinput.click(centerx, posy, click)
+        if doubleclick is not None:
+            dogtail.rawinput.doubleclick(centerx, posy, doubleclick)
+
     miny, maxy = yborders(menu)
     # item should be inside of menu borders, so don't scroll
     if yborders(item)[0] > miny and yborders(item)[1] < maxy:
+        do_actions()
         return
 
     previous, following = item, item
@@ -398,15 +414,4 @@ def combo_scroll(item, point=True, click=None, doubleclick=None):
     while yborders(following)[1] > maxy:
         menu.click(MOUSE_SCROLL_DOWN)
 
-    # ensure that the item is fully visible by pointing at it
-    centerx = item.position[0] + item.size[0]/2
-    if abs(yborders(item)[0] - yborders(menu)[0]) > abs(yborders(item)[1] - yborders(menu)[1]):
-        posy = yborders(item)[0]+1
-    else:
-        posy = yborders(item)[1]-1
-    if point:
-        dogtail.rawinput.absoluteMotion(centerx, posy)
-    if click is not None:
-        dogtail.rawinput.click(centerx, posy, click)
-    if doubleclick is not None:
-        dogtail.rawinput.doubleclick(centerx, posy, doubleclick)
+    do_actions()
