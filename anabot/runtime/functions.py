@@ -373,7 +373,10 @@ def scrollto(node):
         if scroll_dirs()[1] == 1:
             scroll_down()
 
-def combo_scroll(item):
+def combo_scroll(item, point=True, click=None, doubleclick=None):
+    # need to import dogtail.rawinput after display is on, so this is probably
+    # the best place for it
+    import dogtail.rawinput # pylint: disable=import-error
     # I'm aware of problem with not detectable arrows that cover menu items
     # However, following code should work
     def yborders(i):
@@ -394,3 +397,16 @@ def combo_scroll(item):
         menu.click(MOUSE_SCROLL_UP)
     while yborders(following)[1] > maxy:
         menu.click(MOUSE_SCROLL_DOWN)
+
+    # ensure that the item is fully visible by pointing at it
+    centerx = item.position[0] + item.size[0]/2
+    if abs(yborders(item)[0] - yborders(menu)[0]) > abs(yborders(item)[1] - yborders(menu)[1]):
+        posy = yborders(item)[0]+1
+    else:
+        posy = yborders(item)[1]-1
+    if point:
+        dogtail.rawinput.absoluteMotion(centerx, posy)
+    if click is not None:
+        dogtail.rawinput.click(centerx, posy, click)
+    if doubleclick is not None:
+        dogtail.rawinput.doubleclick(centerx, posy, doubleclick)
