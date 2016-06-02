@@ -237,6 +237,9 @@ def hold_key(keyName):
 def release_key(keyName):
     return key_action(keyName, "release")
 
+def press_key(keyName):
+    return key_action(keyName, "pressrelease")
+
 def key_action(keyName, action):
     # need to import dogtail.rawinput after display is on, so this is probably
     # the best place for it
@@ -252,6 +255,12 @@ def key_action(keyName, action):
     keyCode = dogtail.rawinput.keyNameToKeyCode(gtk_name)
     pyatspi.Registry.generateKeyboardEvent(keyCode, None, actions[action])
     dogtail.rawinput.doTypingDelay()
+
+def type_text(text):
+    # need to import dogtail.rawinput after display is on, so this is probably
+    # the best place for it
+    import dogtail.rawinput # pylint: disable=import-error
+    dogtail.rawinput.typeText(text)
 
 def clear_text(node):
     node.keyCombo("<Control>a")
