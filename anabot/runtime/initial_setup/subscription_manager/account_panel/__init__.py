@@ -92,7 +92,7 @@ def next_handler(element, app_node, local_node):
     getnode(local_node, 'progress bar', 'register_progressbar', visible=False, timeout=float('inf'))
 
 @handle_chck('/register')
-def back_check(element, app_node, local_node):
+def account_panel_back_check(element, app_node, local_node):
     sm_panels = getnode(app_node, 'page tab list', 'register_notebook')
     try:
         login_input = getnode(sm_panels, 'text', 'account_login', visible=False)
