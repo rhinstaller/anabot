@@ -141,7 +141,7 @@ def findsibling(items, item, distance, criteria=lambda x: True):
         items = items[::-1]
 
     for i in xrange(items.index(item), len(items)):
-        if criteria(items[i]):
+        if criteria(items[i]) and items[i] != item:
             distance -= 1
         if distance == 0:
             return items[i]
