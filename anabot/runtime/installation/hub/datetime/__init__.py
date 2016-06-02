@@ -122,11 +122,7 @@ def ntp_settings_handler(element, app_node, local_node):
     buttons_filler = getnodes(tmp_filler, 'filler', recursive=False)[-1]
     dialog_button = getnode(buttons_filler, "push button", button_name)
     dialog_button.click()
-
-@handle_chck('/ntp_settings')
-def ntp_settings_check(element, app_node, local_node):
-    # TODO
-    pass
+    return True
 
 @handle_act('/ntp_settings/add')
 def ntp_settings_add_handler(element, app_node, local_node):
@@ -358,7 +354,7 @@ def date_month_check(element, app_node, local_node):
     month_combo = local_node[0]
     if month_combo.name == value:
         return True
-    return (False, "Expected month: %s, saw: %s" % (month_combo.name, value))
+    return (False, "Expected month: %s, saw: %s" % (value, month_combo.name))
 
 @handle_act('/date/day')
 def date_day_handler(element, app_node, local_node):
@@ -382,7 +378,7 @@ def date_day_check(element, app_node, local_node):
     day_combo = local_node[1]
     if day_combo.name == value:
         return True
-    return (False, "Expected day: %s, saw: %s" % (day_combo.name, value))
+    return (False, "Expected day: %s, saw: %s" % (value, day_combo.name))
 
 @handle_act('/date/year')
 def date_year_handler(element, app_node, local_node):
@@ -401,4 +397,4 @@ def date_year_check(element, app_node, local_node):
     year_combo = local_node[2]
     if year_combo.name == value:
         return True
-    return (False, "Expected year: %s, saw: %s" % (year_combo.name, value))
+    return (False, "Expected year: %s, saw: %s" % (value, year_combo.name))
