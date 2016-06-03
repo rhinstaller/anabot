@@ -20,7 +20,7 @@ _selected_profile = None
 # temporary workaround for broken translation
 def oscap_tr(intext, drop_underscore=True):
     if drop_underscore:
-        return(intext.replace("_", ""))
+        return intext.replace("_", "")
     else:
         return intext
 
@@ -33,7 +33,6 @@ def default_result(element):
 
 @handle_act('')
 def base_handler(element, app_node, local_node):
-    global _oscap_addon_visited
     try:
         oscap_addon = getnode(app_node, "spoke selector",
                               oscap_tr("SECURITY POLICY"))
@@ -84,7 +83,7 @@ def choose_manipulate(element, app_node, local_node, dryrun):
         profile_name = get_attr(element, "profile")
         try:
             profile = [p for p in available_profiles
-                    if p.name.splitlines()[0] == profile_name][0]
+                       if p.name.splitlines()[0] == profile_name][0]
         except IndexError:
             return (False, "Couldn't find profile \"%s\"." % profile_name)
     elif mode == "random":
@@ -110,17 +109,16 @@ def choose_manipulate(element, app_node, local_node, dryrun):
         result = default_result(element)
         if not result[0]:
             return result
-        selected = lambda x: x.selected
         if mode == "manual":
             if not profile.selected:
                 result = (False, "Profile %s hasn't been chosen."
                           % profile.name)
         elif mode == "random":
-            if not any(map(selected, available_profiles)):
+            if not any([p.selected for p in available_profiles]):
                 result = (False, "No profile has been chosen.")
         elif mode == "random_strict":
-            if not any(map(selected, [p for p in available_profiles
-                                      if p is not _chosen_profile])):
+            if not any([p.selected for p in available_profiles
+                        if p is not _chosen_profile]):
                 result = (False, "Profile choice hasn't changed.")
         return result
     else:
@@ -236,7 +234,7 @@ def change_content_fetch_check(element, app_node, local_node):
         except TimeoutError:
             try:
                 infobar = getnode(local_node, "info bar",
-                                predicates={"name": tr("Error")})
+                                  predicates={"name": tr("Error")})
                 error = getnode(infobar, "label").text
                 url = get_attr(element, "url")
                 result = (False, "SCAP content fetch error: \"%s\", URL: %s"
@@ -250,7 +248,7 @@ def change_content_use_ssg_handler(element, app_node, local_node):
     global _selected_profile
     try:
         use_ssg_button = getnode(local_node, "push button",
-                                oscap_tr("_Use SCAP Security Guide"))
+                                 oscap_tr("_Use SCAP Security Guide"))
         use_ssg_button.click()
         _selected_profile = None
     except TimeoutError:
@@ -283,8 +281,8 @@ def apply_policy_manipulate(element, app_node, local_node, dryrun):
         return (policy_action == "enable" and policy_button.checked
                 or policy_action == "disable" and not policy_button.checked)
     else:
-        if (policy_action == "enable" and not policy_button.checked
-            or policy_action == "disable" and policy_button.checked):
+        if (policy_action == "enable" and not policy_button.checked or
+                policy_action == "disable" and policy_button.checked):
             policy_button.click()
 
 @handle_act('/apply_policy')
@@ -367,7 +365,7 @@ def checklist_manipulate(element, app_node, local_node, dryrun):
                         "label or combo box.")
             result = checklist_combo.name == datastream
         elif mode == "random":
-            return checklist_combo.name != ""
+            result = checklist_combo.name != ""
         return result
     else:
         current_checklist = checklist_combo.name
@@ -411,7 +409,7 @@ def changes_line_handler(element, app_node, local_node):
     # possible to recognize the different message types through ATK
     if element in {'/changes/info', '/changes/warning', '/changes/error'}:
         logger.warn("Specialized handler for %s not available, using "
-                    "generic one." % element)
+                    "generic one.", element)
 
 @handle_chck('/changes/info')
 @handle_chck('/changes/warning')
@@ -463,13 +461,13 @@ def done_check(element, app_node, local_node):
     if result[0]:
         try:
             oscap_addon_selector = getnode(app_node, "spoke selector",
-                                        oscap_tr("SECURITY POLICY"))
+                                           oscap_tr("SECURITY POLICY"))
             oscap_addon_status = getnode(oscap_addon_selector, "label").text
             if not oscap_addon_status == oscap_tr_("Everything okay"):
                 return(False, "OSCAP addon status: \"%s\""
                        % oscap_addon_status)
-        except TimeoutError as e:
+        except TimeoutError as exception:
             return(False, "OSCAP addon selector button or status label not "
-                   "found: %s" % e)
+                   "found: %s" % exception)
     return result
 
