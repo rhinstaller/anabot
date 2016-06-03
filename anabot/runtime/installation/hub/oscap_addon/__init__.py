@@ -59,7 +59,7 @@ def choose_manipulate(element, app_node, local_node, dryrun):
     try:
         profiles_label = getnode(local_node, "label",
                                  oscap_tr("Choose profile below:"))
-        profiles_table = getsibling(profiles_label, 2)
+        profiles_table = getsibling(profiles_label, 1, "table")
     except TimeoutError:
         return (False, "Couldn't find \"Choose profile below:\" "
                 "label or profiles table.")
@@ -197,7 +197,7 @@ def change_content_check(element, app_node, local_node):
 def change_content_source_manipulate(element, app_node, local_node, dryrun):
     try:
         fetch_button = getnode(local_node, "push button", oscap_tr("_Fetch"))
-        datastream_url_input = getsibling(fetch_button, -2)
+        datastream_url_input = getsibling(fetch_button, -1, "text")
     except TimeoutError:
         return (False, "Couldn't find \"_Fetch\" button or URL input box.")
     url = get_attr(element, "url")
@@ -274,7 +274,7 @@ def apply_policy_manipulate(element, app_node, local_node, dryrun):
     try:
         apply_policy_label = getnode(local_node, "label",
                                      oscap_tr("Apply security policy:"))
-        policy_button = getsibling(apply_policy_label, 2)
+        policy_button = getsibling(apply_policy_label, 1, "toggle button")
     except TimeoutError:
         return (False, "Couldn't find \"Apply security policy:\" label "
                 "or policy button/switch.")
@@ -301,7 +301,7 @@ def datastream_manipulate(element, app_node, local_node, dryrun):
     mode = get_attr(element, "mode", "manual")
     try:
         ds_label = getnode(local_node, "label", oscap_tr("Data stream:"))
-        ds_combo = getsibling(ds_label, 2)
+        ds_combo = getsibling(ds_label, 1, "combo box")
         if not dryrun:
             ds_combo.click()
             ds_items = getnodes(ds_combo, "menu item")
@@ -345,7 +345,7 @@ def checklist_manipulate(element, app_node, local_node, dryrun):
     mode = get_attr(element, "mode", "manual")
     try:
         checklist_label = getnode(local_node, "label", oscap_tr("Checklist:"))
-        checklist_combo = getsibling(checklist_label, 2)
+        checklist_combo = getsibling(checklist_label, 1, "combo box")
         if not dryrun:
             checklist_combo.click()
             checklist_items = getnodes(checklist_combo, "menu item")
@@ -361,7 +361,7 @@ def checklist_manipulate(element, app_node, local_node, dryrun):
             try:
                 checklist_label = getnode(local_node, "label",
                                           oscap_tr("Checklist:"))
-                checklist_combo = getsibling(checklist_label, 2)
+                checklist_combo = getsibling(checklist_label, 1, "combo box")
             except TimeoutError:
                 return (False, "Couldn't find \"Checklist:\" "
                         "label or combo box.")
@@ -436,7 +436,7 @@ def changes_line_check(element, app_node, local_node):
         changes_label = getnode(local_node, "label",
                                 oscap_tr("Changes that were done or need "
                                          "to be done:"))
-        changes_table = getsibling(changes_label, 2)
+        changes_table = getsibling(changes_label, 1, "table")
     except TimeoutError:
         return(False, "Couldn't find \"Changes that were done...\" label "
                "or table with changes.")
