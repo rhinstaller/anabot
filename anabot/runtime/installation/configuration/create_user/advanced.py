@@ -50,7 +50,7 @@ def user_adv_manual_uid_handler(element, app_node, local_node):
 @handle_chck('/manual_uid')
 def user_adv_manual_uid_check(element, app_node, local_node):
     checkbox = getnode(local_node, "check box", tr('Specify a _user ID manually:', context="GUI|Advanced User"))
-    return check_checkbox(checkbox, element)
+    return check_checkbox(checkbox, element, 'Manual UID')
 
 @handle_act('/uid')
 def user_adv_uid_handler(element, app_node, local_node):
@@ -68,7 +68,7 @@ def user_adv_manual_gid_handler(element, app_node, local_node):
 @handle_chck('/manual_gid')
 def user_adv_manual_gid_check(element, app_node, local_node):
     checkbox = getnode(local_node, "check box", tr('Specify a _group ID manually:', context="GUI|Advanced User"))
-    return check_checkbox(checkbox, element)
+    return check_checkbox(checkbox, element, 'Manual GID')
 
 @handle_act('/gid')
 def user_adv_gid_handler(element, app_node, local_node):

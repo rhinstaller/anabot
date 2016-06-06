@@ -68,7 +68,7 @@ def accept_license_handler(element, app_node, local_node):
 @handle_chck('/accept_license')
 def accept_license_check(element, app_node, local_node):
     license_checkbox = getnode(app_node, "check box", tr("I accept the license agreement."))
-    return license_checkbox.checked
+    return check_checkbox(license_checkbox, element, 'Accept license checkbox')
 
 @handle_act('/done')
 def done_handler(element, app_node, local_node):

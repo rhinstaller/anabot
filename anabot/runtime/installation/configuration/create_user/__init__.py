@@ -67,7 +67,7 @@ def user_is_admin_handler(element, app_node, local_node):
 @handle_chck('/is_admin')
 def user_is_admin_check(element, app_node, local_node):
     checkbox = getnode(local_node, "check box", tr('Make this user administrator', context="GUI|User"))
-    return check_checkbox(checkbox, element)
+    return check_checkbox(checkbox, element, 'Make user administrator')
 
 @handle_act('/require_password')
 def user_require_passwd_handler(element, app_node, local_node):
@@ -77,7 +77,7 @@ def user_require_passwd_handler(element, app_node, local_node):
 @handle_chck('/require_password')
 def user_require_passwd_check(element, app_node, local_node):
     checkbox = getnode(local_node, "check box", tr('Require a password to use this account', context="GUI|User"))
-    return check_checkbox(checkbox, element)
+    return check_checkbox(checkbox, element, 'Account requires pqssword')
 
 @handle_act('/password')
 def user_password_handler(element, app_node, local_node):

@@ -456,8 +456,22 @@ def handle_checkbox(node, element):
     if node.checked != req_checked:
         node.click()
 
-def check_checkbox(node, element):
-    value = get_attr(element, 'checked')
-    req_checked = (value == 'yes')
-    return (node.checked == req_checked)
+def check_checkbox(node, element, name, message="%(name)s is %(found)s, expected: %(expected)s", status_true='checked', status_false='unchecked'):
+    if isinstance(element, libxml2.xmlNode):
+        req_checked = get_attr(element, 'checked', 'yes') == 'yes'
+    else:
+        req_checked = bool(element)
+
+    result = (node.checked == req_checked)
+
+    # get msg strings
+    found = status_false
+    if node.checked:
+        found = status_true
+    expected = status_false
+    if req_checked:
+        expected = status_true
+
+    msg = message % {'name': name, 'found': found, 'expected': expected }
+    return (result, msg)
 
