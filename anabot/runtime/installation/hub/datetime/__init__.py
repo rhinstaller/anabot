@@ -41,6 +41,7 @@ def base_handler(element, app_node, local_node):
     except TimeoutError:
         return notfound("Done button", where="Date & Time spoke")
     done_button.click()
+    return True
 
 @handle_chck('')
 def base_check(element, app_node, local_node):
@@ -446,7 +447,7 @@ def date_handler(element, app_node, local_node):
     except TimeoutError:
         return notfound("filler", whose="date and time settings")
     combos = sorted(getnodes(datetime_node, "combo box"), date_combo_cmp)
-    if len(combos) != 2:
+    if len(combos) != 3:
         return notfound("all date, month and year combo boxes")
     default_handler(element, app_node, combos)
     return True
