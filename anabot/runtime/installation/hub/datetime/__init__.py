@@ -16,18 +16,36 @@ _local_path = '/installation/hub/datetime'
 handle_act = lambda x: handle_action(_local_path + x)
 handle_chck = lambda x: handle_check(_local_path + x)
 
+def notfound(who, whose=None, where=None):
+    if whose is not None:
+        return (False, "Couldn't find %s for %s." % (who, whose))
+    if where is not None:
+        return (False, "Couldn't find %s in %s." % (who, where))
+    return (False, "Couldn't find %s" % who)
+
 @handle_act('')
 def base_handler(element, app_node, local_node):
     datetime_label = tr("DATE & TIME")
-    datetime = getnode_scroll(app_node, "spoke selector", datetime_label)
+    try:
+        datetime = getnode_scroll(app_node, "spoke selector", datetime_label)
+    except TimeoutError:
+        return notfound('"DATE & TIME"', where="main hub")
     datetime.click()
-    datetime_panel = getnode(app_node, "panel", tr("DATE & TIME"))
+    try:
+        datetime_panel = getnode(app_node, "panel", tr("DATE & TIME"))
+    except TimeoutError:
+        return notfound("DATE & TIME spoke")
     default_handler(element, app_node, datetime_panel)
-    done_button = getnode(datetime_panel, "push button", tr("_Done", False))
+    try:
+        done_button = getnode(datetime_panel, "push button", tr("_Done", False))
+    except TimeoutError:
+        return notfound("Done button", where="Date & Time spoke")
     done_button.click()
 
 @handle_chck('')
 def base_check(element, app_node, local_node):
+    if action_result(element)[0] != False:
+        return action_result(element)
     try:
         getnode(app_node, "panel", tr("DATE & TIME"), visible=False)
         return True
@@ -38,13 +56,22 @@ def base_check(element, app_node, local_node):
 def region_handler(element, app_node, local_node):
     value = get_attr(element, "value")
     region_name = datetime_tr(value)
-    region_label = getnode(local_node, "label",
-                           tr("_Region:", context="GUI|Date and Time"))
+    try:
+        region_label = getnode(local_node, "label",
+                               tr("_Region:", context="GUI|Date and Time"))
+    except TimeoutError:
+        return notfound("label", whose="Region combo box")
     region_combo = getsibling(region_label, 1, "combo box")
     # can't do this better (simple) way
     region_combo.actions['press'].do()
-    combo_window = getnode(app_node, "window")
-    region_item = getnode(combo_window, "menu item", region_name)
+    try:
+        combo_window = getnode(app_node, "window")
+    except TimeoutError:
+        return notfound("window", whose="Region combo box")
+    try:
+        region_item = getnode(combo_window, "menu item", region_name)
+    except TimeoutError:
+        return notfound('"%s"'%region_name, where="Region combo box")
     region_item.click()
 
 @handle_chck('/region')
@@ -55,8 +82,11 @@ def region_check(element, app_node, local_node):
     # I don't know why, but the region is not translated in name of widget
     #region_name = datetime_tr(value)
     region_name = value
-    region_label = getnode(local_node, "label",
-                           tr("_Region:", context="GUI|Date and Time"))
+    try:
+        region_label = getnode(local_node, "label",
+                               tr("_Region:", context="GUI|Date and Time"))
+    except TimeoutError:
+        return notfound("label", whose="Region combo box")
     region_combo = getsibling(region_label, 1, "combo box")
     if unicode(region_combo.name) == unicode(region_name):
         return True
@@ -66,13 +96,22 @@ def region_check(element, app_node, local_node):
 def city_handler(element, app_node, local_node):
     value = get_attr(element, "value")
     city_name = datetime_tr(value)
-    city_label = getnode(local_node, "label",
-                         tr("_City:", context="GUI|Date and Time"))
+    try:
+        city_label = getnode(local_node, "label",
+                             tr("_City:", context="GUI|Date and Time"))
+    except TimeoutError:
+        return notfound("label", whose="City combo box")
     city_combo = getsibling(city_label, 1, "combo box")
     # can't do this better (simple) way
     city_combo.actions['press'].do()
-    combo_window = getnode(app_node, "window")
-    city_item = getnode(combo_window, "menu item", city_name)
+    try:
+        combo_window = getnode(app_node, "window")
+    except TimeoutError:
+        return notfound("window", whose="City combo box")
+    try:
+        city_item = getnode(combo_window, "menu item", city_name)
+    except TimeoutError:
+        return notfound('"%s"'%city_name, where="City combo box")
     combo_scroll(city_item, click=1)
 
 @handle_chck('/city')
@@ -83,8 +122,11 @@ def city_check(element, app_node, local_node):
     # I don't know why, but the city is not translated in name of widget
     #city_name = datetime_tr(value)
     city_name = value
-    city_label = getnode(local_node, "label",
-                         tr("_City:", context="GUI|Date and Time"))
+    try:
+        city_label = getnode(local_node, "label",
+                             tr("_City:", context="GUI|Date and Time"))
+    except TimeoutError:
+        return notfound("label", whose="City combo box")
     city_combo = getsibling(city_label, 1, "combo box")
     if unicode(city_combo.name) == unicode(city_name):
         return True
@@ -93,18 +135,31 @@ def city_check(element, app_node, local_node):
 @handle_act('/ntp')
 def ntp_handler(element, app_node, local_node):
     enable = get_attr(element, "action", "enable") == "enable"
-    ntp_toggle = getnode(local_node, "toggle button", tr("Use Network Time"))
+    try:
+        ntp_toggle = getnode(local_node, "toggle button", tr("Use Network Time"))
+    except TimeoutError:
+        return notfound("toggle button", whose="NTP")
     if ntp_toggle.checked != enable:
         ntp_toggle.click()
 
 @handle_chck('/ntp')
 def ntp_check(element, app_node, local_node):
+    def act_to_name(status):
+        return status and "enabled" or "disabled"
+
     if action_result(element)[0] == False:
         return action_result(element)
     enable = get_attr(element, "action", "enable") == "enable"
-    ntp_toggle = getnode(local_node, "toggle button", tr("Use Network Time"))
+    try:
+        ntp_toggle = getnode(local_node, "toggle button", tr("Use Network Time"))
+    except TimeoutError:
+        return notfound("toggle button", whose="NTP")
     if ntp_toggle.checked != enable:
-        return (False, "")
+        return (
+            False,
+            "NTP is %s, expected: %s" %
+            (act_to_name(ntp_toggle.checked), act_to_name(enable))
+         )
     return True
 
 @handle_act('/ntp_settings')
@@ -114,23 +169,44 @@ def ntp_settings_handler(element, app_node, local_node):
         button_name = tr('_OK', context="GUI|Date and Time|NTP")
     elif dialog_action == 'dialog':
         button_name = tr('_Cancel', context="GUI|Date and Time|NTP")
-    ntp_button = getnode(local_node, "push button", tr("Configure NTP"))
+    try:
+        ntp_button = getnode(local_node, "push button", tr("Configure NTP"))
+    except TimeoutError:
+        return notfound("button", whose="Configure NTP dialog")
     ntp_button.click()
-    local_node = getnode(app_node, "dialog", tr("Configure NTP"))
+    try:
+        local_node = getnode(app_node, "dialog", tr("Configure NTP"))
+    except TimeoutError:
+        return notfound("dialog", whose="Configure NTP")
     default_handler(element, app_node, local_node)
-    tmp_filler = getnode(local_node, 'filler', recursive=False)
-    buttons_filler = getnodes(tmp_filler, 'filler', recursive=False)[-1]
-    dialog_button = getnode(buttons_filler, "push button", button_name)
+    try:
+        tmp_filler = getnode(local_node, 'filler', recursive=False)
+    except TimeoutError:
+        return notfound("filler", where="NTP dialog")
+    try:
+        buttons_filler = getnodes(tmp_filler, 'filler', recursive=False)[-1]
+    except TimeoutError:
+        return notfound("filler", where="NTP dialog")
+    try:
+        dialog_button = getnode(buttons_filler, "push button", button_name)
+    except TimeoutError:
+        return notfound("button '%s'"%button_name, where="NTP Dialog")
     dialog_button.click()
     return True
 
 @handle_act('/ntp_settings/add')
 def ntp_settings_add_handler(element, app_node, local_node):
     hostname = get_attr(element, "hostname")
-    input_node = getnode(local_node, "text", tr("New NTP Server"))
+    try:
+        input_node = getnode(local_node, "text", tr("New NTP Server"))
+    except TimeoutError:
+        return notfound("input for new server", where="NTP dialog")
     input_node.click()
     input_node.typeText(hostname)
-    add_button = getnode(local_node, "push button", tr("Add NTP Server"))
+    try:
+        add_button = getnode(local_node, "push button", tr("Add NTP Server"))
+    except TimeoutError:
+        return notfound("button for adding server", where="NTP dialog")
     add_button.click()
 
 @handle_chck('/ntp_settings/add')
@@ -138,21 +214,27 @@ def ntp_settings_add_check(element, app_node, local_node):
     if action_result(element)[0] == False:
         return action_result(element)
     hostname = unicode(get_attr(element, "hostname"))
-    table = getnode(local_node, "table")
+    try:
+        table = getnode(local_node, "table")
+    except TimeoutError:
+        return notfound("table with NTP servers", where="NTP dialog")
     for candidate in getnodes(table, "table cell")[::3]:
         if fnmatch.fnmatchcase(unicode(candidate.name), hostname):
             return True
-    return (False, "Specified ntp server not found")
+    return notfound("specified ntp server", where="NTP dialog")
 
 @handle_act('/ntp_settings/rename')
 def ntp_settings_rename_handler(element, app_node, local_node):
     old = get_attr(element, "old")
     new = get_attr(element, "new")
-    table = getnode(local_node, "table")
+    try:
+        table = getnode(local_node, "table")
+    except TimeoutError:
+        return notfound("table with NTP servers", where="NTP dialog")
     try:
         node = getnode(table, "table cell", old)
     except TimeoutError:
-        return (False, "Specified ntp server not found")
+        return notfound("specified ntp server", where="NTP dialog")
     node.doubleClick()
     type_text(new)
     press_key('enter')
@@ -163,16 +245,22 @@ def ntp_settings_rename_check(element, app_node, local_node):
     if action_result(element)[0] == False:
         return action_result(element)
     new = get_attr(element, "new")
-    table = getnode(local_node, "table")
+    try:
+        table = getnode(local_node, "table")
+    except TimeoutError:
+        return notfound("table with NTP servers", where="NTP dialog")
     try:
         node = getnode(table, "table cell", new)
         return True
     except TimeoutError:
-        return (False, "Renamed ntp server not found")
+        return notfound("renamed ntp server", where="NTP dialog")
 
 def ntp_settings_enable_manipulate(element, app_node, local_node, enable, dry_run):
     hostname = get_attr(element, "hostname")
-    table = getnode(local_node, "table")
+    try:
+        table = getnode(local_node, "table")
+    except TimeoutError:
+        return notfound("table with NTP servers", where="NTP dialog")
     ok = True
     for candidate in getnodes(table, "table cell")[::3]:
         if fnmatch.fnmatchcase(unicode(candidate.name), hostname):
@@ -210,20 +298,32 @@ def ntp_settings_disable_check(element, app_node, local_node):
 
 @handle_act('/time')
 def time_handler(element, app_node, local_node):
-    datetime_node = getnode(local_node, "filler", tr("Set Date & Time"))
-    time_node = getnode(datetime_node, "panel")
+    try:
+        datetime_node = getnode(local_node, "filler", tr("Set Date & Time"))
+    except TimeoutError:
+        return notfound("filler", whose="date and time settings")
+    try:
+        time_node = getnode(datetime_node, "panel")
+    except TimeoutError:
+        return notfound("panel", whose="time settings")
     default_handler(element, app_node, time_node)
-
-@handle_chck('/time')
-def time_check(element, app_node, local_node):
-    pass
+    return True
 
 @handle_act('/time/hours')
 def time_hours_handler(element, app_node, local_node):
     value = int(get_attr(element, "value"))
-    hours_label = getnode(local_node, "label", tr("Hours"))
-    hours_minus = getnode(local_node, "push button", tr("Hour Down"))
-    hours_plus = getnode(local_node, "push button", tr("Hour Up"))
+    try:
+        hours_label = getnode(local_node, "label", tr("Hours"))
+    except TimeoutError:
+        return notfound("label", whose="hours settings")
+    try:
+        hours_minus = getnode(local_node, "push button", tr("Hour Down"))
+    except TimeoutError:
+        return notfound("button", whose="decrease hour")
+    try:
+        hours_plus = getnode(local_node, "push button", tr("Hour Up"))
+    except TimeoutError:
+        return notfound("button", whose="increase hour")
     for i in xrange(int(hours_label.text), value):
         hours_plus.click()
     for i in xrange(int(hours_label.text), value, -1):
@@ -234,7 +334,10 @@ def time_hours_check(element, app_node, local_node):
     if action_result(element)[0] == False:
         return action_result(element)
     value = get_attr(element, "value")
-    hours_label = getnode(local_node, "label", tr("Hours"))
+    try:
+        hours_label = getnode(local_node, "label", tr("Hours"))
+    except TimeoutError:
+        return notfound("label", whose="hours settings")
     if hours_label.text == value:
         return True
     return (False, "Hour didn't match desired value")
@@ -242,9 +345,18 @@ def time_hours_check(element, app_node, local_node):
 @handle_act('/time/minutes')
 def time_minutes_handler(element, app_node, local_node):
     value = int(get_attr(element, "value"))
-    minutes_label = getnode(local_node, "label", tr("Minutes"))
-    minutes_minus = getnode(local_node, "push button", tr("Minutes Down"))
-    minutes_plus = getnode(local_node, "push button", tr("Minutes Up"))
+    try:
+        minutes_label = getnode(local_node, "label", tr("Minutes"))
+    except TimeoutError:
+        return notfound("label", whose="minutes settings")
+    try:
+        minutes_minus = getnode(local_node, "push button", tr("Minutes Down"))
+    except TimeoutError:
+        return notfound("button", whose="decrease minute")
+    try:
+        minutes_plus = getnode(local_node, "push button", tr("Minutes Up"))
+    except TimeoutError:
+        return notfound("button", whose="increase minute")
     for i in xrange(int(minutes_label.text), value):
         minutes_plus.click()
     for i in xrange(int(minutes_label.text), value, -1):
@@ -255,7 +367,10 @@ def time_minutes_check(element, app_node, local_node):
     if action_result(element)[0] == False:
         return action_result(element)
     value = get_attr(element, "value")
-    minutes_label = getnode(local_node, "label", tr("Minutes"))
+    try:
+        minutes_label = getnode(local_node, "label", tr("Minutes"))
+    except TimeoutError:
+        return notfound("label", whose="minutes settings")
     if minutes_label.text == value:
         return True
     return (False, "Minute didn't match desired value")
@@ -267,7 +382,10 @@ def time_format_manipulate(element, app_node, local_node, dry_run):
         wanted_text = tr("24-_hour", context="GUI|Date and Time")
     elif value == "24":
         wanted_text = tr("_AM/PM", context="GUI|Date and Time")
-    wanted_radio = getnode(local_node, "radio button", wanted_text)
+    try:
+        wanted_radio = getnode(local_node, "radio button", wanted_text)
+    except TimeoutError:
+        return notfound("radio button '%s'"%wanted_text, where="time settings")
     if not wanted_radio.checked:
         if not dry_run:
             wanted_radio.click()
@@ -299,7 +417,7 @@ def time_ampm_handler(element, app_node, local_node):
         except TimeoutError:
             pass
     else:
-        return (False, "Didn't find neither AM, nor PM label")
+        return notfound("neither AM, nor PM label", where="time settings")
     buttons = getnodes(local_node, "push button", tr("AM/PM Up"))
     buttons += getnodes(local_node, "push button", tr("AM/PM Down"))
     random_button = random.choice(buttons)
@@ -316,28 +434,32 @@ def time_ampm_check(element, app_node, local_node):
         ampm_label = getnode(local_node, "label", value)
         return True
     except TimeoutError:
-        return (False, "Didn't find correct label for '%s'" % value)
+        return notfound("correct label for '%s'" % value)
 
 @handle_act('/date')
 def date_handler(element, app_node, local_node):
     def date_combo_cmp(x, y):
         return cmp(len(getnodes(x, "menu item", visible=None)),
                    len(getnodes(y, "menu item", visible=None)))
-    datetime_node = getnode(local_node, "filler", tr("Set Date & Time"))
+    try:
+        datetime_node = getnode(local_node, "filler", tr("Set Date & Time"))
+    except TimeoutError:
+        return notfound("filler", whose="date and time settings")
     combos = sorted(getnodes(datetime_node, "combo box"), date_combo_cmp)
-    date_panel = getnodes(datetime_node, "panel", recursive=False)[2]
+    if len(combos) != 2:
+        return notfound("all date, month and year combo boxes")
     default_handler(element, app_node, combos)
-
-@handle_chck('/date')
-def date_check(element, app_node, local_node):
-    pass
+    return True
 
 @handle_act('/date/month')
 def date_month_handler(element, app_node, local_node):
     value = get_attr(element, "value")
     month_combo = local_node[0]
     month_combo.click()
-    window = getnode(app_node, "window")
+    try:
+        window = getnode(app_node, "window")
+    except TimeoutError:
+        return notfound("window", whose="month combo box")
     try:
         item = getnode(window, "menu item", value)
     except TimeoutError:
@@ -361,7 +483,10 @@ def date_day_handler(element, app_node, local_node):
     value = get_attr(element, "value")
     day_combo = local_node[1]
     day_combo.click()
-    window = getnode(app_node, "window")
+    try:
+        window = getnode(app_node, "window")
+    except TimeoutError:
+        return notfound("window", whose="day combo box")
     try:
         item = getnode(window, "menu item", value)
     except TimeoutError:
@@ -385,8 +510,14 @@ def date_year_handler(element, app_node, local_node):
     value = get_attr(element, "value")
     year_combo = local_node[2]
     year_combo.click()
-    window = getnode(app_node, "window")
-    item = getnode(window, "menu item", value)
+    try:
+        window = getnode(app_node, "window")
+    except TimeoutError:
+        return notfound("window", whose="year combo box")
+    try:
+        item = getnode(window, "menu item", value)
+    except TimeoutError:
+        return (False, "Specified year is not available.")
     combo_scroll(item, click=1)
 
 @handle_chck('/date/year')
