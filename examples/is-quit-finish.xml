@@ -1,6 +1,6 @@
 <initial_setup>
-    <quit>
-        <no />
-    </quit>
+    <!-- <quit /> is same as <quit dialog='accept' /> -->
+    <!-- click to quit and then choose "No" to cancel action -->
+    <quit dialog='reject' />
     <finish />
 </initial_setup>

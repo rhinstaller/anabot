@@ -39,21 +39,18 @@ def finish_handler(element, app_node, local_node):
 def quit_handler(element, app_node, local_node):
     button = getnode(app_node, 'push button', tr('QUIT'))
     button.click()
-    default_handler(element, app_node, local_node)
-
-@handle_action('/initial_setup/quit/no')
-def quit_no_handler(element, app_node, local_node):
+    # dialog appears
     dialog = getnode(app_node, 'dialog', 'Quit')
-    button = getnode(dialog, 'push button', tr('No'))
-    button.click()
+    if (get_attr(element, 'dialog', 'accept') == 'accept'):
+        button = getnode(dialog, 'push button', tr('Yes'))
+        # clicking button causes initial-setup exit, run hooks and cleanup here
+        run_posthooks()
+        reporter.test_end()
+        button.click()
+        sys.exit(0) # initial setup exits and Xorg too - it causes unnecessary errors  
+    else:
+        button = getnode(dialog, 'push button', tr('No'))
+        button.click()
+        
 
-@handle_action('/initial_setup/quit/yes')
-def quit_yes_handler(element, app_node, local_node):
-    dialog = getnode(app_node, 'dialog', 'Quit')
-    button = getnode(dialog, 'push button', tr('Yes'))
-
-    run_posthooks()
-    reporter.test_end()
-    button.click()
-    sys.exit(0) # initial setup exits and Xorg too - it causes unnecessary errors  
 
