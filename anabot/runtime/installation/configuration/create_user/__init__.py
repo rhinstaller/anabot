@@ -77,7 +77,7 @@ def user_require_passwd_handler(element, app_node, local_node):
 @handle_chck('/require_password')
 def user_require_passwd_check(element, app_node, local_node):
     checkbox = getnode(local_node, "check box", tr('Require a password to use this account', context="GUI|User"))
-    return check_checkbox(checkbox, element, 'Account requires pqssword')
+    return check_checkbox(checkbox, element, 'Account requires password')
 
 @handle_act('/password')
 def user_password_handler(element, app_node, local_node):
