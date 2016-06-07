@@ -10,7 +10,7 @@ reporter = teres.Reporter.get_reporter()
 
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler
-from anabot.runtime.functions import getnode
+from anabot.runtime.functions import getnode, get_attr
 from anabot.runtime.translate import tr
 from anabot.runtime.hooks import run_posthooks
 
