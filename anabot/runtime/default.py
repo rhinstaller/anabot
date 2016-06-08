@@ -8,6 +8,7 @@ reporter = teres.Reporter.get_reporter()
 
 from .functions import get_attr, log_screenshot, dump
 from .decorators import ACTIONS, CHECKS, handle_action, handle_check
+from .actionresult import ActionResultFail, ActionResultNone, ActionResultPass
 
 NODE_NUM = re.compile(r'\[[0-9]+\]')
 
@@ -16,15 +17,24 @@ RESULTS = {}
 def action_result(node_path):
     if isinstance(node_path, libxml2.xmlNode):
         node_path = node_path.nodePath()
-    return RESULTS.get(node_path, (None, None))
+    return RESULTS.get(node_path, ActionResultNone())
 
 def _check_result_reason(result):
     if result is None:
-        return None, None
+        return ActionResultNone()
     reason = None
-    if type(result) != type(bool()):
+    if type(result) == type(tuple()):
         result, reason = result
-    return (result, reason)
+        if result:
+            result = ActionResultPass()
+        else:
+            result = ActionResultFail(reason)
+    elif type(result) == type(bool()):
+        if result:
+            result = ActionResultPass()
+        else:
+            result = ActionResultFail()
+    return result
 
 def handle_step(element, app_node, local_node):
     raw_node_path = element.nodePath()
@@ -42,23 +52,23 @@ def handle_step(element, app_node, local_node):
         return
     if handler_path not in CHECKS:
         handler_path = None
-    result, reason = _check_result_reason(CHECKS.get(handler_path)(element, app_node, local_node))
+    result = _check_result_reason(CHECKS.get(handler_path)(element, app_node, local_node))
     if policy == "may_fail":
         return
     if policy in ("should_pass", "just_check"):
-        if result:
+        if type(result) == ActionResultPass:
             reporter.log_pass("Check passed for: %s line: %d" % (node_path, node_line))
         else:
             reporter.log_fail("Check failed for: %s line: %d" % (node_path, node_line))
     if policy in ("should_fail", "just_check_fail"):
-        if not result:
+        if type(result) in (ActionResultFail, ActionResultNone):
             reporter.log_pass("Expected failure for: %s line: %d" %
                               (node_path, node_line))
         else:
             reporter.log_fail("Unexpected pass for: %s line: %d" %
                               (node_path, node_line))
-    if reason is not None:
-        reporter.log_info("Reason was: %s" % reason)
+    if type(result) == ActionResultFail and result.reason is not None:
+        reporter.log_info("Reason was: %s" % result.reason)
     log_screenshot()
 
 def default_handler(element, app_node, local_node):
