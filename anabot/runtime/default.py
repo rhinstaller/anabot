@@ -56,7 +56,7 @@ def handle_step(element, app_node, local_node):
     if policy == "may_fail":
         return
     if policy in ("should_pass", "just_check"):
-        if type(result) == ActionResultPass:
+        if result == True:
             reporter.log_pass("Check passed for: %s line: %d" % (node_path, node_line))
         else:
             reporter.log_fail("Check failed for: %s line: %d" % (node_path, node_line))
