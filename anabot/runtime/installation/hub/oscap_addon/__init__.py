@@ -51,7 +51,36 @@ def base_handler(element, app_node, local_node):
 
 @handle_chck('')
 def base_check(element, app_node, local_node):
-    return default_result(element)
+    expected_message = get_attr(element, "expected_message")
+    expected_message = oscap_tr_(expected_message)
+    result = default_result(element)
+    ok_status = {oscap_tr_("Everything okay"),
+                 oscap_tr_("No profile selected"),
+                 oscap_tr_("No content found")}
+    if not result[0]:
+        return result
+
+    try:
+        oscap_addon_selector = getnode(app_node, "spoke selector",
+                                       oscap_tr("SECURITY POLICY"))
+        oscap_addon_status = getnode(oscap_addon_selector, "label").text.decode("utf-8")
+    except TimeoutError as exception:
+        return(False, "OSCAP addon selector button or status label not "
+            "found: %s" % exception)
+    if expected_message is None:
+        if oscap_addon_status in ok_status:
+            result = True
+        else:
+            result = (False, "Found error message in OSCAP addon selector "
+                             "button: %s" % oscap_addon_status)
+    else:
+        if (oscap_addon_status in ok_status
+                and oscap_addon_status == expected_message):
+            return True
+        else:
+            logger.info("Expected status message: %s" % expected_message)
+            return (False, "Wrong OSCAP addon selector status message: %s"
+                    % oscap_addon_status)
 
 def choose_manipulate(element, app_node, local_node, dryrun):
     mode = get_attr(element, "mode", "manual")
@@ -460,14 +489,8 @@ def done_check(element, app_node, local_node):
     result = default_result(element)
     if result[0]:
         try:
-            oscap_addon_selector = getnode(app_node, "spoke selector",
-                                           oscap_tr("SECURITY POLICY"))
-            oscap_addon_status = getnode(oscap_addon_selector, "label").text
-            if not oscap_addon_status == oscap_tr_("Everything okay"):
-                return(False, "OSCAP addon status: \"%s\""
-                       % oscap_addon_status)
-        except TimeoutError as exception:
-            return(False, "OSCAP addon selector button or status label not "
-                   "found: %s" % exception)
+            getnode(app_node, "spoke selector", oscap_tr("SECURITY POLICY"))
+        except TimeoutError:
+            return(False, "OSCAP addon selector button not found.")
     return result
 
