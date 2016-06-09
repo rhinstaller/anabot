@@ -198,6 +198,14 @@ def change_content_manipulate(element, app_node, local_node, dryrun):
         change_button = getnode(local_node, "push button",
                                 oscap_tr("_Change content"))
     except TimeoutError:
+        if dryrun:
+            try:
+                getnode(app_node, "spoke selector", oscap_tr("SECURITY POLICY"))
+                logger.info("Detected that hub is active.")
+                return True
+            except TimeoutError:
+                return (False, "Couldn't find neither \"_Change content\" "
+                        "button (OSCAP spoke) nor OSCAP spoke selector (hub).")
         return (False, "Couldn't find \"_Change content\" button.")
     if dryrun:
         return default_result(element)
@@ -477,6 +485,7 @@ def changes_line_check(element, app_node, local_node):
                 % translated_text)
 
 @handle_act('/done')
+@handle_act('/change_content/done')
 def done_handler(element, app_node, local_node):
     try:
         done_button = getnode(local_node, "push button", tr("_Done", False))
@@ -485,6 +494,7 @@ def done_handler(element, app_node, local_node):
     done_button.click()
 
 @handle_chck('/done')
+@handle_chck('/change_content/done')
 def done_check(element, app_node, local_node):
     result = default_result(element)
     if result[0]:
