@@ -17,7 +17,10 @@ RESULTS = {}
 def action_result(node_path, default_result=ActionResultNone()):
     if isinstance(node_path, libxml2.xmlNode):
         node_path = node_path.nodePath()
-    return RESULTS.get(node_path, default_result)
+    result = RESULTS.get(node_path, default_result)
+    if isinstance(result, ActionResultNone):
+        result = default_result
+    return result
 
 def _check_result(result):
     if result is None:
