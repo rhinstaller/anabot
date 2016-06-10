@@ -61,7 +61,7 @@ def handle_step(element, app_node, local_node):
         else:
             reporter.log_fail("Check failed for: %s line: %d" % (node_path, node_line))
     if policy in ("should_fail", "just_check_fail"):
-        if type(result) in (ActionResultFail, ActionResultNone):
+        if not result:
             reporter.log_pass("Expected failure for: %s line: %d" %
                               (node_path, node_line))
         else:
