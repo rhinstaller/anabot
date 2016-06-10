@@ -19,21 +19,21 @@ def action_result(node_path, default_result=ActionResultNone()):
         node_path = node_path.nodePath()
     return RESULTS.get(node_path, default_result)
 
-def _check_result_reason(result):
+def _check_result(result):
     if result is None:
         return ActionResultNone()
     reason = None
     if type(result) == type(tuple()):
         result, reason = result
         if result:
-            result = ActionResultPass()
+            return ActionResultPass()
         else:
-            result = ActionResultFail(reason)
+            return ActionResultFail(reason)
     elif type(result) == type(bool()):
         if result:
-            result = ActionResultPass()
+            return ActionResultPass()
         else:
-            result = ActionResultFail()
+            return ActionResultFail()
     return result
 
 def handle_step(element, app_node, local_node):
@@ -47,16 +47,16 @@ def handle_step(element, app_node, local_node):
         handler_path = None
     if policy in ("should_pass", "should_fail", "may_fail"):
         result = ACTIONS.get(handler_path)(element, app_node, local_node)
-        RESULTS[raw_node_path] = _check_result_reason(result)
+        RESULTS[raw_node_path] = _check_result(result)
     if handler_path is None:
         return
     if handler_path not in CHECKS:
         handler_path = None
-    result = _check_result_reason(CHECKS.get(handler_path)(element, app_node, local_node))
+    result = _check_result(CHECKS.get(handler_path)(element, app_node, local_node))
     if policy == "may_fail":
         return
     if policy in ("should_pass", "just_check"):
-        if result == True:
+        if result:
             reporter.log_pass("Check passed for: %s line: %d" % (node_path, node_line))
         else:
             reporter.log_fail("Check failed for: %s line: %d" % (node_path, node_line))
@@ -67,7 +67,7 @@ def handle_step(element, app_node, local_node):
         else:
             reporter.log_fail("Unexpected pass for: %s line: %d" %
                               (node_path, node_line))
-    if type(result) == ActionResultFail and result.reason is not None:
+    if result.reason is not None:
         reporter.log_info("Reason was: %s" % result.reason)
     log_screenshot()
 
