@@ -30,6 +30,11 @@ class ActionResult(object):
         else:
             raise IndexError("No such item: %d" % index)
 
+    def __bool__(self):
+        return self.result == True
+
+    __nonzero__ = __bool__ # __nonzero__ is used in Python 2
+
 
 class ActionResultPass(ActionResult):
     result = True
