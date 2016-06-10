@@ -9,6 +9,7 @@ from anabot.runtime.functions import get_attr, getnode, getnodes, getsibling
 from anabot.runtime.functions import getparents, TimeoutError
 from anabot.runtime.translate import tr
 from anabot.runtime.translate import oscap_tr as oscap_tr_
+from anabot.runtime.actionresult import ActionResultPass
 import re
 
 _local_path = '/installation/hub/oscap_addon'
@@ -23,13 +24,6 @@ def oscap_tr(intext, drop_underscore=True):
         return intext.replace("_", "")
     else:
         return intext
-
-def default_result(element):
-    result = action_result(element)
-    if result[0] is None:
-        return (True, None)
-    else:
-        return result
 
 @handle_act('')
 def base_handler(element, app_node, local_node):
@@ -53,11 +47,11 @@ def base_handler(element, app_node, local_node):
 def base_check(element, app_node, local_node):
     expected_message = get_attr(element, "expected_message")
     expected_message = oscap_tr_(expected_message)
-    result = default_result(element)
+    result = action_result(element, ActionResultPass())
     ok_status = {oscap_tr_("Everything okay"),
                  oscap_tr_("No profile selected"),
                  oscap_tr_("No content found")}
-    if not result[0]:
+    if not result:
         return result
 
     try:
@@ -135,8 +129,8 @@ def choose_manipulate(element, app_node, local_node, dryrun):
         return (False, "Unknown selection mode: %s" % mode)
 
     if dryrun:
-        result = default_result(element)
-        if not result[0]:
+        result = action_result(element, ActionResultPass())
+        if not result:
             return result
         if mode == "manual":
             if not profile.selected:
@@ -208,7 +202,7 @@ def change_content_manipulate(element, app_node, local_node, dryrun):
                         "button (OSCAP spoke) nor OSCAP spoke selector (hub).")
         return (False, "Couldn't find \"_Change content\" button.")
     if dryrun:
-        return default_result(element)
+        return action_result(element, ActionResultPass())
     else:
         change_button.click()
         try:
@@ -224,8 +218,8 @@ def change_content_handler(element, app_node, local_node):
 
 @handle_chck('/change_content')
 def change_content_check(element, app_node, local_node):
-    result = default_result(element)
-    if result[0]:
+    result = action_result(element, ActionResultPass())
+    if result:
         result = change_content_manipulate(element, app_node, local_node, True)
     return result
 
@@ -262,8 +256,8 @@ def change_content_fetch_handler(element, app_node, local_node):
 @handle_chck('/change_content/fetch')
 def change_content_fetch_check(element, app_node, local_node):
     global _selected_profile
-    result = default_result(element)
-    if result[0]:
+    result = action_result(element, ActionResultPass())
+    if result:
         try:
             getnode(local_node, "push button", oscap_tr("_Change content"))
             result = True
@@ -293,8 +287,8 @@ def change_content_use_ssg_handler(element, app_node, local_node):
 
 @handle_chck('/change_content/use_ssg')
 def change_content_use_ssg_check(element, app_node, local_node):
-    result = default_result(element)
-    if default_result[0]:
+    result = action_result(element, ActionResultPass())
+    if result:
         try:
             getnode(local_node, "push button",
                     oscap_tr("_Use SCAP Security Guide"), visible=False)
@@ -344,8 +338,8 @@ def datastream_manipulate(element, app_node, local_node, dryrun):
         return (False, "Couldn't find \"Data stream:\" label or data stream "
                 "combo box or menu items.")
     if dryrun:
-        result = default_result(element)
-        if not result[0]:
+        result = action_result(element, ActionResultPass())
+        if not result:
             return result
         if mode == "random":
             result = ds_combo.name != ""
@@ -388,8 +382,8 @@ def checklist_manipulate(element, app_node, local_node, dryrun):
         return (False, "Couldn't find \"Checklist:\" label, combo box "
                 "or menu items")
     if dryrun:
-        result = default_result(element)
-        if not result[0]:
+        result = action_result(element, ActionResultPass())
+        if not result:
             return result
         if mode == "manual":
             datastream = get_attr(element, "id")
@@ -496,8 +490,8 @@ def done_handler(element, app_node, local_node):
 @handle_chck('/done')
 @handle_chck('/change_content/done')
 def done_check(element, app_node, local_node):
-    result = default_result(element)
-    if result[0]:
+    result = action_result(element, ActionResultPass())
+    if result:
         try:
             getnode(app_node, "spoke selector", oscap_tr("SECURITY POLICY"))
         except TimeoutError:
