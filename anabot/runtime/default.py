@@ -14,10 +14,10 @@ NODE_NUM = re.compile(r'\[[0-9]+\]')
 
 RESULTS = {}
 
-def action_result(node_path):
+def action_result(node_path, default_result=ActionResultNone()):
     if isinstance(node_path, libxml2.xmlNode):
         node_path = node_path.nodePath()
-    return RESULTS.get(node_path, ActionResultNone())
+    return RESULTS.get(node_path, default_result)
 
 def _check_result_reason(result):
     if result is None:
