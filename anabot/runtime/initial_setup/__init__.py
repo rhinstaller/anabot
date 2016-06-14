@@ -51,6 +51,4 @@ def quit_handler(element, app_node, local_node):
     else:
         button = getnode(dialog, 'push button', tr('No'))
         button.click()
-        
-
 
