@@ -5,9 +5,15 @@ import gettext
 import langtable # pylint: disable=import-error
 from .comps import get_comps
 __translate = None
-__language = None
+__translate_keyboard = None
+__translate_lang = None
+__translate_country = None
+__languages = None
 __locality = None
 __locality_re = re.compile(r"(?P<lang>[^(]*) (?:\((?P<loc>[^)]*)\))?")
+
+def active_languages():
+    return __languages
 
 def set_languages_by_name(locality):
     match = __locality_re.match(locality)
@@ -17,9 +23,18 @@ def set_languages_by_name(locality):
                    "en"])
 
 def set_languages(languages):
-    global __translate, __languages
+    global __translate, __languages, __translate_keyboard, __translate_lang, __translate_coutntry
     __translate = gettext.translation('anaconda', languages=languages,
                                       fallback=True)
+    __translate_keyboard = gettext.translation('xkeyboard-config',
+                                               languages=languages,
+                                               fallback=True)
+    __translate_lang = gettext.translation('iso_639',
+                                           languages=['cs_CZ.UTF-8'],
+                                           fallback=True)
+    __translate_country = gettext.translation('iso_3166',
+                                              languages=['cs_CZ.UTF-8'],
+                                              fallback=True)
     __languages = languages
 
 def tr(intext, drop_underscore=True, context=None):
@@ -64,5 +79,27 @@ def datetime_tr(name):
         if translated != name:
             return translated
     return name
+
+def keyboard_tr(intext):
+    if isinstance(intext, unicode):
+        outtext = __translate_keyboard.ugettext(intext)
+    else:
+        outtext = __translate_keyboard.ugettext(intext.decode('utf-8'))
+    return outtext
+
+def lang_tr(intext):
+    if isinstance(intext, unicode):
+        outtext = __translate_lang.ugettext(intext)
+    else:
+        outtext = __translate_lang.ugettext(intext.decode('utf-8'))
+    return outtext
+
+def country_tr(intext):
+    # not used yet, but we can keep it for future
+    if isinstance(intext, unicode):
+        outtext = __translate_country.ugettext(intext)
+    else:
+        outtext = __translate_country.ugettext(intext.decode('utf-8'))
+    return outtext
 
 set_languages(['en'])
