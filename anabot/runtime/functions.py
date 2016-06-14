@@ -51,7 +51,7 @@ def waiton(node, predicates, timeout=7, make_screenshot=False, visible=True, sen
                 return found
         time.sleep(1)
     log_screenshot(progress_only=True)
-    raise TimeoutError("No predicate matches within timeout period")
+    raise TimeoutError("No predicate matches within timeout period", locals())
 
 def waiton_all(node, predicates, timeout=7, make_screenshot=False, visible=True, sensitive=True, recursive=True):
     "wait unless items show on the screen"
@@ -70,7 +70,7 @@ def waiton_all(node, predicates, timeout=7, make_screenshot=False, visible=True,
                 return found
         time.sleep(1)
     log_screenshot(progress_only=True)
-    raise TimeoutError("No predicate matches within timeout period")
+    raise TimeoutError("No predicate matches within timeout period", locals())
 
 def getnodes(parent, node_type=None, node_name=None, timeout=None,
              predicates=None, visible=True, sensitive=True, recursive=True):
@@ -108,7 +108,7 @@ def getnode_scroll(parent, node_type=None, node_name=None, timeout=None,
             pass
         time.sleep(1)
     else:
-        raise TimeoutError("No predicate matches within timeout period")
+        raise TimeoutError("No predicate matches within timeout period", locals())
     scrollto(node)
     return node
 
