@@ -44,6 +44,7 @@ def handle_step(element, app_node, local_node):
     node_path = re.sub(NODE_NUM, '', raw_node_path)
     node_line = element.lineNo()
     policy = get_attr(element, "policy", "should_pass")
+    expected_reason = get_attr(element, "fail_reason")
     handler_path = node_path
     reporter.log_info("Processing: %s" % raw_node_path)
     if handler_path not in ACTIONS:
@@ -65,13 +66,22 @@ def handle_step(element, app_node, local_node):
             reporter.log_fail("Check failed for: %s line: %d" % (node_path, node_line))
     if policy in ("should_fail", "just_check_fail"):
         if not result:
-            reporter.log_pass("Expected failure for: %s line: %d" %
-                              (node_path, node_line))
+            if expected_reason is None or expected_reason == result.fail_reason:
+                reporter.log_pass("Expected failure for: %s line: %d" %
+                                (node_path, node_line))
+            else:
+                reporter.log_fail("Wrong failure reason, expected reason "
+                                  "was: %s" % expected_reason)
         else:
             reporter.log_fail("Unexpected pass for: %s line: %d" %
                               (node_path, node_line))
     if result.reason is not None:
         reporter.log_info("Reason was: %s" % result.reason)
+    try:
+        if result.fail_reason is not None:
+            reporter.log_info("Failure reason was: %s" % result.fail_reason)
+    except AttributeError:
+        pass
     log_screenshot()
 
 def default_handler(element, app_node, local_node):
