@@ -73,8 +73,9 @@ def handle_step(element, app_node, local_node):
                 reporter.log_pass("Expected failure with specified reason "
                                   "for: %s line: %d" % (node_path, node_line))
             else:
-                reporter.log_fail("Wrong failure reason, expected reason "
-                                  "was: %s" % expected_reason)
+                reporter.log_fail("Wrong failure reason for: %s line: %d, "
+                                  "expected reason was: %s"
+                                  % (node_path, node_line, expected_reason))
         else:
             reporter.log_fail("Unexpected pass for: %s line: %d" %
                               (node_path, node_line))
