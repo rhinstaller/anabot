@@ -44,7 +44,7 @@ def handle_step(element, app_node, local_node):
     node_path = re.sub(NODE_NUM, '', raw_node_path)
     node_line = element.lineNo()
     policy = get_attr(element, "policy", "should_pass")
-    expected_reason = get_attr(element, "fail_reason")
+    fail_type = get_attr(element, "fail_type")
     handler_path = node_path
     reporter.log_info("Processing: %s" % raw_node_path)
     if handler_path not in ACTIONS:
@@ -66,24 +66,24 @@ def handle_step(element, app_node, local_node):
             reporter.log_fail("Check failed for: %s line: %d" % (node_path, node_line))
     if policy in ("should_fail", "just_check_fail"):
         if not result:
-            if expected_reason is None:
+            if fail_type is None:
                 reporter.log_pass("Expected failure for: %s line: %d" %
-                                (node_path, node_line))
-            elif expected_reason == result.fail_reason:
-                reporter.log_pass("Expected failure with specified reason "
+                                  (node_path, node_line))
+            elif fail_type == result.fail_type:
+                reporter.log_pass("Expected failure with specified type "
                                   "for: %s line: %d" % (node_path, node_line))
             else:
-                reporter.log_fail("Wrong failure reason for: %s line: %d, "
-                                  "expected reason was: %s"
-                                  % (node_path, node_line, expected_reason))
+                reporter.log_fail("Wrong failure type for: %s line: %d, "
+                                  "expected type was: %s"
+                                  % (node_path, node_line, fail_type))
         else:
             reporter.log_fail("Unexpected pass for: %s line: %d" %
                               (node_path, node_line))
     if result.reason is not None:
         reporter.log_info("Reason was: %s" % result.reason)
     try:
-        if result.fail_reason is not None:
-            reporter.log_info("Failure reason was: %s" % result.fail_reason)
+        if result.fail_type is not None:
+            reporter.log_info("Failure type was: %s" % result.fail_type)
     except AttributeError:
         pass
     log_screenshot()

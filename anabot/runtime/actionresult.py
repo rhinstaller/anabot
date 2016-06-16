@@ -43,13 +43,13 @@ class ActionResultPass(ActionResult):
 class ActionResultFail(ActionResult):
     result = False
 
-    def __init__(self, reason=None, fail_reason=None):
+    def __init__(self, reason=None, fail_type=None):
         self.reason = reason
-        self.fail_reason = fail_reason
+        self.fail_type = fail_type
 
     def __eq__(self, other):
         if (isinstance(other, ActionResult)
-                and self.fail_reason != other.fail_reason):
+                and self.fail_type != other.fail_type):
             return False
         return super(ActionResultFail, self).__eq__(other)
 
