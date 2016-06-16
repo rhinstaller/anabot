@@ -66,9 +66,12 @@ def handle_step(element, app_node, local_node):
             reporter.log_fail("Check failed for: %s line: %d" % (node_path, node_line))
     if policy in ("should_fail", "just_check_fail"):
         if not result:
-            if expected_reason is None or expected_reason == result.fail_reason:
+            if expected_reason is None:
                 reporter.log_pass("Expected failure for: %s line: %d" %
                                 (node_path, node_line))
+            elif expected_reason == result.fail_reason:
+                reporter.log_pass("Expected failure with specified reason "
+                                  "for: %s line: %d" % (node_path, node_line))
             else:
                 reporter.log_fail("Wrong failure reason, expected reason "
                                   "was: %s" % expected_reason)
