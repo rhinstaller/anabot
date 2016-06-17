@@ -36,11 +36,14 @@ def base_handler(element, app_node, local_node):
     try:
         oscap_addon_label = getnode(app_node, "label",
                                     oscap_tr("SECURITY POLICY"))
+    except TimeoutError:
+        return (False, "Couldn't find \"SECURITY POLICY\" label")
+    try:
         oscap_addon_panel = getparents(oscap_addon_label,
                                        predicates={'roleName': 'panel'})[2]
     except TimeoutError:
-        return (False, "Couldn't find \"SECURITY POLICY\" "
-                "label or OSCAP addon panel")
+        return (False, "Couldn't find OSCAP addon panel")
+
     default_handler(element, app_node, oscap_addon_panel)
 
 @handle_chck('')
@@ -57,10 +60,13 @@ def base_check(element, app_node, local_node):
     try:
         oscap_addon_selector = getnode(app_node, "spoke selector",
                                        oscap_tr("SECURITY POLICY"))
+    except TimeoutError:
+        return(False, "Couldn't find OSCAP addon selector button")
+    try:
         oscap_addon_status = getnode(oscap_addon_selector, "label").text.decode("utf-8")
-    except TimeoutError as exception:
-        return(False, "OSCAP addon selector button or status label not "
-            "found: %s" % exception)
+    except TimeoutError:
+        return(False,
+               "Couldn't find status label on OSCAP addon selector button")
     if expected_message is None:
         if oscap_addon_status in ok_status:
             result = True
@@ -81,10 +87,12 @@ def choose_manipulate(element, app_node, local_node, dryrun):
     try:
         profiles_label = getnode(local_node, "label",
                                  oscap_tr("Choose profile below:"))
+    except TimeoutError:
+        return (False, "Couldn't find \"Choose profile below:\" label")
+    try:
         profiles_table = getsibling(profiles_label, 1, "table")
     except TimeoutError:
-        return (False, "Couldn't find \"Choose profile below:\" "
-                "label or profiles table.")
+        return (False, "Couldn't find profiles table.")
     try:
         available_profiles = [p for p in getnodes(profiles_table, "table cell")
                               if p.text]
@@ -226,9 +234,12 @@ def change_content_check(element, app_node, local_node):
 def change_content_source_manipulate(element, app_node, local_node, dryrun):
     try:
         fetch_button = getnode(local_node, "push button", oscap_tr("_Fetch"))
+    except TimeoutError:
+        return (False, "Couldn't find \"_Fetch\" button")
+    try:
         datastream_url_input = getsibling(fetch_button, -1, "text")
     except TimeoutError:
-        return (False, "Couldn't find \"_Fetch\" button or URL input box.")
+        return (False, "Couldn't find URL input box.")
     url = get_attr(element, "url")
     if dryrun:
         return datastream_url_input.text == url
@@ -266,12 +277,15 @@ def change_content_fetch_check(element, app_node, local_node):
             try:
                 infobar = getnode(local_node, "info bar",
                                   predicates={"name": tr("Error")})
+            except TimeoutError:
+                result = (False, "Couldn't find info bar.")
+            try:
                 error = getnode(infobar, "label").text
                 url = get_attr(element, "url")
                 result = (False, "SCAP content fetch error: \"%s\", URL: %s"
                           % (error, url))
             except TimeoutError:
-                result = (False, "Couldn't get SCAP content fetch error.")
+                result = (False, "Couldn't find message label in info bar.")
     return result
 
 @handle_act('/change_content/use_ssg')
@@ -303,10 +317,12 @@ def apply_policy_manipulate(element, app_node, local_node, dryrun):
     try:
         apply_policy_label = getnode(local_node, "label",
                                      oscap_tr("Apply security policy:"))
+    except TimeoutError:
+        return (False, "Couldn't find \"Apply security policy:\" label")
+    try:
         policy_button = getsibling(apply_policy_label, 1, "toggle button")
     except TimeoutError:
-        return (False, "Couldn't find \"Apply security policy:\" label "
-                "or policy button/switch.")
+        return (False, "Couldn't find policy on/off switch.")
 
     if dryrun:
         return (policy_action == "enable" and policy_button.checked
@@ -330,13 +346,18 @@ def datastream_manipulate(element, app_node, local_node, dryrun):
     mode = get_attr(element, "mode", "manual")
     try:
         ds_label = getnode(local_node, "label", oscap_tr("Data stream:"))
-        ds_combo = getsibling(ds_label, 1, "combo box")
-        if not dryrun:
-            ds_combo.click()
-            ds_items = getnodes(ds_combo, "menu item")
     except TimeoutError:
-        return (False, "Couldn't find \"Data stream:\" label or data stream "
-                "combo box or menu items.")
+        return (False, "Couldn't find \"Data stream:\" label")
+    try:
+        ds_combo = getsibling(ds_label, 1, "combo box")
+    except TimeoutError:
+        return (False, "Couldn't find data stream combo box")
+    if not dryrun:
+        ds_combo.click()
+        try:
+            ds_items = getnodes(ds_combo, "menu item")
+        except TimeoutError:
+            return (False, "Couldn't find data stream menu items.")
     if dryrun:
         result = action_result(element, ActionResultPass())
         if not result:
@@ -374,13 +395,19 @@ def checklist_manipulate(element, app_node, local_node, dryrun):
     mode = get_attr(element, "mode", "manual")
     try:
         checklist_label = getnode(local_node, "label", oscap_tr("Checklist:"))
+    except TimeoutError:
+        return (False, "Couldn't find \"Checklist:\" label")
+    try:
         checklist_combo = getsibling(checklist_label, 1, "combo box")
-        if not dryrun:
+    except TimeoutError:
+        return (False, "Couldn't find checklist  combo box")
+    if not dryrun:
+        try:
             checklist_combo.click()
             checklist_items = getnodes(checklist_combo, "menu item")
-    except TimeoutError:
-        return (False, "Couldn't find \"Checklist:\" label, combo box "
-                "or menu items")
+        except TimeoutError:
+            return (False, "Couldn't find checklist menu items")
+
     if dryrun:
         result = action_result(element, ActionResultPass())
         if not result:
@@ -390,10 +417,12 @@ def checklist_manipulate(element, app_node, local_node, dryrun):
             try:
                 checklist_label = getnode(local_node, "label",
                                           oscap_tr("Checklist:"))
+            except TimeoutError:
+                return (False, "Couldn't find \"Checklist:\" label")
+            try:
                 checklist_combo = getsibling(checklist_label, 1, "combo box")
             except TimeoutError:
-                return (False, "Couldn't find \"Checklist:\" "
-                        "label or combo box.")
+                return (False, "Couldn't find checklist combo box.")
             result = checklist_combo.name == datastream
         elif mode == "random":
             result = checklist_combo.name != ""
@@ -465,10 +494,12 @@ def changes_line_check(element, app_node, local_node):
         changes_label = getnode(local_node, "label",
                                 oscap_tr("Changes that were done or need "
                                          "to be done:"))
+    except TimeoutError:
+        return(False, "Couldn't find \"Changes that were done...\" label")
+    try:
         changes_table = getsibling(changes_label, 1, "table")
     except TimeoutError:
-        return(False, "Couldn't find \"Changes that were done...\" label "
-               "or table with changes.")
+        return(False, "Couldn't find table with changes.")
     try:
         getnode(changes_table, "table cell",
                 predicates={"name": translated_text})
