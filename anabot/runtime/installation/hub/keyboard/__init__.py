@@ -7,6 +7,8 @@ import langtable
 
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler, action_result
+from anabot.runtime.actionresult import ActionResultPass as Pass
+from anabot.runtime.actionresult import ActionResultPass as Fail
 from anabot.runtime.functions import get_attr, getnode, getnode_scroll, getsibling, TimeoutError
 from anabot.runtime.translate import tr, keyboard_tr
 from .layouts import layout_name
@@ -27,53 +29,119 @@ def layout_chck(path):
         return handle_check(_local_layout_path + path, func)
     return decorator
 
+PASS = Pass()
+SPOKE_SELECTOR_NOT_FOUND = Fail("Didn't find active spoke selector for Keyboard layout.")
+SPOKE_NOT_FOUND = Fail("Didn't find panel for Keyboard layout.")
+DONE_NOT_FOUND = Fail("Didn't find \"Done\" button.")
+
 @handle_act('')
 def base_handler(element, app_node, local_node):
     keyboard_label = tr("_KEYBOARD", context="GUI|Spoke")
-    keyboard = getnode_scroll(app_node, "spoke selector", keyboard_label)
+    try:
+        keyboard = getnode_scroll(app_node, "spoke selector", keyboard_label)
+    except TimeoutError:
+        return SPOKE_SELECTOR_NOT_FOUND
     keyboard.click()
-    local_node = getnode(app_node, "panel", tr("KEYBOARD LAYOUT"))
+    try:
+        local_node = getnode(app_node, "panel", tr("KEYBOARD LAYOUT"))
+    except TimeoutError:
+        return SPOKE_NOT_FOUND
     default_handler(element, app_node, local_node)
-    done_button = getnode(local_node, "push button", tr("_Done", False))
+    try:
+        done_button = getnode(local_node, "push button", tr("_Done", False))
+    except TimeoutErrro:
+        return DONE_NOT_FOUND
     done_button.click()
+    return PASS
 
 @handle_chck('')
 def base_check(element, app_node, local_node):
-    pass
+    if action_result(element) == False:
+        return action_result(element)
+    # TODO: check status of spoke selector
+    return PASS
 
 def toolbar(local_node):
     return getnode(local_node, "tool bar")
 
+TOOLBAR_NOT_FOUND = Fail("Didn't find toolbar for keyboard layouts.")
+TOOLBAR_BUTTON_NOT_FOUND_TEXT = "Didn't find toolbar button: %s"
+def do_toolbar(local_node, button_name, button_desc=None):
+    try:
+        tool_bar = toolbar(local_node)
+    except TimeoutError:
+        return TOOLBAR_NOT_FOUND
+    # try, except, return False...
+    try:
+        button = getnode(tool_bar, "push button",
+                         tr(button_name, context="GUI|Keyboard Layout"))
+    except TimeoutError:
+        if button_desc is None:
+            button_desc = button_name
+        return Fail(TOOLBAR_BUTTON_NOT_FOUND_TEXT % button_desc)
+    button.click()
+    return PASS
+
+ADD_DIALOG_NOT_FOUND = Fail("Didn't find dialog for adding layout.")
+ADD_TABLE_NOT_FOUND = Fail("Didn't find table with layouts in dialog.")
+ADD_LAYOUT_NOT_FOUND_TEXT = "Didn't find desired layout \"%s\" in table."
+ADD_DIALOG_BUTTON_FOUND = Fail("Didn't find desired dialog button.")
 @handle_act('/add_layout')
 def layout_handler(element, app_node, local_node):
     name = get_attr(element, "name")
     dialog_action = get_attr(element, "dialog", "accept") == "accept"
-    tool_bar = toolbar(local_node)
-    add_button = getnode(tool_bar, "push button",
-                         tr("_Add layout", context="GUI|Keyboard Layout"))
-    add_button.click()
-    dialog = getnode(app_node, "dialog", tr("Add Layout"))
-    layouts = getnode(dialog, "table", tr("Available Layouts"))
-    layout = getnode_scroll(layouts, "table cell", layout_name(name))
-    layout.click()
+    do_result = do_toolbar(local_node, "_Add layout")
+    if do_result == False:
+        return do_result
+
+    try:
+        dialog = getnode(app_node, "dialog", tr("Add Layout"))
+    except TimeoutError:
+        return ADD_DIALOG_NOT_FOUND
+
+    try:
+        layouts = getnode(dialog, "table", tr("Available Layouts"))
+    except TimeoutError:
+        return ADD_TABLE_NOT_FOUND
+
+    try:
+        layout = getnode_scroll(layouts, "table cell", layout_name(name))
+        layout.click()
+    except TimeoutError:
+        return Fail(ADD_LAYOUT_NOT_FOUND_TEXT % layout_name(name))
+
     if dialog_action:
         button_text = tr("_Add", context="GUI|Keyboard Layout|Add Layout")
     else:
         button_text = tr("_Cancel", context="GUI|Keyboard Layout|Add Layout")
-    dialog_button = getnode(dialog, "push button", button_text)
-    dialog_button.click()
+
+    try:
+        dialog_button = getnode(dialog, "push button", button_text)
+        dialog_button.click()
+    except:
+        return ADD_DIALOG_BUTTON_FOUND
+    return PASS
 
 @handle_chck('/add_layout')
 def layout_check(element, app_node, local_node):
     pass
 
+LAYOUTS_TABLE_NOT_FOUND = Fail("Didn't find table with layouts")
+LAYOUT_NOT_FOUND_TEXT = "Didn't find desired layout: %s"
 @handle_act('/layout')
 def layout_handler(element, app_node, local_node):
     name = get_attr(element, "name")
-    table = getnode(local_node, "table", tr("Selected Layouts"))
-    layout = getnode_scroll(table, "table cell", layout_name(name))
-    layout.click()
+    try:
+        table = getnode(local_node, "table", tr("Selected Layouts"))
+    except TimeoutError:
+        return LAYOUTS_TABLE_NOT_FOUND
+    try:
+        layout = getnode_scroll(table, "table cell", layout_name(name))
+        layout.click()
+    except TimeoutError:
+        return Fail(LAYOUT_NOT_FOUND_TEXT % layout_name(name))
     default_handler(element, app_node, local_node)
+    return PASS
 
 @handle_chck('/layout')
 def layout_check(element, app_node, local_node):
@@ -88,14 +156,6 @@ def layout_handler(element, app_node, local_node):
 @handle_chck('/layout/position')
 def layout_check(element, app_node, local_node):
     pass
-
-def do_toolbar(local_node, button_name):
-    tool_bar = toolbar(local_node)
-    # try, except, return False...
-    button = getnode(tool_bar, "push button",
-                     tr(button_name, context="GUI|Keyboard Layout"))
-    button.click()
-    return True
 
 @layout_act('/remove')
 def remove_handler(element, app_node, local_node):
@@ -121,14 +181,28 @@ def move_down_handler(element, app_node, local_node):
 def move_down_check(element, app_node, local_node):
     pass
 
+SHOW_DIALOG_NOT_FOUND = Fail("Didn't find dialog with layout preview.")
+SHOW_DRAWING_NOT_FOUND = Fail("Didn't find drawing area in layout preview.")
+SHOW_CLOSE_NOT_FOUND = Fail("Didn't find close button in layout preview.")
 @layout_act('/show')
 def show_handler(element, app_node, local_node):
     toolbar_result = do_toolbar(local_node, "_Preview layout")
-    dialog = getnode(app_node, "dialog")
-    # TODO: Check dialog name!
-    getnode(dialog, "drawing area") # something may be drawn
-    getnode(dialog, "push button", tr("Close")).click()
-    return toolbar_result
+    if toolbar_result == False:
+        return toolbar_result
+    try:
+        # TODO: Check dialog name!
+        dialog = getnode(app_node, "dialog")
+    except TimeoutError:
+        return SHOW_DIALOG_NOT_FOUND
+    try:
+        getnode(dialog, "drawing area") # something may be drawn
+    except TimeoutError:
+        return SHOW_DRAWING_NOT_FOUND
+    try:
+        getnode(dialog, "push button", tr("Close")).click()
+    except TimeoutError:
+        return SHOW_CLOSE_NOT_FOUND
+    return PASS
 
 @layout_chck('/show')
 def show_check(element, app_node, local_node):
@@ -142,15 +216,29 @@ def test_handler(element, app_node, local_node):
 def test_check(element, app_node, local_node):
     pass
 
+OPTIONS_NOT_FOUND = Fail("Didn't find options button.")
+OPTIONS_DIALOG_NOT_FOUND = Fail("Didn't find options dialog.")
+OPTIONS_TABLE_NOT_FOUND = Fail("Didn't find table with shortcuts.")
+OPTION_NOT_FOUND_TEXT = "Didn't find desired shortcut: %s"
+OPTIONS_DIALOG_BUTTON_NOT_FOUND_TEXT = "Didn't find desired dialog button: %s"
 @layout_act('/options')
-def _handler(element, app_node, local_node):
+def options_handler(element, app_node, local_node):
     dialog_action = get_attr(element, "dialog", "accept") == "accept"
-    options_button = getnode(local_node, "push button",
-                             tr("_Options", context="GUI|Keyboard Layout"))
+    try:
+        options_button = getnode(local_node, "push button",
+                                 tr("_Options", context="GUI|Keyboard Layout"))
+    except TimeoutError:
+        return OPTIONS_NOT_FOUND
     options_button.click()
 
-    dialog = getnode(app_node, "dialog", tr("Layout Options"))
-    table = getnode(dialog, "table")
+    try:
+        dialog = getnode(app_node, "dialog", tr("Layout Options"))
+    except TimeoutError:
+        return OPTIONS_DIALOG_NOT_FOUND
+    try:
+        table = getnode(dialog, "table")
+    except TimeoutError:
+        return OPTIONS_TABLE_NOT_FOUND
     default_handler(element, app_node, table)
 
     button_context = "GUI|Keyboard Layout|Switching Options"
@@ -158,21 +246,28 @@ def _handler(element, app_node, local_node):
         button_text = tr("_OK", context=button_context)
     else:
         button_text = tr("_Cancel", context=button_context)
-    getnode(dialog, "push button", button_text).click()
+    try:
+        getnode(dialog, "push button", button_text).click()
+    except TimeoutError:
+        return Fail(OPTIONS_DIALOG_BUTTON_NOT_FOUND_TEXT % button_text)
 
 @layout_chck('/options')
-def _check(element, app_node, local_node):
+def options_check(element, app_node, local_node):
     pass
 
+SHORTCUT_NOT_FOUND_TEXT = "Didn't find desired shortcut: %s"
 @layout_act('/options/shortcut')
-def _handler(element, app_node, local_node):
+def options_shortcut_handler(element, app_node, local_node):
     name = get_attr(element, "name")
     enable = get_attr(element, "action", "enable") == "enable"
-    cell = getnode_scroll(local_node, "table cell", keyboard_tr(name))
+    try:
+        cell = getnode_scroll(local_node, "table cell", keyboard_tr(name))
+    except TimeoutError:
+        return Fail(SHORTCUT_NOT_FOUND_TEXT % keyboard_tr(name))
     checkbox = getsibling(cell, -1, "table cell")
     if checkbox.checked != enable:
         checkbox.click()
 
 @layout_chck('/options/shortcut')
-def _check(element, app_node, local_node):
+def options_shortcut_check(element, app_node, local_node):
     pass
