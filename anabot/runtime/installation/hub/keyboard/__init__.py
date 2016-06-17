@@ -3,8 +3,6 @@
 import logging
 logger = logging.getLogger('anabot')
 
-import langtable
-
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.actionresult import ActionResultPass as Pass
