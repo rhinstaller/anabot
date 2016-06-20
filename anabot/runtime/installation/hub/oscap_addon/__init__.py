@@ -9,7 +9,7 @@ from anabot.runtime.functions import get_attr, getnode, getnodes, getsibling
 from anabot.runtime.functions import getparents, TimeoutError
 from anabot.runtime.translate import tr
 from anabot.runtime.translate import oscap_tr as oscap_tr_
-from anabot.runtime.actionresult import ActionResultPass
+from anabot.runtime.actionresult import ActionResultPass as Pass, ActionResultFail as Fail
 import re
 
 _local_path = '/installation/hub/oscap_addon'
@@ -137,7 +137,7 @@ def choose_manipulate(element, app_node, local_node, dryrun):
         return (False, "Unknown selection mode: %s" % mode)
 
     if dryrun:
-        result = action_result(element, ActionResultPass())
+        result = action_result(element, Pass())
         if not result:
             return result
         if mode == "manual":
@@ -210,7 +210,7 @@ def change_content_manipulate(element, app_node, local_node, dryrun):
                         "button (OSCAP spoke) nor OSCAP spoke selector (hub).")
         return (False, "Couldn't find \"_Change content\" button.")
     if dryrun:
-        return action_result(element, ActionResultPass())
+        return action_result(element, Pass())
     else:
         change_button.click()
         try:
@@ -226,7 +226,7 @@ def change_content_handler(element, app_node, local_node):
 
 @handle_chck('/change_content')
 def change_content_check(element, app_node, local_node):
-    result = action_result(element, ActionResultPass())
+    result = action_result(element, Pass())
     if result:
         result = change_content_manipulate(element, app_node, local_node, True)
     return result
@@ -267,7 +267,7 @@ def change_content_fetch_handler(element, app_node, local_node):
 @handle_chck('/change_content/fetch')
 def change_content_fetch_check(element, app_node, local_node):
     global _selected_profile
-    result = action_result(element, ActionResultPass())
+    result = action_result(element, Pass())
     if result:
         try:
             getnode(local_node, "push button", oscap_tr("_Change content"))
@@ -301,7 +301,7 @@ def change_content_use_ssg_handler(element, app_node, local_node):
 
 @handle_chck('/change_content/use_ssg')
 def change_content_use_ssg_check(element, app_node, local_node):
-    result = action_result(element, ActionResultPass())
+    result = action_result(element, Pass())
     if result:
         try:
             getnode(local_node, "push button",
@@ -359,7 +359,7 @@ def datastream_manipulate(element, app_node, local_node, dryrun):
         except TimeoutError:
             return (False, "Couldn't find data stream menu items.")
     if dryrun:
-        result = action_result(element, ActionResultPass())
+        result = action_result(element, Pass())
         if not result:
             return result
         if mode == "random":
@@ -409,7 +409,7 @@ def checklist_manipulate(element, app_node, local_node, dryrun):
             return (False, "Couldn't find checklist menu items")
 
     if dryrun:
-        result = action_result(element, ActionResultPass())
+        result = action_result(element, Pass())
         if not result:
             return result
         if mode == "manual":
@@ -521,7 +521,7 @@ def done_handler(element, app_node, local_node):
 @handle_chck('/done')
 @handle_chck('/change_content/done')
 def done_check(element, app_node, local_node):
-    result = action_result(element, ActionResultPass())
+    result = action_result(element, Pass())
     if result:
         try:
             getnode(app_node, "spoke selector", oscap_tr("SECURITY POLICY"))
