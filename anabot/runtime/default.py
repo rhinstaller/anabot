@@ -59,13 +59,18 @@ def handle_step(element, app_node, local_node):
     result = _check_result(CHECKS.get(handler_path)(element, app_node, local_node))
     if policy == "may_fail":
         return
+    if result == None:
+        reporter.log_error("Check didn't return any result for: %s line: %d" % (node_path, node_line))
     if policy in ("should_pass", "just_check"):
         if result:
             reporter.log_pass("Check passed for: %s line: %d" % (node_path, node_line))
         else:
             reporter.log_fail("Check failed for: %s line: %d" % (node_path, node_line))
     if policy in ("should_fail", "just_check_fail"):
-        if not result:
+        if result:
+            reporter.log_fail("Unexpected pass for: %s line: %d" %
+                              (node_path, node_line))
+        if result == False:
             if fail_type is None:
                 reporter.log_pass("Expected failure for: %s line: %d" %
                                   (node_path, node_line))
@@ -76,9 +81,6 @@ def handle_step(element, app_node, local_node):
                 reporter.log_fail("Wrong failure type for: %s line: %d, "
                                   "expected type was: %s"
                                   % (node_path, node_line, fail_type))
-        else:
-            reporter.log_fail("Unexpected pass for: %s line: %d" %
-                              (node_path, node_line))
     if result.reason is not None:
         reporter.log_info("Reason was: %s" % result.reason)
     try:
