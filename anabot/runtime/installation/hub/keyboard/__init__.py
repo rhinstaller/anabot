@@ -7,6 +7,7 @@ from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.actionresult import ActionResultPass as Pass
 from anabot.runtime.actionresult import ActionResultFail as Fail
+from anabot.runtime.actionresult import NotFoundResult as NotFound
 from anabot.runtime.functions import get_attr, getnode, getnode_scroll, getsibling, TimeoutError
 from anabot.runtime.translate import tr, keyboard_tr
 from .layouts import layout_name
@@ -28,17 +29,14 @@ def layout_chck(path):
     return decorator
 
 PASS = Pass()
-SPOKE_SELECTOR_NOT_FOUND = Fail(
-    "Didn't find active spoke selector for Keyboard layout.",
-    "selector_not_found"
+SPOKE_SELECTOR_NOT_FOUND = NotFound(
+    "active spoke selector", "selector_not_found", whose="Keyboard layout"
 )
-SPOKE_NOT_FOUND = Fail(
-    "Didn't find panel for Keyboard layout.",
-    "spoke_not_found"
+SPOKE_NOT_FOUND = NotFound(
+    "panel", "spoke_not_found", whose="Keyboard layout"
 )
-DONE_NOT_FOUND = Fail(
-    "Didn't find \"Done\" button.",
-    "done_not_found"
+DONE_NOT_FOUND = NotFound(
+    '"Done" button', "done_not_found", where="Keyboard layout spoke"
 )
 
 @handle_act('')
@@ -71,13 +69,11 @@ def base_check(element, app_node, local_node):
 def toolbar(local_node):
     return getnode(local_node, "tool bar")
 
-TOOLBAR_NOT_FOUND = Fail(
-    "Didn't find toolbar for keyboard layouts.",
-    "toolbar_not_found"
+TOOLBAR_NOT_FOUND = NotFound(
+    "toolbar", "toolbar_not_found", whose="keyboard layouts"
 )
-TOOLBAR_BUTTON_NOT_FOUND = Fail(
-    "Didn't find toolbar button: %s",
-    "toolbar_button_not_found"
+TOOLBAR_BUTTON_NOT_FOUND = NotFound(
+    "'%s' button", "toolbar_button_not_found", where="toolbar"
 )
 def do_toolbar(local_node, button_name, button_desc=None):
     try:
@@ -95,21 +91,17 @@ def do_toolbar(local_node, button_name, button_desc=None):
     button.click()
     return PASS
 
-ADD_DIALOG_NOT_FOUND = Fail(
-    "Didn't find dialog for adding layout.",
-    "dialog_not_found"
+ADD_DIALOG_NOT_FOUND = NotFound(
+    "dialog", "dialog_not_found", whose="adding layout"
 )
-ADD_TABLE_NOT_FOUND = Fail(
-    "Didn't find table with layouts in dialog.",
-    "layouts_table_not_found"
+ADD_TABLE_NOT_FOUND = NotFound(
+    "table with layouts", "layouts_table_not_found", where="dialog"
 )
-ADD_LAYOUT_NOT_FOUND = Fail(
-    "Didn't find desired layout \"%s\" in table.",
-    "layout_not_found"
+ADD_LAYOUT_NOT_FOUND = NotFound(
+    'desired layout "%s"', "layout_not_found", where="table"
 )
-ADD_DIALOG_BUTTON_FOUND = Fail(
-    "Didn't find desired dialog button.",
-    "dialog_button_not_found"
+ADD_DIALOG_BUTTON_FOUND = NotFound(
+    "desired dialog button", "dialog_button_not_found"
 )
 @handle_act('/add_layout')
 def add_layout_handler(element, app_node, local_node):
@@ -151,8 +143,14 @@ def add_layout_handler(element, app_node, local_node):
 def add_layout_check(element, app_node, local_node):
     pass
 
-LAYOUTS_TABLE_NOT_FOUND = Fail("Didn't find table with layouts")
-LAYOUT_NOT_FOUND = Fail("Didn't find desired layout: %s")
+LAYOUTS_TABLE_NOT_FOUND = NotFound(
+    "table with layouts",
+    # TODO
+)
+LAYOUT_NOT_FOUND = NotFound(
+    'desired layout: "%s"',
+    # TODO
+)
 @handle_act('/layout')
 def layout_handler(element, app_node, local_node):
     name = get_attr(element, "name")
@@ -206,17 +204,19 @@ def move_down_handler(element, app_node, local_node):
 def move_down_check(element, app_node, local_node):
     pass
 
-SHOW_DIALOG_NOT_FOUND = Fail(
-    "Didn't find dialog with layout preview.",
+SHOW_DIALOG_NOT_FOUND = NotFound(
+    "dialog with layout preview",
     # TODO
 )
-SHOW_DRAWING_NOT_FOUND = Fail(
-    "Didn't find drawing area in layout preview.",
+SHOW_DRAWING_NOT_FOUND = NotFound(
+    "drawing area",
     # TODO
+    where="layout preview"
 )
-SHOW_CLOSE_NOT_FOUND = Fail(
-    "Didn't find close button in layout preview.",
+SHOW_CLOSE_NOT_FOUND = NotFound(
+    "close button",
     # TODO
+    where="layout preview"
 )
 @layout_act('/show')
 def show_handler(element, app_node, local_node):
@@ -250,25 +250,25 @@ def test_handler(element, app_node, local_node):
 def test_check(element, app_node, local_node):
     pass
 
-OPTIONS_NOT_FOUND = Fail(
-    "Didn't find options button.",
+OPTIONS_NOT_FOUND = NotFound(
+    "options button",
     # TODO
+    whose="layout change shortcuts"
 )
-OPTIONS_DIALOG_NOT_FOUND = Fail(
-    "Didn't find options dialog.",
+OPTIONS_DIALOG_NOT_FOUND = NotFound(
+    "options dialog",
     # TODO
+    whose="layout change shortcuts"
 )
-OPTIONS_TABLE_NOT_FOUND = Fail(
-    "Didn't find table with shortcuts.",
+OPTIONS_TABLE_NOT_FOUND = NotFound(
+    "table with shortcuts",
     # TODO
+    where="shortcuts dialog"
 )
-OPTION_NOT_FOUND = Fail(
-    "Didn't find desired shortcut: %s",
+OPTIONS_DIALOG_BUTTON_NOT_FOUND = NotFound(
+    'desired dialog button: "%s"',
     # TODO
-)
-OPTIONS_DIALOG_BUTTON_NOT_FOUND = Fail(
-    "Didn't find desired dialog button: %s",
-    # TODO
+    where="shortcuts dialog"
 )
 @layout_act('/options')
 def options_handler(element, app_node, local_node):
@@ -304,9 +304,10 @@ def options_handler(element, app_node, local_node):
 def options_check(element, app_node, local_node):
     pass
 
-SHORTCUT_NOT_FOUND = Fail(
-    "Didn't find desired shortcut: %s",
+SHORTCUT_NOT_FOUND = NotFound(
+    'desired shortcut: "%s"',
     # TODO
+    where="shortcuts dialog"
 )
 @layout_act('/options/shortcut')
 def options_shortcut_handler(element, app_node, local_node):
