@@ -61,3 +61,15 @@ class ActionResultFail(ActionResult):
 class ActionResultNone(ActionResult):
     pass
 
+# originally taken from anabot.runtime.installation.hub.datetime
+def notfound(who, whose=None, where=None):
+    if whose is not None:
+        return (False, "Couldn't find %s for %s." % (who, whose))
+    if where is not None:
+        return (False, "Couldn't find %s in %s." % (who, where))
+    return (False, "Couldn't find %s" % who)
+
+class NotFoundResult(ActionResultFail):
+    def __init__(self, who, fail_type=None, whose=None, where=None):
+        message = notfound(who, whose, where)
+        super(NotFoundResult, self).__init__(message, fail_type)

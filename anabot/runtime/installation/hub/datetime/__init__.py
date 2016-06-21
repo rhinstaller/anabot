@@ -11,17 +11,11 @@ from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.functions import get_attr, getnode, getnode_scroll, getnodes, getsibling, combo_scroll, type_text, press_key
 from anabot.runtime.errors import TimeoutError
 from anabot.runtime.translate import tr, datetime_tr
+from anabot.runtime.actionresult import notfound
 
 _local_path = '/installation/hub/datetime'
 handle_act = lambda x: handle_action(_local_path + x)
 handle_chck = lambda x: handle_check(_local_path + x)
-
-def notfound(who, whose=None, where=None):
-    if whose is not None:
-        return (False, "Couldn't find %s for %s." % (who, whose))
-    if where is not None:
-        return (False, "Couldn't find %s in %s." % (who, where))
-    return (False, "Couldn't find %s" % who)
 
 @handle_act('')
 def base_handler(element, app_node, local_node):
