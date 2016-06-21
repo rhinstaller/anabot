@@ -68,23 +68,36 @@ def base_handler(element, app_node, local_node):
 
 @handle_act('/language')
 def language_handler(element, app_node, local_node):
+    """Handle <language> tag and process its options."""
+    lang = get_attr(element, "select")
+    lang_table = getnodes(local_node, "table")[1]
+
+    matched = False
+
+    for lang_node in getnodes(lang_table, "table cell", visible=None)[::4]:
+        if fnmatch.fnmatchcase(lang_node.name, lang):
+            matched = True
+            scrollto(lang_node)
+            lang_node.click()
+            default_handler(element, app_node, local_node)
+
+    if not matched:
+        return False
+
+    return True
+
+
+@handle_chck('/language')
+def language_check(element, app_node, local_node):
     pass
 
 
 @handle_act('/language/locality')
 def locality_handler(element, app_node, local_node):
+    """Handle <locality> tag and process its options."""
     pass
 
 
-@handle_act('/done')
-def done_handler(element, app_node, local_node):
-    """Leave language support spoke."""
-    lang_label = getnode(app_node, "label", tr("LANGUAGE SUPPORT"))
-    lang_panel = getparent(lang_label, "panel")
-
-    done_button = getnode(lang_panel,
-                          "push button",
-                          tr("_Done",
-                             drop_underscore=False))
-    time.sleep(10)
-    done_button.click()
+@handle_chck('/language/locality')
+def locality_check(element, app_node, local_node):
+    pass
