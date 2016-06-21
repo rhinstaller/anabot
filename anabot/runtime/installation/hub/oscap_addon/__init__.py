@@ -50,36 +50,51 @@ def base_handler(element, app_node, local_node):
 def base_check(element, app_node, local_node):
     expected_message = get_attr(element, "expected_message")
     expected_message = oscap_tr_(expected_message)
-    result = action_result(element, ActionResultPass())
-    ok_status = {oscap_tr_("Everything okay"),
+    fail_type = get_attr(element, "fail_type")
+    result = action_result(element, Pass())
+    OK_STATUS = {oscap_tr_("Everything okay"),
                  oscap_tr_("No profile selected"),
                  oscap_tr_("No content found")}
+    FAIL_STATUS = {
+        oscap_tr_("Not ready"): 'not_ready',
+        oscap_tr_("Misconfiguration detected"): 'misconfiguration_detected',
+        oscap_tr_("Warnings appeared"): 'warnings_appeared'}
     if not result:
         return result
+
+    # TODO: remove the check as soon as XML validation is implemented
+    if expected_message is not None and fail_type is not None:
+        return Fail("'expected_message' and 'fail_type' attributes can't be "
+                    "used at the same time!")
 
     try:
         oscap_addon_selector = getnode(app_node, "spoke selector",
                                        oscap_tr("SECURITY POLICY"))
     except TimeoutError:
-        return(False, "Couldn't find OSCAP addon selector button")
+        return (False, "Couldn't find OSCAP addon button")
     try:
         oscap_addon_status = getnode(oscap_addon_selector, "label").text.decode("utf-8")
     except TimeoutError:
-        return(False,
-               "Couldn't find status label on OSCAP addon selector button")
+        return (False,
+               "Couldn't find status label on OSCAP addon button")
     if expected_message is None:
-        if oscap_addon_status in ok_status:
+        if oscap_addon_status in OK_STATUS:
             result = True
+        elif oscap_addon_status in FAIL_STATUS:
+            logger.info("OSCAP addon status: %s" % oscap_addon_status)
+            return Fail("Error message found in OSCAP addon button "
+                        "button.", FAIL_STATUS[oscap_addon_status])
         else:
-            result = (False, "Found error message in OSCAP addon selector "
-                             "button: %s" % oscap_addon_status)
+            # Fallback to catch unknown (future) error messages
+            return Fail("Unknown error message found in OSCAP addon button: %s"
+                        % oscap_addon_status, 'unknown_error')
     else:
-        if (oscap_addon_status in ok_status
+        if (oscap_addon_status in OK_STATUS
                 and oscap_addon_status == expected_message):
             return True
         else:
-            logger.info("Expected status message: %s" % expected_message)
-            return (False, "Wrong OSCAP addon selector status message: %s"
+            logger.info("Expected status message was: %s" % expected_message)
+            return (False, "Wrong OSCAP addon button status message: %s"
                     % oscap_addon_status)
 
 def choose_manipulate(element, app_node, local_node, dryrun):
@@ -268,6 +283,15 @@ def change_content_fetch_handler(element, app_node, local_node):
 def change_content_fetch_check(element, app_node, local_node):
     global _selected_profile
     result = action_result(element, Pass())
+    FAIL_MSG = {oscap_tr_("Invalid or unsupported URL"): 'invalid_url',
+                oscap_tr_("No content found. Please enter data stream content "
+                         "or archive URL below:"): 'no_content_found',
+                oscap_tr_("Failed to extract content (%s). Enter a different "
+                         "URL, please.") % ".*": 'extraction_failed',
+                oscap_tr_("Failed to fetch content. Enter a different URL, "
+                          "please."): 'fetch_failed',
+                oscap_tr_("Invalid content provided. Enter a different URL, "
+                          "please."): 'invalid_content'}
     if result:
         try:
             getnode(local_node, "push button", oscap_tr("_Change content"))
@@ -282,8 +306,14 @@ def change_content_fetch_check(element, app_node, local_node):
             try:
                 error = getnode(infobar, "label").text
                 url = get_attr(element, "url")
-                result = (False, "SCAP content fetch error: \"%s\", URL: %s"
-                          % (error, url))
+                for msg, fail_type in FAIL_MSG.iteritems():
+                    if re.match(msg, unicode(error)):
+                        break
+                else:
+                    return Fail("Unhandled error message: %s" % error,
+                                "unhandled_message")
+                result = Fail("SCAP content fetch error: \"%s\", URL: %s"
+                          % (error, url), fail_type)
             except TimeoutError:
                 result = (False, "Couldn't find message label in info bar.")
     return result
