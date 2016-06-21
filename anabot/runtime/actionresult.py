@@ -53,6 +53,10 @@ class ActionResultFail(ActionResult):
             return False
         return super(ActionResultFail, self).__eq__(other)
 
+    # reason string formatting
+    def __mod__(self, values):
+        return ActionResultFail(self.reason % values, self.fail_type)
+
 
 class ActionResultNone(ActionResult):
     pass
