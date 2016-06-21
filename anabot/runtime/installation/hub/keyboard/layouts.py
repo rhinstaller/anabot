@@ -20,13 +20,13 @@ class Layouts(object):
         return self.__last_langs != active_languages()
 
     def clean(self):
-        self.__last_langs == active_languages()
+        self.__last_langs = active_languages()
 
     def reload(self):
         if not self.dirty:
             return
         self.__layouts = {}
-        from gi.repository import Gtk, GdkX11, Xkl
+        from gi.repository import Gtk, GdkX11, Xkl # pylint: disable=no-name-in-module
         display = GdkX11.x11_get_default_xdisplay()
         engine = Xkl.Engine.get_instance(display)
         configreg = Xkl.ConfigRegistry.get_instance(engine)
@@ -36,7 +36,7 @@ class Layouts(object):
         self.clean()
 
     def __language_variants(self, c_reg, item, user_data=None):
-        lang_name =  item.get_name()
+        lang_name = item.get_name()
         lang_desc = item.get_description()
         c_reg.foreach_language_variant(
             lang_name,

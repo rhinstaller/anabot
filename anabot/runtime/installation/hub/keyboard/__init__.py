@@ -47,7 +47,7 @@ def base_handler(element, app_node, local_node):
     default_handler(element, app_node, local_node)
     try:
         done_button = getnode(local_node, "push button", tr("_Done", False))
-    except TimeoutErrro:
+    except TimeoutError:
         return DONE_NOT_FOUND
     done_button.click()
     return PASS
@@ -85,7 +85,7 @@ ADD_TABLE_NOT_FOUND = Fail("Didn't find table with layouts in dialog.")
 ADD_LAYOUT_NOT_FOUND_TEXT = "Didn't find desired layout \"%s\" in table."
 ADD_DIALOG_BUTTON_FOUND = Fail("Didn't find desired dialog button.")
 @handle_act('/add_layout')
-def layout_handler(element, app_node, local_node):
+def add_layout_handler(element, app_node, local_node):
     name = get_attr(element, "name")
     dialog_action = get_attr(element, "dialog", "accept") == "accept"
     do_result = do_toolbar(local_node, "_Add layout")
@@ -121,7 +121,7 @@ def layout_handler(element, app_node, local_node):
     return PASS
 
 @handle_chck('/add_layout')
-def layout_check(element, app_node, local_node):
+def add_layout_check(element, app_node, local_node):
     pass
 
 LAYOUTS_TABLE_NOT_FOUND = Fail("Didn't find table with layouts")
@@ -148,11 +148,11 @@ def layout_check(element, app_node, local_node):
 # position must be inside layout since it needs to know which layout to
 # operate with
 @handle_act('/layout/position')
-def layout_handler(element, app_node, local_node):
+def layout_position_handler(element, app_node, local_node):
     pass
 
 @handle_chck('/layout/position')
-def layout_check(element, app_node, local_node):
+def layout_position_check(element, app_node, local_node):
     pass
 
 @layout_act('/remove')
