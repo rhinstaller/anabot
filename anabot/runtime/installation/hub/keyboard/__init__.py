@@ -6,7 +6,7 @@ logger = logging.getLogger('anabot')
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.actionresult import ActionResultPass as Pass
-from anabot.runtime.actionresult import ActionResultPass as Fail
+from anabot.runtime.actionresult import ActionResultFail as Fail
 from anabot.runtime.functions import get_attr, getnode, getnode_scroll, getsibling, TimeoutError
 from anabot.runtime.translate import tr, keyboard_tr
 from .layouts import layout_name
