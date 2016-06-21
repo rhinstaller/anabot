@@ -63,7 +63,7 @@ def toolbar(local_node):
     return getnode(local_node, "tool bar")
 
 TOOLBAR_NOT_FOUND = Fail("Didn't find toolbar for keyboard layouts.")
-TOOLBAR_BUTTON_NOT_FOUND_TEXT = "Didn't find toolbar button: %s"
+TOOLBAR_BUTTON_NOT_FOUND = Fail("Didn't find toolbar button: %s")
 def do_toolbar(local_node, button_name, button_desc=None):
     try:
         tool_bar = toolbar(local_node)
@@ -76,13 +76,13 @@ def do_toolbar(local_node, button_name, button_desc=None):
     except TimeoutError:
         if button_desc is None:
             button_desc = button_name
-        return Fail(TOOLBAR_BUTTON_NOT_FOUND_TEXT % button_desc)
+        return TOOLBAR_BUTTON_NOT_FOUND % button_desc
     button.click()
     return PASS
 
 ADD_DIALOG_NOT_FOUND = Fail("Didn't find dialog for adding layout.")
 ADD_TABLE_NOT_FOUND = Fail("Didn't find table with layouts in dialog.")
-ADD_LAYOUT_NOT_FOUND_TEXT = "Didn't find desired layout \"%s\" in table."
+ADD_LAYOUT_NOT_FOUND = Fail("Didn't find desired layout \"%s\" in table.")
 ADD_DIALOG_BUTTON_FOUND = Fail("Didn't find desired dialog button.")
 @handle_act('/add_layout')
 def add_layout_handler(element, app_node, local_node):
@@ -106,7 +106,7 @@ def add_layout_handler(element, app_node, local_node):
         layout = getnode_scroll(layouts, "table cell", layout_name(name))
         layout.click()
     except TimeoutError:
-        return Fail(ADD_LAYOUT_NOT_FOUND_TEXT % layout_name(name))
+        return ADD_LAYOUT_NOT_FOUND % layout_name(name)
 
     if dialog_action:
         button_text = tr("_Add", context="GUI|Keyboard Layout|Add Layout")
@@ -125,7 +125,7 @@ def add_layout_check(element, app_node, local_node):
     pass
 
 LAYOUTS_TABLE_NOT_FOUND = Fail("Didn't find table with layouts")
-LAYOUT_NOT_FOUND_TEXT = "Didn't find desired layout: %s"
+LAYOUT_NOT_FOUND = Fail("Didn't find desired layout: %s")
 @handle_act('/layout')
 def layout_handler(element, app_node, local_node):
     name = get_attr(element, "name")
@@ -137,7 +137,7 @@ def layout_handler(element, app_node, local_node):
         layout = getnode_scroll(table, "table cell", layout_name(name))
         layout.click()
     except TimeoutError:
-        return Fail(LAYOUT_NOT_FOUND_TEXT % layout_name(name))
+        return LAYOUT_NOT_FOUND % layout_name(name)
     default_handler(element, app_node, local_node)
     return PASS
 
@@ -217,8 +217,8 @@ def test_check(element, app_node, local_node):
 OPTIONS_NOT_FOUND = Fail("Didn't find options button.")
 OPTIONS_DIALOG_NOT_FOUND = Fail("Didn't find options dialog.")
 OPTIONS_TABLE_NOT_FOUND = Fail("Didn't find table with shortcuts.")
-OPTION_NOT_FOUND_TEXT = "Didn't find desired shortcut: %s"
-OPTIONS_DIALOG_BUTTON_NOT_FOUND_TEXT = "Didn't find desired dialog button: %s"
+OPTION_NOT_FOUND = Fail("Didn't find desired shortcut: %s")
+OPTIONS_DIALOG_BUTTON_NOT_FOUND = Fail("Didn't find desired dialog button: %s")
 @layout_act('/options')
 def options_handler(element, app_node, local_node):
     dialog_action = get_attr(element, "dialog", "accept") == "accept"
@@ -247,13 +247,13 @@ def options_handler(element, app_node, local_node):
     try:
         getnode(dialog, "push button", button_text).click()
     except TimeoutError:
-        return Fail(OPTIONS_DIALOG_BUTTON_NOT_FOUND_TEXT % button_text)
+        return OPTIONS_DIALOG_BUTTON_NOT_FOUND % button_text
 
 @layout_chck('/options')
 def options_check(element, app_node, local_node):
     pass
 
-SHORTCUT_NOT_FOUND_TEXT = "Didn't find desired shortcut: %s"
+SHORTCUT_NOT_FOUND = Fail("Didn't find desired shortcut: %s")
 @layout_act('/options/shortcut')
 def options_shortcut_handler(element, app_node, local_node):
     name = get_attr(element, "name")
@@ -261,7 +261,7 @@ def options_shortcut_handler(element, app_node, local_node):
     try:
         cell = getnode_scroll(local_node, "table cell", keyboard_tr(name))
     except TimeoutError:
-        return Fail(SHORTCUT_NOT_FOUND_TEXT % keyboard_tr(name))
+        return SHORTCUT_NOT_FOUND % keyboard_tr(name)
     checkbox = getsibling(cell, -1, "table cell")
     if checkbox.checked != enable:
         checkbox.click()
