@@ -1,6 +1,9 @@
 import logging
 logger = logging.getLogger('anabot')
 
+from functools import wraps
+from .default import action_result
+
 ACTIONS = {}
 CHECKS = {}
 
@@ -43,3 +46,11 @@ def handle_check(element_path, func=None):
     if func is not None:
         return decorator(func)
     return decorator
+
+def check_action_result(func):
+    @wraps(func)
+    def wrapper(element, app_node, local_node):
+        if action_result(element) == False:
+            return action_result(element)
+        return func(element, app_node, local_node)
+    return wrapper
