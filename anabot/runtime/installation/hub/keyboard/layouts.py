@@ -93,3 +93,9 @@ class Layouts(object):
 
 def layout_name(intext, default=None):
     return Layouts.get_instance().get(intext, default)
+
+def layout_id(outtext, default=None):
+    for layout_id, layout_name in self:
+        if layout_name == outtext:
+            return layout_id
+    return default
