@@ -9,6 +9,7 @@ ExecStart=/opt/start-anabot.py
 Environment="PYTHONPATH=/opt/lib/python2.7/site-packages"
 Environment="ANABOT_MODULES=/opt/anabot-modules"
 Environment="TERES_PATH=/opt/teres"
+ExecReload=/bin/kill -s SIGUSR1 ${MAINPID}
 
 [Install]
 WantedBy=anaconda.service
