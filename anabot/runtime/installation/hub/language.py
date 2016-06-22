@@ -6,12 +6,13 @@ import logging
 
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler, action_result
-from anabot.runtime.functions import getnode, getnodes, get_attr
+from anabot.runtime.functions import getnode, getnodes, get_attr, getparents
 from anabot.runtime.functions import scrollto, getnode_scroll
 from anabot.runtime.functions import TimeoutError
 from anabot.runtime.translate import tr
 from anabot.runtime.actionresult import ActionResultPass as Pass
 from anabot.runtime.actionresult import ActionResultFail as Fail
+from anabot.runtime.actionresult import NotFoundResult as NotFound
 
 logger = logging.getLogger('anabot')
 _local_path = '/installation/hub/language_spoke'
@@ -28,10 +29,15 @@ def handle_chck(suffix):
 
 
 PASS = Pass()
-SPOKE_SELECTOR_NOT_FOUND = Fail(
-    "Didn't find active spoke selector for Language support.")
-SPOKE_NOT_FOUND = Fail("Didn't find panel Language support.")
-DONE_NOT_FOUND = Fail("Didn't find \"Done\" button.")
+SPOKE_SELECTOR_NOT_FOUND = NotFound(
+    "active spoke selector", "selector_not_found", whose="Language support"
+)
+SPOKE_NOT_FOUND = NotFound(
+    "panel", "spoke_not_found", whose="Language support"
+)
+DONE_NOT_FOUND = NotFound(
+    '"Done" button', "done_not_found", where="Language support spoke"
+)
 
 
 @handle_act('')
@@ -40,16 +46,21 @@ def base_handler(element, app_node, local_node):
     lang_label = tr("_LANGUAGE SUPPORT", context="GUI|Spoke")
 
     try:
-        lang = getnode_scroll(app_node, "spoke_selector", lang_label)
+        lang = getnode_scroll(app_node, "spoke selector", lang_label)
     except TimeoutError:
         return SPOKE_SELECTOR_NOT_FOUND
 
     lang.click()
 
     try:
-        local_node = getnode(app_node, "panel", tr("LANGUAGE SUPPORT"))
+        lang_spoke_label = getnode(app_node, "label", tr("LANGUAGE SUPPORT"))
     except TimeoutError:
         return SPOKE_NOT_FOUND
+
+    try:
+        local_node = getparents(lang_spoke_label, "panel")[2]
+    except IndexError:
+        return Fail("IndexError while getting language spoke label.")
 
     default_handler(element, app_node, local_node)
 
@@ -64,7 +75,7 @@ def base_handler(element, app_node, local_node):
     return PASS
 
 
-@handle_chck("")
+@handle_chck('')
 def base_check(element, app_node, local_node):
     """Base check for <language> tag."""
     if action_result(element) == False:
