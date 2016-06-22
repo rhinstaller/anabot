@@ -24,10 +24,7 @@ def proxy_dialog_handler(element, app_node, local_node):
 @handle_act('/use_proxy')
 def use_proxy_handler(element, app_node, local_node):
     check_it = get_attr(element, 'checked')
-    if check_it == 'yes':
-        check_it = True
-    else:
-        check_it = False
+    check_it = (check_it == 'yes')
     proxy_checkbox = getnode(local_node, "check box", 'Proxy Checkbox')
     if (proxy_checkbox.checked != check_it):
         proxy_checkbox.click()
@@ -48,14 +45,14 @@ def server_handler(element, app_node, local_node):
 @handle_chck('/proxy_server')
 def server_chck(element, app_node, local_node):
     proxy_text = get_attr(element, 'value')
-    if proxy_text.count(':') == 0:
+    contains_port = re.match(r'.*:[0-9]+$', proxy_text) # match() starts at begining of string
+    if not contains_port:
         # append default port
         proxy_text = proxy_text + ':3128'
     proxy_input = getnode(local_node, 'text', "Proxy Location Text")
-    if proxy_input.text == proxy_text:
-        return (True, "Proxy server hostname is expected one")
-    else:
+    if proxy_input.text != proxy_text:
         return (False, "Proxy server hostname is '%s' expected is '%s'" % (proxy_input.text, proxy_text))
+    return True
 
 @handle_act('/cancel')
 def cancel_handler(element, app_node, local_node):

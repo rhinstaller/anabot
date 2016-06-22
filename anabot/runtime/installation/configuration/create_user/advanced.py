@@ -64,7 +64,6 @@ def user_adv_manual_gid_handler(element, app_node, local_node):
     checkbox = getnode(local_node, "check box", tr('Specify a _group ID manually:', context="GUI|Advanced User"))
     handle_checkbox(checkbox, element)
 
-
 @handle_chck('/manual_gid')
 def user_adv_manual_gid_check(element, app_node, local_node):
     checkbox = getnode(local_node, "check box", tr('Specify a _group ID manually:', context="GUI|Advanced User"))

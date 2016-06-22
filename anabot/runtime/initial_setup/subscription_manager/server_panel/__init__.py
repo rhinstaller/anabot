@@ -57,7 +57,7 @@ def server_default_button_chck(element, app_node, local_node):
 
 @handle_act('/back')
 def back_handler(element, app_node, local_node):
-    back_button = getnode(local_node.parent.parent, "push button", tr("Back", False))
+    back_button = getnode(local_node.parent.parent, "push button", tr("Back"))
     back_button.click()
 
 @handle_chck('/back')
@@ -72,7 +72,7 @@ def back_check(element, app_node, local_node):
     
 @handle_act('/next')
 def server_panel_next_handler(element, app_node, local_node):
-    next_button = getnode(local_node.parent.parent, "push button", tr("Next", False))
+    next_button = getnode(local_node.parent.parent, "push button", tr("Next"))
     next_button.click()
 
 @handle_chck('/next')

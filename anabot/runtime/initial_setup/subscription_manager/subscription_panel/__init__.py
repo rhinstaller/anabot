@@ -30,22 +30,20 @@ def empty_handler(element, app_node, local_node):
 @handle_chck('/subscriptions')
 def subscriptions_chck(element, app_node, local_node):
     subscriptions_table = getnode(local_node, 'table', 'Selected Subscriptions Table')
-    cells = getnodes(subscriptions_table, 'table cell')
-    sub_name = cells[0].text
-    sub_type = cells[1].text
-    sub_count = cells[2].text
+    cells = getnodes(subscriptions_table, 'table cell')[:3]
+    sub_name, sub_type, sub_count = [c.text for c in cells]
     if sub_name != "":
         return (True, "Possible subscription found %s (%s) %s" % (sub_name, sub_type, sub_count))
-    return False
+    return (False, "No subscription found")
 
 @handle_act('/back')
 def back_handler(element, app_node, local_node):
-    back_button = getnode(local_node.parent.parent, "push button", tr("Back", False))
+    back_button = getnode(local_node.parent.parent, "push button", tr("Back"))
     back_button.click()
 
 @handle_act('/attach')
 def attach_button_handler(element, app_node, local_node):
-    attach_button = getnode(local_node.parent.parent, "push button", tr("Attach", False))
+    attach_button = getnode(local_node.parent.parent, "push button", tr("Attach"))
     attach_button.click()
     # attaching subscriptions takes some time, wait until progress bar disappears
     try:

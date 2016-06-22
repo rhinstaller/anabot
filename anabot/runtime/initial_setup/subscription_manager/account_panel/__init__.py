@@ -27,7 +27,6 @@ def account_panel_check(element, app_node, local_node):
 def username_handler(element, app_node, local_node):
     login = get_attr(element, 'value')
     login_input = getnode(local_node, 'text', 'account_login')
-    login_input.actions['activate'].do()
     login_input.typeText(login)
 
 @handle_chck('/login')
@@ -40,34 +39,33 @@ def username_chck(element, app_node, local_node):
 def password_handler(element, app_node, local_node):
     password = get_attr(element, 'value')
     password_input = getnode(local_node, 'password text', 'account_password')
-    password_input.actions['activate'].do()
     password_input.typeText(password)
 
 # it is not possible to get password back from the widget via ATK
 # only check which makes sense is to check that password is not readable
-# but it is not implemented yet (ToDo)
 @handle_chck('/password')
 def password_check(element, app_node, local_node):
     password = get_attr(element, 'value')
     password_input = getnode(local_node, 'password text', 'account_password')
-    return password_input.text != password
+    BLACK_CIRCLE = u'\u25cf'
+    return len(password)*BLACK_CIRCLE == unicode(password_input.text, 'utf-8')
 
 @handle_act('/system_name')
 def system_name_handler(element, app_node, local_node):
     name = get_attr(element, 'value')
     system_input = getnode(local_node, 'text', 'consumer_name')
-    system_input.actions['activate'].do()
     system_input.typeText(name)
 
 @handle_chck('/system_name')
 def system_name_chck(element, app_node, local_node):
     name = get_attr(element, 'value')
     system_input = getnode(local_node, 'text', 'consumer_name')
+    # ToDo unicode issue in comparison
     return system_input.text == name
 
 @handle_act('/back')
 def back_handler(element, app_node, local_node):
-    back_button = getnode(local_node.parent.parent, "push button", tr("Back", False))
+    back_button = getnode(local_node.parent.parent, "push button", tr("Back"))
     back_button.click()
 
 @handle_chck('/back')
@@ -81,14 +79,15 @@ def back_check(element, app_node, local_node):
 
 @handle_act('/register')
 def next_handler(element, app_node, local_node):
-    next_button = getnode(local_node.parent.parent, "push button", tr("Register", False))
+    next_button = getnode(local_node.parent.parent, "push button", tr("Register"))
     next_button.click()
     # registering can last some time, so wait for progressbar to show and disappear
     try:
         getnode(local_node, 'progress bar', 'register_progressbar')
     except TimeoutError:
-        #ToDo show warning that progress bar was not visible
-        pass
+        # will raise TimeoutError in case invisible progress bar is not found
+        # that probably means there is no progress bar at all
+        getnode(local_node, 'progress bar', 'register_progressbar', visible=False)
     getnode(local_node, 'progress bar', 'register_progressbar', visible=False, timeout=float('inf'))
 
 @handle_chck('/register')
