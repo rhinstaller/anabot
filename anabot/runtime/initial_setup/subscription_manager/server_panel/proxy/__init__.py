@@ -8,6 +8,7 @@ from anabot.runtime.functions import get_attr, getnode, getparents
 from anabot.runtime.translate import tr
 from anabot.runtime.errors import TimeoutError
 from time import sleep
+import re
 
 _local_path = '/initial_setup/subscription_manager/server_panel/proxy'
 handle_act = lambda x: handle_action(_local_path + x)
@@ -39,7 +40,6 @@ def use_proxy_chck(element, app_node, local_node):
 def server_handler(element, app_node, local_node):
     proxy_text = get_attr(element, 'value')
     proxy_input = getnode(local_node, 'text', "Proxy Location Text")
-    proxy_input.actions['activate'].do()
     proxy_input.typeText(proxy_text)
 
 @handle_chck('/proxy_server')
