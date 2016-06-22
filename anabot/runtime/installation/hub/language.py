@@ -64,6 +64,14 @@ def base_handler(element, app_node, local_node):
     return PASS
 
 
+@handle_chck("")
+def base_check(element, app_node, local_node):
+    """Base check for <language> tag."""
+    if action_result(element) == False:
+        return action_result(element)
+    return PASS
+
+
 @handle_act('/language')
 def language_handler(element, app_node, local_node):
     """Handle <language> tag and process its options."""
