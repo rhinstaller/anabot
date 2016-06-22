@@ -1,19 +1,17 @@
 """
 Handle language support spoke.
 """
+import fnmatch
+import logging
 
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler, action_result
-from anabot.runtime.functions import getnode, getnodes, getparent, get_attr, getnode_scroll
-from anabot.runtime.functions import scrollto
+from anabot.runtime.functions import getnode, getnodes, get_attr
+from anabot.runtime.functions import scrollto, getnode_scroll
 from anabot.runtime.functions import TimeoutError
 from anabot.runtime.translate import tr
 from anabot.runtime.actionresult import ActionResultPass as Pass
 from anabot.runtime.actionresult import ActionResultFail as Fail
-
-import time
-import fnmatch
-import logging
 
 logger = logging.getLogger('anabot')
 _local_path = '/installation/hub/language_spoke'
@@ -89,6 +87,7 @@ def language_handler(element, app_node, local_node):
 
 @handle_chck('/language')
 def language_check(element, app_node, local_node):
+    """Check the <language> settings."""
     pass
 
 
@@ -100,4 +99,5 @@ def locality_handler(element, app_node, local_node):
 
 @handle_chck('/language/locality')
 def locality_check(element, app_node, local_node):
+    """Check <locality>."""
     pass
