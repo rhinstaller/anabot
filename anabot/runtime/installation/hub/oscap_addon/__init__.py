@@ -6,6 +6,7 @@ from random import randint
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.functions import get_attr, getnode, getnodes, getsibling
+from anabot.runtime.functions import getnode_scroll
 from anabot.runtime.functions import getparents, TimeoutError
 from anabot.runtime.translate import tr
 from anabot.runtime.translate import oscap_tr as oscap_tr_
@@ -37,8 +38,8 @@ OSCAP_SPOKE_NF = NotFound("OSCAP addon panel", "spoke_not_found")
 @handle_act('')
 def base_handler(element, app_node, local_node):
     try:
-        oscap_addon = getnode(app_node, "spoke selector",
-                              oscap_tr("SECURITY POLICY"))
+        oscap_addon = getnode_scroll(app_node, "spoke selector",
+                                     oscap_tr("SECURITY POLICY"))
         oscap_addon.click()
     except TimeoutError:
         return SPOKE_SELECTOR_NF
@@ -80,8 +81,8 @@ def base_check(element, app_node, local_node):
                     "used at the same time!")
 
     try:
-        oscap_addon_selector = getnode(app_node, "spoke selector",
-                                       oscap_tr("SECURITY POLICY"))
+        oscap_addon_selector = getnode_scroll(app_node, "spoke selector",
+                                              oscap_tr("SECURITY POLICY"))
     except TimeoutError:
         return SPOKE_SELECTOR_NF
     try:
@@ -238,7 +239,7 @@ def change_content_manipulate(element, app_node, local_node, dryrun):
     except TimeoutError:
         if dryrun:
             try:
-                getnode(app_node, "spoke selector", oscap_tr("SECURITY POLICY"))
+                getnode_scroll(app_node, "spoke selector", oscap_tr("SECURITY POLICY"))
                 logger.info("Detected that hub is active.")
                 return Pass()
             except TimeoutError:
@@ -611,7 +612,7 @@ def done_check(element, app_node, local_node):
     result = action_result(element, Pass())
     if result:
         try:
-            getnode(app_node, "spoke selector", oscap_tr("SECURITY POLICY"))
+            getnode_scroll(app_node, "spoke selector", oscap_tr("SECURITY POLICY"))
         except TimeoutError:
             return SPOKE_SELECTOR_NF
     return result
