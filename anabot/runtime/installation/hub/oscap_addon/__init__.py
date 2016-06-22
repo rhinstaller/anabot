@@ -317,7 +317,10 @@ def change_content_fetch_check(element, app_node, local_node):
                 oscap_tr_("Failed to fetch content. Enter a different URL, "
                           "please."): 'fetch_failed',
                 oscap_tr_("Invalid content provided. Enter a different URL, "
-                          "please."): 'invalid_content'}
+                          "please."): 'invalid_content',
+                oscap_tr_("Network error encountered when fetching data."
+                          " Please check that network is setup and "
+                          "working."): 'network_error'}
     if result:
         try:
             getnode(local_node, "push button", oscap_tr("_Change content"))
