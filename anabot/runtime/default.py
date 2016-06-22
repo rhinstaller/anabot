@@ -6,11 +6,7 @@ logger = logging.getLogger('anabot')
 import teres
 reporter = teres.Reporter.get_reporter()
 
-from .functions import get_attr, log_screenshot, dump
-from .decorators import ACTIONS, CHECKS, handle_action, handle_check
 from .actionresult import ActionResultFail, ActionResultNone, ActionResultPass
-
-NODE_NUM = re.compile(r'\[[0-9]+\]')
 
 RESULTS = {}
 
@@ -21,6 +17,11 @@ def action_result(node_path, implicit_result=ActionResultNone()):
     if isinstance(result, ActionResultNone):
         result = implicit_result
     return result
+
+from .functions import get_attr, log_screenshot, dump
+from .decorators import ACTIONS, CHECKS, handle_action, handle_check
+
+NODE_NUM = re.compile(r'\[[0-9]+\]')
 
 def _check_result(result):
     if result is None:
