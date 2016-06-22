@@ -91,7 +91,7 @@ def language_handler(element, app_node, local_node):
 
     matched = False
 
-    for lang_node in getnodes(lang_table, "table cell", visible=None)[::4]:
+    for lang_node in getnodes(lang_table, "table cell", visible=None)[2::4]:
         if fnmatch.fnmatchcase(lang_node.name, lang):
             matched = True
             scrollto(lang_node)
@@ -113,7 +113,9 @@ def language_check(element, app_node, local_node):
 @handle_act('/language/locality')
 def locality_handler(element, app_node, local_node):
     """Handle <locality> tag and process its options."""
-    pass
+    loc = get_attr(element, "name")
+    action = get_attr(element, "action")
+    loc_table = getnodes(local_node, "table")[0]
 
 
 @handle_chck('/language/locality')
