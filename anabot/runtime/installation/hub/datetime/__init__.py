@@ -11,7 +11,10 @@ from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.functions import get_attr, getnode, getnode_scroll, getnodes, getsibling, combo_scroll, type_text, press_key
 from anabot.runtime.errors import TimeoutError
 from anabot.runtime.translate import tr, datetime_tr
-from anabot.runtime.actionresult import notfound
+from anabot.runtime.actionresult import notfound as notfound_new
+
+def notfound(*args, **kwargs):
+    return (False, notfound_new(*args, **kwargs))
 
 _local_path = '/installation/hub/datetime'
 handle_act = lambda x: handle_action(_local_path + x)
