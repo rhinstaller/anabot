@@ -276,6 +276,7 @@ MOUSE_SCROLL_DOWN = 5
 MOUSE_SCROLL_LEFT = 6
 MOUSE_SCROLL_RIGHT = 7
 OUTSIDE = -2147483648
+INSIDE_INTOLERANCE = 2 # in pixels
 
 def scrollto(node):
     def getcenter(node):
@@ -299,13 +300,13 @@ def scrollto(node):
             return None, None
         center = getcenter(node)
         dirx, diry = 0, 0
-        if center[0] < corners[0][0]:
+        if center[0] - INSIDE_INTOLERANCE < corners[0][0]:
             dirx = -1
-        if center[0] > corners[1][0]:
+        if center[0] + INSIDE_INTOLERANCE > corners[1][0]:
             dirx = 1
-        if center[1] < corners[0][1]:
+        if center[1] - INSIDE_INTOLERANCE < corners[0][1]:
             diry = -1
-        if center[1] > corners[1][1]:
+        if center[1] + INSIDE_INTOLERANCE > corners[1][1]:
             diry = 1
         return dirx, diry
 
