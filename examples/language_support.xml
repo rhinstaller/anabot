@@ -6,11 +6,20 @@
             <locality name="*" action="select" />
         </language>
 -->
-        <language select="Chinese">
-            <locality name="*" action="*" />
-        <debug_stop />
+        <language select="English">
+            <locality name="English (Denmark)" />
+            <locality name="English (India)" action="check" />
+            <locality name="English (India)" action="check" />
+            <locality name="English (Canada)" action="toggle" />
+            <locality name="English (India)" action="uncheck" />
+            <locality name="English (Antigua &amp; Barbuda)" action="uncheck" />
+            <locality name="English (Antigua &amp; Barbuda)" action="check" />
+            <locality name="English (India)" action="toggle" />
         </language>
-        <debug_stop />
+        <language select="Dutch">
+            <locality name="*" />
+        </language>
+      <debug_stop />
     </language_spoke>
     <ez:autopart />
   </hub>
