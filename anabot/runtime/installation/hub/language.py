@@ -138,20 +138,7 @@ def locality_handler(element, app_node, local_node):
     """Handle <locality> tag and process its options."""
     locality = get_attr(element, "name")
     locality_table = getnodes(local_node, "table")[0]
-
-    action = get_attr(element, "action")
-
-    if action is None:
-        # Set the default action if none is specified in the recipe.
-        action = check
-    else:
-        # Use action specified in the recipe.
-        if action == "check":
-            action = check
-        elif action == "uncheck":
-            action = uncheck
-        elif action == "toggle":
-            action = toggle
+    locality_check = get_attr(element, "action", "check") == "check"
 
     matched = False
 
@@ -164,7 +151,11 @@ def locality_handler(element, app_node, local_node):
         if fnmatch.fnmatchcase(locality_name, locality):
             matched = True
             scrollto(locality_node)
-            action(locality_node)
+
+            if locality_check:
+                check(locality_node)
+            else:
+                uncheck(locality_node)
 
     if not matched:
         return Fail("Could not match any locality.")
