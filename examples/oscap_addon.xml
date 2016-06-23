@@ -1,0 +1,161 @@
+<!--
+     Example OSCAP addon-specific XML
+ -->
+<ez:installation xmlns:ez="http://example.com/path/anabot/easy">
+    <welcome fail_type="should_be_ignored">
+        <language value="Čeština" />
+        <locality value="Česká republika" />
+    </welcome>
+    <hub>
+        <!-- Main element for entering the OSCAP addon spoke.
+             Optional attributes are:
+             * 'expected_message' - message expected to be shown in OSCAP selector
+               (button), used only for non-failure messages; can't be used
+               together with fail_type as these two are contradictory
+             * 'fail_type' - one of the following values:
+                - 'not_ready' - OSCAP addon is not ready (normally shouldn't
+                    occur, at least not for a long time)
+                - 'misconfiguration_detected' - configuration is not in accordance
+                    to SCAP rules
+                - 'warnings_appeared' - some warning(s) appeared in the
+                    info/warning/error list on the main addon screen
+        -->
+        <oscap_addon expected_message="Everything okay">
+            <!-- set the security policy switch to required stat
+                 (action=<enable|disable>) -->
+            <apply_policy action="enable" policy="just_check"/>
+            <apply_policy action="disable" />
+            <apply_policy action="enable" />
+
+            <!-- Choose a security profile from the list
+                * 'mode' - set profile selection mode
+                    - "random" (random selection, the same item can be selected
+                        repetitively)
+                    - "random_strict" (random selection, the same item can't be
+                        selected in two subsequent passes)
+                    - "manual" (implicit) - manual selection, profile name must
+                        be specified
+                * 'profile' - profile name (first line of item in the list)
+            -->
+            <choose mode="random" />
+            <choose mode="random_strict" />
+            <choose mode="random_strict" />
+            <choose mode="random_strict" />
+            <choose mode="random_strict" />
+
+            <!-- Click on 'Select profile' button. -->
+            <select policy="should_pass" />
+
+            <!-- Check changes in the changes list (only check, no manipulaton)-->
+            <changes>
+                <!-- Check for info line (with lightbulb):
+                     - 'text' - The untranslated string that should be present
+                        in the list. If it's a template string (containing
+                        %s, %d, etc.), values that will be substituted
+                        on the particular places in the template must be
+                        specified using the 'params' attribute.
+                    - 'params' - space separated list of values placed in the
+                        string template
+
+                    At the moment the 'info', 'error', and 'warning' elements
+                    are all handled in the same way, however this may change
+                    in the future if it becomes possible to determine the
+                    message type (info, error, warning) using dogtail, therefore
+                    the appropriate elements MUST be used.
+                -->
+                <info text="No rules for the pre-installation phase" />
+                <warning text="Just a warning line" policy="should_fail" />
+                <error text="Line describing an error" policy="should_fail" />
+            </changes>
+
+            <!-- Click on 'Done' button -->
+            <done />
+        </oscap_addon>
+
+        <oscap_addon>
+            <choose profile="Default" />
+            <select />
+            <done />
+        </oscap_addon>
+
+        <oscap_addon>
+            <choose profile="Default" policy="just_check" />
+            <done />
+        </oscap_addon>
+
+        <oscap_addon fail_type="misconfiguration_detected" policy="should_fail">
+            <!-- Click on 'Change content' button -->
+            <change_content>
+                <!-- Enter URL (specified by 'url' attribute) in the text input box -->
+                <source url="foobar" />
+                <fetch policy="should_fail" fail_type="invalid_url" />
+                <!-- Click on 'Fetch' button. When an error message appears
+                     below the URL input and in the info bar at the bottom
+                     of the screen, its type can be checked by specifying
+                     the 'fail_type' attribute. The following fail types
+                     are supported:
+                        - 'invalid_url' (invalid or unsupported url)
+                        - 'no_content_found' (no OSCAP content found on the
+                            specified URL)
+                        - 'extraction_failed' (failed to extract the given archive)
+                        - 'invalid_content' (self-explanatory)
+                        - 'network_error' (network error, possibly caused by
+                            network setup or disabled network interface)
+                        - 'unhandled_message' - message that is not specifically
+                            handled, e. g. new message in a new version of
+                            OSCAP addon
+                -->
+
+                <source url="http://foo/bar" />
+                <fetch policy="should_fail" fail_type="fetch_failed" />
+                <source url="http://example.com/path/broken_archive.zip" />
+                <fetch policy="should_fail" fail_type="extraction_failed"/>
+                <source url="foo://bar/baz" />
+                <fetch policy="should_fail" fail_type="invalid_url"/>
+                <source url="http://example.com/path" />
+                <fetch policy="should_fail" fail_type="invalid_content" />
+                <source url="http://example.com/path/ds_combined1.xml" />
+                <fetch />
+            </change_content>
+            <choose profile="Profile 1 (partition/bootloader password/root password)" />
+            <select />
+            <changes>
+                <!-- example of change line with template string -->
+                <error text="%s must be on a separate partition or logical volume" params="/tmp" />
+                <warning text="make sure to create password with minimal length of %d characters" params="10" />
+                <warning text="boot loader password not set up" />
+            </changes>
+            <change_content>
+                <source url="http://example.com/path/testing_ds.xml" />
+                <fetch />
+            </change_content>
+
+            <!-- Select data stream from the combo box:
+                'mode':
+                    - "manual" (implicit); 'id' must be specified
+                    - "random" - random choice, the same item can be selected again
+                        on subsequent passes
+                'id' - identifier of the data stream
+            -->
+            <select_datastream id="scap_org.open-scap_datastream_tst" />
+
+            <!-- Select checklist from the combo box - the same rules
+                 apply as for select_datastream -->
+            <select_checklist id="scap_org.open-scap_cref_second-xccdf.xml" />
+            <select policy="should_fail" />
+            <choose profile="My testing profile3" />
+            <select />
+            <changes>
+                <info text="No rules for the pre-installation phase" />
+            </changes>
+            <select_checklist id="scap_org.open-scap_cref_first-xccdf.xml" />
+            <choose profile="My testing profile" />
+            <select />
+            <done />
+        </oscap_addon>
+    </hub>
+    <!--<configuration>-->
+        <!--<ez:root password="fo0m4nchU" />-->
+        <!--<ez:user fullname="Justin Time" password="fo0m4nchU" />-->
+    <!--</configuration>-->
+</ez:installation>
