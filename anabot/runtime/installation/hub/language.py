@@ -96,6 +96,10 @@ def language_handler(element, app_node, local_node):
             matched = True
             scrollto(lang_node)
             lang_node.click()
+
+            if not lang_node.selected:
+                return Fail("Language was not selected.")
+
             default_handler(element, app_node, local_node)
 
     if not matched:
@@ -107,7 +111,9 @@ def language_handler(element, app_node, local_node):
 @handle_chck('/language')
 def language_check(element, app_node, local_node):
     """Check the <language> settings."""
-    pass
+    if action_result(element) == False:
+        return action_result(element)
+    return PASS
 
 
 @handle_act('/language/locality')
