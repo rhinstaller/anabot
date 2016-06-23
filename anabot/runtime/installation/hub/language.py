@@ -6,7 +6,7 @@ import logging
 
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler, action_result
-from anabot.runtime.functions import getnode, getnodes, get_attr, getparents
+from anabot.runtime.functions import getnode, getnodes, get_attr, getparents, getsibling
 from anabot.runtime.functions import scrollto, getnode_scroll
 from anabot.runtime.functions import TimeoutError
 from anabot.runtime.translate import tr
@@ -29,15 +29,38 @@ def handle_chck(suffix):
 
 
 PASS = Pass()
-SPOKE_SELECTOR_NOT_FOUND = NotFound(
-    "active spoke selector", "selector_not_found", whose="Language support"
-)
-SPOKE_NOT_FOUND = NotFound(
-    "panel", "spoke_not_found", whose="Language support"
-)
-DONE_NOT_FOUND = NotFound(
-    '"Done" button', "done_not_found", where="Language support spoke"
-)
+SPOKE_SELECTOR_NOT_FOUND = NotFound("active spoke selector",
+                                    "selector_not_found",
+                                    whose="Language support")
+SPOKE_NOT_FOUND = NotFound("panel",
+                           "spoke_not_found",
+                           whose="Language support")
+DONE_NOT_FOUND = NotFound('"Done" button',
+                          "done_not_found",
+                          where="Language support spoke")
+
+
+def check(chkbox):
+    """
+    Simple function to check the checkbox.
+    """
+    if not chkbox.checked:
+        chkbox.click()
+
+
+def uncheck(chkbox):
+    """
+    Simple function to uncheck the checkbox.
+    """
+    if chkbox.checked:
+        chkbox.click()
+
+
+def toggle(chkbox):
+    """
+    Simple function to toggle the checkbox.
+    """
+    chkbox.click()
 
 
 @handle_act('')
@@ -99,9 +122,9 @@ def language_handler(element, app_node, local_node):
             default_handler(element, app_node, local_node)
 
     if not matched:
-        return False
+        return Fail("Could not match any language.")
 
-    return True
+    return PASS
 
 
 @handle_chck('/language')
@@ -113,9 +136,40 @@ def language_check(element, app_node, local_node):
 @handle_act('/language/locality')
 def locality_handler(element, app_node, local_node):
     """Handle <locality> tag and process its options."""
-    loc = get_attr(element, "name")
+    locality = get_attr(element, "name")
+    locality_table = getnodes(local_node, "table")[0]
+
     action = get_attr(element, "action")
-    loc_table = getnodes(local_node, "table")[0]
+
+    if action is None:
+        # Set the default action if none is specified in the recipe.
+        action = check
+    else:
+        # Use action specified in the recipe.
+        if action == "check":
+            action = check
+        elif action == "uncheck":
+            action = uncheck
+        elif action == "toggle":
+            action = toggle
+
+    matched = False
+
+    for locality_node in getnodes(locality_table,
+                                  "table cell",
+                                  visible=None)[::2]:
+
+        locality_name = getsibling(locality_node, 1, visible=None).name
+
+        if fnmatch.fnmatchcase(locality_name, locality):
+            matched = True
+            scrollto(locality_node)
+            action(locality_node)
+
+    if not matched:
+        return Fail("Could not match any locality.")
+
+    return PASS
 
 
 @handle_chck('/language/locality')
