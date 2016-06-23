@@ -126,7 +126,8 @@ def choose_manipulate(element, app_node, local_node, dryrun):
     except TimeoutError:
         return PROFILES_TABLE_NF
     try:
-        available_profiles = [p for p in getnodes(profiles_table, "table cell")
+        available_profiles = [p for p in getnodes(profiles_table, "table cell",
+                                                  visible=None)
                               if p.text]
     except TimeoutError:
         return PROFILES_NF
@@ -264,7 +265,7 @@ def change_content_handler(element, app_node, local_node):
 @handle_chck('/change_content')
 def change_content_check(element, app_node, local_node):
     result = action_result(element, Pass())
-    if result:
+    if result == True:
         result = change_content_manipulate(element, app_node, local_node, True)
     return result
 
@@ -281,8 +282,14 @@ def change_content_source_manipulate(element, app_node, local_node, dryrun):
         return URL_INPUT_NF
     url = get_attr(element, "url")
     if dryrun:
-        return datastream_url_input.text == url
+        if datastream_url_input.text == url:
+            return Pass()
+        else:
+            return Fail("URL input box contains wrong URL (%s), not "
+                        "the expected one (%s)"
+                        % (datastream_url_input.text, url))
     else:
+        datastream_url_input.text = ""
         datastream_url_input.typeText(url)
 
 @handle_act('/change_content/source')
@@ -306,6 +313,7 @@ def change_content_fetch_handler(element, app_node, local_node):
 INFO_BAR_NF = NotFound("info bar", "info_bar_not_found")
 INFO_BAR_LABEL_NF = NotFound("message label", "label_not_found",
                              where="info bar")
+ERROR_LABEL_NF = NotFound("content fetch error label", "label_not_found")
 @handle_chck('/change_content/fetch')
 def change_content_fetch_check(element, app_node, local_node):
     global _selected_profile
@@ -337,6 +345,11 @@ def change_content_fetch_check(element, app_node, local_node):
                 url = getsibling(fetch_button, -1, "text").text
             except TimeoutError:
                 return URL_INPUT_NF
+            try:
+                filler = getsibling(getparents(fetch_button)[0], 1, "filler")
+                error_label = getnode(filler, "label")
+            except TimeoutError:
+                return ERROR_LABEL_NF
 
             try:
                 infobar = getnode(local_node, "info bar",
@@ -347,6 +360,11 @@ def change_content_fetch_check(element, app_node, local_node):
                 error = getnode(infobar, "label").text
             except TimeoutError:
                 return INFO_BAR_LABEL_NF
+
+            if error != error_label.text:
+                return Fail("Message in error label (%s) differs from message "
+                            "in info bar (%s)" % (error_label.text, error),
+			    "inconsistent_messages")
 
             for msg, fail_type in FAIL_MSG.iteritems():
                 if re.match(msg, unicode(error)):
