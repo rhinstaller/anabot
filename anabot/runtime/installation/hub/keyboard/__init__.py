@@ -9,7 +9,7 @@ from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.actionresult import ActionResultPass as Pass
 from anabot.runtime.actionresult import ActionResultFail as Fail
 from anabot.runtime.actionresult import NotFoundResult as NotFound
-from anabot.runtime.functions import get_attr, getnode, getnode_scroll, getsibling, TimeoutError
+from anabot.runtime.functions import get_attr, getnode, getnodes, getnode_scroll, getsibling, TimeoutError
 from anabot.runtime.translate import tr, keyboard_tr
 from .layouts import layout_name, layout_id, Layouts
 
@@ -186,7 +186,7 @@ def layout_handler(element, app_node, local_node):
         layout = get_layout_node(local_node, layout_id)
         if isinstance(layout, Fail):
             return layout # not really layout, but fail
-        layout.click()
+        layout.click() # pylint: disable=maybe-no-member
         default_handler(element, app_node, local_node)
     __last_selected_layout = None
     if not matched:
