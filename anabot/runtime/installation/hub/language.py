@@ -40,29 +40,6 @@ DONE_NOT_FOUND = NotFound('"Done" button',
                           where="Language support spoke")
 
 
-def check(chkbox):
-    """
-    Simple function to check the checkbox.
-    """
-    if not chkbox.checked:
-        chkbox.click()
-
-
-def uncheck(chkbox):
-    """
-    Simple function to uncheck the checkbox.
-    """
-    if chkbox.checked:
-        chkbox.click()
-
-
-def toggle(chkbox):
-    """
-    Simple function to toggle the checkbox.
-    """
-    chkbox.click()
-
-
 @handle_act('')
 def base_handler(element, app_node, local_node):
     """Handle <language_spoke> tag and process its options."""
@@ -138,7 +115,7 @@ def locality_handler(element, app_node, local_node):
     """Handle <locality> tag and process its options."""
     locality = get_attr(element, "name")
     locality_table = getnodes(local_node, "table")[0]
-    locality_check = get_attr(element, "action", "check") == "check"
+    check = get_attr(element, "action", "check") == "check"
 
     matched = False
 
@@ -152,10 +129,8 @@ def locality_handler(element, app_node, local_node):
             matched = True
             scrollto(locality_node)
 
-            if locality_check:
-                check(locality_node)
-            else:
-                uncheck(locality_node)
+            if locality_node.checked != check:
+                locality_node.click()
 
     if not matched:
         return Fail("Could not match any locality.")

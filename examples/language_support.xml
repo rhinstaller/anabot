@@ -21,9 +21,8 @@
         <language select="Chinese">
             <locality name="*" />
         </language>
-      <debug_stop />
     </language_spoke>
+    <debug_stop />
     <ez:autopart />
   </hub>
-  <debug_stop />
 </ez:installation>
