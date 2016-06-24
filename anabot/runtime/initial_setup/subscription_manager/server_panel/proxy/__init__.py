@@ -4,7 +4,7 @@ logger = logging.getLogger('anabot')
 
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler
-from anabot.runtime.functions import get_attr, getnode, getparents
+from anabot.runtime.functions import get_attr, getnode, getparents, press_key
 from anabot.runtime.translate import tr
 from anabot.runtime.errors import TimeoutError
 from time import sleep
@@ -21,6 +21,7 @@ def proxy_dialog_handler(element, app_node, local_node):
     proxy_btn.click()
     proxy_dialog = getnode(app_node, 'dialog', tr('Proxy Configuration'))
     default_handler(element, app_node, proxy_dialog)
+    return True
 
 @handle_act('/use_proxy')
 def use_proxy_handler(element, app_node, local_node):
@@ -33,6 +34,7 @@ def use_proxy_handler(element, app_node, local_node):
 @handle_chck('/use_proxy')
 def use_proxy_chck(element, app_node, local_node):
     check_it = get_attr(element, 'checked')
+    check_it = (check_it == 'yes')
     proxy_checkbox = getnode(local_node, "check box", 'Proxy Checkbox')
     return proxy_checkbox.checked == check_it
 
@@ -41,6 +43,9 @@ def server_handler(element, app_node, local_node):
     proxy_text = get_attr(element, 'value')
     proxy_input = getnode(local_node, 'text', "Proxy Location Text")
     proxy_input.typeText(proxy_text)
+    # now activate some other element (press <Tab>)
+    # - software automagically appends default ':3128' port
+    press_key('\t')
 
 @handle_chck('/proxy_server')
 def server_chck(element, app_node, local_node):
@@ -63,6 +68,7 @@ def cancel_handler(element, app_node, local_node):
 def save_handler(element, app_node, local_node):
     ok_button = getnode(local_node, "push button", "Save Button")
     ok_button.click()
+    return True
 
 @handle_act('/test_connection')
 def test_connection_handler(element, app_node, local_node):
@@ -79,9 +85,6 @@ def test_connection_handler(element, app_node, local_node):
 @handle_chck('/test_connection')
 def test_connection_chck(element, app_node, local_node):
     result_label = getnode(local_node, "label", 'connectionStatusLabel')
-    return (False, 'ToDo check proper label text')
-    if result_label.text != tr('Proxy connection succeeded'):
-        return (False, result_label.text)
-    else:
+    if result_label.text == tr('Proxy connection succeeded'):
         return True
-
+    return (False, "Connection test message was:'%s'  expected:'%s'" % (result_label.text, tr('Proxy connection succeeded')))
