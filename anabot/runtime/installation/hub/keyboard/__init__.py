@@ -108,13 +108,14 @@ ADD_DIALOG_BUTTON_FOUND = NotFound(
     "desired dialog button", "dialog_button_not_found"
 )
 @handle_act('/add_layout')
-def add_layout_handler(element, app_node, local_node):
+def add_layout_handler(element, app_node, local_node, in_dialog=False):
     # TODO: add support for layout name expansion
     name = get_attr(element, "name")
     dialog_action = get_attr(element, "dialog", "accept") == "accept"
-    do_result = do_toolbar(local_node, "_Add layout")
-    if do_result == False:
-        return do_result
+    if not in_dialog:
+        do_result = do_toolbar(local_node, "_Add layout")
+        if do_result == False:
+            return do_result
 
     try:
         dialog = getnode(app_node, "dialog", tr("Add Layout"))
@@ -172,6 +173,33 @@ def add_layout_check(element, app_node, local_node):
         return layout # not really layout, but fail
     else:
         return PASS
+
+@handle_act('/replace_layouts')
+def replace_layouts_handler(element, app_node, local_node):
+    try:
+        table = getnode(local_node, "table", tr("Selected Layouts"))
+    except TimeoutError:
+        return LAYOUTS_TABLE_NOT_FOUND
+    while len(getnodes(table, "table cell")) > 1:
+        do_result = do_toolbar(local_node, "_Remove layout")
+        if do_result == False:
+            return do_result
+    do_result = do_toolbar(local_node, "_Remove layout")
+    if do_result == False:
+        return do_result
+    return add_layout_handler(element, app_node, local_node, in_dialog=True)
+
+MORE_LAYOUTS_FOUND = Fail("More then one layout was found.")
+@handle_chck('/replace_layouts')
+@check_action_result
+def replace_layouts_check(element, app_node, local_node):
+    try:
+        table = getnode(local_node, "table", tr("Selected Layouts"))
+    except TimeoutError:
+        return LAYOUTS_TABLE_NOT_FOUND
+    if len(getnodes(table, "table cell")) > 1:
+        return MORE_LAYOUTS_FOUND
+    return add_layout_check(element, app_node, local_node)
 
 @handle_act('/layout')
 def layout_handler(element, app_node, local_node):
