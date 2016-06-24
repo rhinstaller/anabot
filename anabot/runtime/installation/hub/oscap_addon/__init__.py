@@ -62,7 +62,8 @@ SPOKE_SELECTOR_STATUS_NF = NotFound("OSCAP status label",
 @handle_chck('')
 def base_check(element, app_node, local_node):
     expected_message = get_attr(element, "expected_message")
-    expected_message = oscap_tr_(expected_message)
+    if expected_message is not None:
+	expected_message = oscap_tr_(expected_message)
     fail_type = get_attr(element, "fail_type")
     result = action_result(element, Pass())
     OK_STATUS = {oscap_tr_("Everything okay"),

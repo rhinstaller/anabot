@@ -42,11 +42,12 @@ def set_languages(languages):
                                             fallback=True)
 
 def _tr(translate, intext, drop_underscore=True, context=None):
+    if not isinstance(intext, (str, unicode)):
+        raise TypeError("Can't translate object of type %s." % type(intext))
+
     # Some translations have context but python gettext doesn't support
     # contexts. There is workaround for this issue:
     # https://bugs.python.org/issue2504#msg106121
-    if intext is None:
-        return None
     if context is not None:
         intext = context + "\x04" + intext
     outtext = translate.ugettext(intext)
