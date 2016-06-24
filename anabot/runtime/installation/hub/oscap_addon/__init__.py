@@ -4,6 +4,7 @@ logger = logging.getLogger('anabot')
 import random
 
 from anabot.runtime.decorators import handle_action, handle_check
+from anabot.runtime.decorators import check_action_result
 from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.functions import get_attr, getnode, getnodes, getsibling
 from anabot.runtime.functions import getnode_scroll
@@ -49,8 +50,7 @@ def base_handler(element, app_node, local_node):
     except TimeoutError:
         return SECURITY_POLICY_LABEL_NF
     try:
-        oscap_addon_panel = getparents(oscap_addon_label,
-                                       predicates={'roleName': 'panel'})[2]
+        oscap_addon_panel = getparents(oscap_addon_label, "panel")[2]
     except TimeoutError:
         return OSCAP_SPOKE_NF
 
@@ -59,12 +59,14 @@ def base_handler(element, app_node, local_node):
 SPOKE_SELECTOR_STATUS_NF = NotFound("OSCAP status label",
                                     "label_not_found",
                                     where="OSCAP spoke selector")
+WRONG_SELECTOR_MESSAGE = Fail("OSCAP addon selector contained wrong message: "
+                              "%s, expected: %s", "wrong_message")
 @handle_chck('')
+@check_action_result
 def base_check(element, app_node, local_node):
     expected_message = get_attr(element, "expected_message")
     if expected_message is not None:
 	expected_message = oscap_tr_(expected_message)
-    result = action_result(element, Pass())
     OK_STATUS = {oscap_tr_("Everything okay"),
                  oscap_tr_("No profile selected"),
                  oscap_tr_("No content found")}
@@ -72,8 +74,6 @@ def base_check(element, app_node, local_node):
         oscap_tr_("Not ready"): 'not_ready',
         oscap_tr_("Misconfiguration detected"): 'misconfiguration_detected',
         oscap_tr_("Warnings appeared"): 'warnings_appeared'}
-    if not result:
-        return result
 
     try:
         oscap_addon_selector = getnode_scroll(app_node, "spoke selector",
@@ -88,9 +88,7 @@ def base_check(element, app_node, local_node):
     if oscap_addon_status in OK_STATUS:
         if expected_message is None or oscap_addon_status == expected_message:
                 return Pass()
-        return Fail("OSCAP addon selector had wrong message: %s, expected: %s",
-                               (oscap_addon_status, expected_message),
-                                "wrong_message")
+        return WRONG_SELECTOR_MESSAGE % (oscap_addon_status, expected_message)
     return Fail("OSCAP addon selector check failed due to: %s" % oscap_addon_status,
                 (FAIL_STATUS.get(oscap_addon_status, "unhandled_message")))
 
@@ -101,6 +99,7 @@ PROFILES_NF = NotFound("profiles (table cells)", "cells_not_found")
 PROFILE_NF = NotFound("profile \"%s\"")
 def choose_manipulate(element, app_node, local_node, dryrun):
     global _chosen_profile
+    global _selected_profile
     mode = get_attr(element, "mode", "manual")
     try:
         profiles_label = getnode(local_node, "label",
@@ -112,9 +111,8 @@ def choose_manipulate(element, app_node, local_node, dryrun):
     except TimeoutError:
         return PROFILES_TABLE_NF
     try:
-        available_profiles = [p for p in getnodes(profiles_table, "table cell",
-                                                  visible=None)
-                              if p.text]
+        available_profiles = getnodes(profiles_table, "table cell",
+                                      visible=None)[::2]
     except TimeoutError:
         return PROFILES_NF
     profile = None # profile to be selected
@@ -132,7 +130,7 @@ def choose_manipulate(element, app_node, local_node, dryrun):
         profile_name = get_attr(element, "profile")
         try:
             profile = [p for p in available_profiles
-                       if p.name.splitlines()[0] == profile_name][0]
+                       if p.name.startswith(profile_name + '\n')][0]
         except IndexError:
             return PROFILE_NF % profile_name
     elif mode == "random":
@@ -153,22 +151,19 @@ def choose_manipulate(element, app_node, local_node, dryrun):
         return Fail("Unknown selection mode: %s" % mode)
 
     if dryrun:
-        result = action_result(element, Pass())
-        if not result:
-            return result
+        result = Pass()
         if mode == "manual":
             if not profile.selected:
-                result = Fail("Profile %s hasn't been chosen." % profile.name)
+                return Fail("Profile %s hasn't been chosen." % profile.name)
         elif mode == "random":
             if not any([p.selected for p in available_profiles]):
-                result = Fail("No profile has been chosen.")
+                return Fail("No profile has been chosen.")
         elif mode == "random_strict":
             if not any([p.selected for p in available_profiles
                         if p is not _chosen_profile]):
-                result = Fail("Profile choice hasn't changed.")
+                return Fail("Profile choice hasn't changed.")
         return result
     else:
-        global _selected_profile
         _selected_profile = profile
         profile.click()
 
@@ -177,6 +172,7 @@ def choose_handler(element, app_node, local_node):
     return choose_manipulate(element, app_node, local_node, False)
 
 @handle_chck('/choose')
+@check_action_result
 def choose_check(element, app_node, local_node):
     return choose_manipulate(element, app_node, local_node, True)
 
@@ -193,6 +189,7 @@ def select_handler(element, app_node, local_node):
     select_button.click()
 
 @handle_chck('/select')
+@check_action_result
 def select_check(element, app_node, local_node):
     try:
         select_button = getnode(local_node, "push button",
@@ -204,7 +201,7 @@ def select_check(element, app_node, local_node):
     if _selected_profile is None:
         result = Fail("No profile has been selected.")
     elif select_button.sensitive:
-        result = Fail("\"Select profile\" button is sensitive.")
+        result = Fail("\"Select profile\" button is clickable.")
     elif not _selected_profile.selected:
         result = Fail("Profile \"%s\" hasn't been selected." %
                       _selected_profile.name.splitlines()[0])
@@ -246,11 +243,9 @@ def change_content_handler(element, app_node, local_node):
     return change_content_manipulate(element, app_node, local_node, False)
 
 @handle_chck('/change_content')
+@check_action_result
 def change_content_check(element, app_node, local_node):
-    result = action_result(element, Pass())
-    if result == True:
-        result = change_content_manipulate(element, app_node, local_node, True)
-    return result
+    return change_content_manipulate(element, app_node, local_node, True)
 
 FETCH_BUTTON_NF = NotFound("\"_Fetch\" button", "button_not_found")
 URL_INPUT_NF = NotFound("URL input box", "text_input_not_found")
@@ -281,6 +276,7 @@ def change_content_source_handler(element, app_node, local_node):
                                             local_node, False)
 
 @handle_chck('/change_content/source')
+@check_action_result
 def change_content_source_check(element, app_node, local_node):
     return change_content_source_manipulate(element, app_node,
                                             local_node, True)
@@ -298,9 +294,9 @@ INFO_BAR_LABEL_NF = NotFound("message label", "label_not_found",
                              where="info bar")
 ERROR_LABEL_NF = NotFound("content fetch error label", "label_not_found")
 @handle_chck('/change_content/fetch')
+@check_action_result
 def change_content_fetch_check(element, app_node, local_node):
     global _selected_profile
-    result = action_result(element, Pass())
     FAIL_MSG = {oscap_tr_("Invalid or unsupported URL"): 'invalid_url',
                 oscap_tr_("No content found. Please enter data stream content "
                          "or archive URL below:"): 'no_content_found',
@@ -313,51 +309,49 @@ def change_content_fetch_check(element, app_node, local_node):
                 oscap_tr_("Network error encountered when fetching data."
                           " Please check that network is setup and "
                           "working."): 'network_error'}
-    if result:
+    try:
+        getnode(local_node, "push button", oscap_tr("_Change content"))
+        return Pass()
+        _selected_profile = None
+    except TimeoutError:
+        # retrieve URL so that it can be included in fail message
         try:
-            getnode(local_node, "push button", oscap_tr("_Change content"))
-            result = Pass()
-            _selected_profile = None
+            fetch_button = getnode(local_node, "push button", oscap_tr("_Fetch"))
         except TimeoutError:
-            # retrieve URL so that it can be included in fail message
-            try:
-                fetch_button = getnode(local_node, "push button", oscap_tr("_Fetch"))
-            except TimeoutError:
-                return FETCH_BUTTON_NF
-            try:
-                url = getsibling(fetch_button, -1, "text").text
-            except TimeoutError:
-                return URL_INPUT_NF
-            try:
-                filler = getsibling(getparents(fetch_button)[0], 1, "filler")
-                error_label = getnode(filler, "label")
-            except TimeoutError:
-                return ERROR_LABEL_NF
+            return FETCH_BUTTON_NF
+        try:
+            url = getsibling(fetch_button, -1, "text").text
+        except TimeoutError:
+            return URL_INPUT_NF
+        try:
+            filler = getsibling(getparents(fetch_button)[0], 1, "filler")
+            error_label = getnode(filler, "label")
+        except TimeoutError:
+            return ERROR_LABEL_NF
 
-            try:
-                infobar = getnode(local_node, "info bar",
-                                  predicates={"name": tr("Error")})
-            except TimeoutError:
-                return INFO_BAR_NF
-            try:
-                error = getnode(infobar, "label").text
-            except TimeoutError:
-                return INFO_BAR_LABEL_NF
+        try:
+            infobar = getnode(local_node, "info bar",
+                                predicates={"name": tr("Error")})
+        except TimeoutError:
+            return INFO_BAR_NF
+        try:
+            error = getnode(infobar, "label").text
+        except TimeoutError:
+            return INFO_BAR_LABEL_NF
 
-            if error != error_label.text:
-                return Fail("Message in error label (%s) differs from message "
-                            "in info bar (%s)" % (error_label.text, error),
-			    "inconsistent_messages")
+        if error != error_label.text:
+            return Fail("Message in error label (%s) differs from message "
+                        "in info bar (%s)" % (error_label.text, error),
+            "inconsistent_messages")
 
-            for msg, fail_type in FAIL_MSG.iteritems():
-                if re.match(msg, unicode(error)):
-                    break
-            else:
-                return Fail("Unhandled error message: %s" % error,
-                            "unhandled_message")
-            return Fail("SCAP content fetch error: \"%s\", URL: %s"
-                        % (error, url), fail_type)
-    return result
+        for msg, fail_type in FAIL_MSG.iteritems():
+            if re.match(msg, unicode(error)):
+                break
+        else:
+            return Fail("Unhandled error message: %s" % error,
+                        "unhandled_message")
+        return Fail("SCAP content fetch error: \"%s\", URL: %s"
+                    % (error, url), fail_type)
 
 @handle_act('/change_content/use_ssg')
 def change_content_use_ssg_handler(element, app_node, local_node):
@@ -371,16 +365,14 @@ def change_content_use_ssg_handler(element, app_node, local_node):
         return SCAP_SECURITY_GUIDE_BUTTON_NF
 
 @handle_chck('/change_content/use_ssg')
+@check_action_result
 def change_content_use_ssg_check(element, app_node, local_node):
-    result = action_result(element, Pass())
-    if result:
-        try:
-            getnode(local_node, "push button",
-                    oscap_tr("_Use SCAP Security Guide"), visible=False)
-            result = Pass
-        except TimeoutError:
-            result = SCAP_SECURITY_GUIDE_BUTTON_NF
-    return result
+    try:
+        getnode(local_node, "push button",
+                oscap_tr("_Use SCAP Security Guide"), visible=False)
+        return Pass()
+    except TimeoutError:
+        return SCAP_SECURITY_GUIDE_BUTTON_NF
 
 APPLY_SECURITY_POLICY_LABEL_NF = NotFound("\"Apply security policy:\" label",
                                           "label_not_found")
@@ -439,16 +431,6 @@ def datastream_manipulate(element, app_node, local_node, dryrun):
             ds_items = getnodes(ds_combo, "menu item")
         except TimeoutError:
             return DATASTREAM_ITEMS_NF
-    if dryrun:
-        result = action_result(element, Pass())
-        if not result:
-            return result
-        if mode == "random":
-            result = ds_combo.name != ""
-        elif mode == "manual":
-            result = ds_combo.name == datastream
-        return result
-    else:
         current_ds = ds_combo.name
         if mode == "manual":
             try:
@@ -461,12 +443,25 @@ def datastream_manipulate(element, app_node, local_node, dryrun):
         ds_item.click()
         if current_ds != ds_combo.name:
             _selected_profile = None
+    else:
+        if mode == "random":
+            return Pass()
+        elif mode == "manual":
+            if ds_combo.name == datastream:
+                return Pass()
+            else:
+                return Fail("Item selected in datastream combo box (%s) "
+                            "doesn't match the required one (%s)"
+                            % (ds_combo.name, datastream))
+        else:
+            return Fail("Unknown mode: %s" % mode)
 
 @handle_act('/select_datastream')
 def datastream_handler(element, app_node, local_node):
     return datastream_manipulate(element, app_node, local_node, False)
 
 @handle_chck('/select_datastream')
+@check_action_result
 def datastream_chck(element, app_node, local_node):
     return datastream_manipulate(element, app_node, local_node, True)
 
@@ -492,27 +487,6 @@ def checklist_manipulate(element, app_node, local_node, dryrun):
             checklist_items = getnodes(checklist_combo, "menu item")
         except TimeoutError:
             return CHECKLIST_ITEMS_NF
-
-    if dryrun:
-        result = action_result(element, Pass())
-        if not result:
-            return result
-        if mode == "manual":
-            datastream = get_attr(element, "id")
-            try:
-                checklist_label = getnode(local_node, "label",
-                                          oscap_tr("Checklist:"))
-            except TimeoutError:
-                return CHECKLIST_LABEL_NF
-            try:
-                checklist_combo = getsibling(checklist_label, 1, "combo box")
-            except TimeoutError:
-                return CHECKLIST_COMBO_NF
-            result = checklist_combo.name == datastream
-        elif mode == "random":
-            result = checklist_combo.name != ""
-        return result
-    else:
         current_checklist = checklist_combo.name
         if mode == "manual":
             try:
@@ -529,11 +503,35 @@ def checklist_manipulate(element, app_node, local_node, dryrun):
         if checklist_combo.name != current_checklist:
             _selected_profile = None
 
+    else:
+        if mode == "manual":
+            checklist = get_attr(element, "id")
+            try:
+                checklist_label = getnode(local_node, "label",
+                                          oscap_tr("Checklist:"))
+            except TimeoutError:
+                return CHECKLIST_LABEL_NF
+            try:
+                checklist_combo = getsibling(checklist_label, 1, "combo box")
+            except TimeoutError:
+                return CHECKLIST_COMBO_NF
+            if checklist_combo.name == checklist:
+                return Pass()
+            else:
+                return Fail("Selected checklist (%s) doesn't match the "
+                            "required one (%s)"
+                            % (checklist_combo.name, checklist))
+        elif mode == "random":
+            return Pass()
+        else:
+            return Fail("Unknown mode: %s" % mode)
+
 @handle_act('/select_checklist')
 def checklist_handler(element, app_node, local_node):
     return checklist_manipulate(element, app_node, local_node, False)
 
 @handle_chck('/select_checklist')
+@check_action_result
 def checklist_check(element, app_node, local_node):
     return checklist_manipulate(element, app_node, local_node, True)
 
@@ -543,7 +541,7 @@ def changes_handler(element, app_node, local_node):
 
 @handle_chck('/changes')
 def changes_check(element, app_node, local_node):
-    return Pass
+    return Pass()
 
 @handle_act('/changes/info')
 @handle_act('/changes/warning')
@@ -590,8 +588,7 @@ def changes_line_check(element, app_node, local_node):
     except TimeoutError:
         return CHANGES_TABLE_NF
     try:
-        getnode(changes_table, "table cell",
-                predicates={"name": translated_text})
+        getnode(changes_table, "table cell", translated_text)
         return True
     except TimeoutError:
         return CHANGES_TABLE_LINE_NF % translated_text
@@ -608,12 +605,11 @@ def done_handler(element, app_node, local_node):
 
 @handle_chck('/done')
 @handle_chck('/change_content/done')
+@check_action_result
 def done_check(element, app_node, local_node):
-    result = action_result(element, Pass())
-    if result:
-        try:
-            getnode_scroll(app_node, "spoke selector", oscap_tr("SECURITY POLICY"))
-        except TimeoutError:
-            return SPOKE_SELECTOR_NF
-    return result
+    try:
+        getnode_scroll(app_node, "spoke selector", oscap_tr("SECURITY POLICY"))
+    except TimeoutError:
+        return SPOKE_SELECTOR_NF
+    return Pass()
 
