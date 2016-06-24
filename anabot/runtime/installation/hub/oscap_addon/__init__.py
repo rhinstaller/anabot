@@ -1,7 +1,7 @@
 import logging
 logger = logging.getLogger('anabot')
 
-from random import randint
+import random
 
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler, action_result
@@ -31,7 +31,7 @@ def oscap_tr(intext, drop_underscore=True):
 
 SPOKE_SELECTOR_NF = NotFound("active spoke selector",
                              "selector_not_found",
-                             "OSCAP addon spoke")
+                             whose="OSCAP addon spoke")
 SECURITY_POLICY_LABEL_NF = NotFound("\"SECURITY POLICY\" label",
                                     "label_not_found")
 OSCAP_SPOKE_NF = NotFound("OSCAP addon panel", "spoke_not_found")
@@ -64,7 +64,6 @@ def base_check(element, app_node, local_node):
     expected_message = get_attr(element, "expected_message")
     if expected_message is not None:
 	expected_message = oscap_tr_(expected_message)
-    fail_type = get_attr(element, "fail_type")
     result = action_result(element, Pass())
     OK_STATUS = {oscap_tr_("Everything okay"),
                  oscap_tr_("No profile selected"),
@@ -76,11 +75,6 @@ def base_check(element, app_node, local_node):
     if not result:
         return result
 
-    # TODO: remove the check as soon as XML validation is implemented
-    if expected_message is not None and fail_type is not None:
-        return Fail("'expected_message' and 'fail_type' attributes can't be "
-                    "used at the same time!")
-
     try:
         oscap_addon_selector = getnode_scroll(app_node, "spoke selector",
                                               oscap_tr("SECURITY POLICY"))
@@ -90,25 +84,15 @@ def base_check(element, app_node, local_node):
         oscap_addon_status = getnode(oscap_addon_selector, "label").text.decode("utf-8")
     except TimeoutError:
         return SPOKE_SELECTOR_STATUS_NF
-    if expected_message is None:
-        if oscap_addon_status in OK_STATUS:
-            return Pass()
-        elif oscap_addon_status in FAIL_STATUS:
-            logger.info("OSCAP addon status: %s" % oscap_addon_status)
-            return Fail("Error message found in OSCAP addon button "
-                        "button.", FAIL_STATUS[oscap_addon_status])
-        else:
-            # Fallback to catch unknown (future) error messages
-            return Fail("Unknown error message found in OSCAP addon button: %s"
-                        % oscap_addon_status, 'unknown_error')
-    else:
-        if (oscap_addon_status in OK_STATUS
-                and oscap_addon_status == expected_message):
-            return Pass()
-        else:
-            logger.info("Expected status message was: %s" % expected_message)
-            return Fail("Wrong OSCAP addon selector status message: %s"
-                        % oscap_addon_status)
+
+    if oscap_addon_status in OK_STATUS:
+        if expected_message is None or oscap_addon_status == expected_message:
+                return Pass()
+        return Fail("OSCAP addon selector had wrong message: %s, expected: %s",
+                               (oscap_addon_status, expected_message),
+                                "wrong_message")
+    return Fail("OSCAP addon selector check failed due to: %s" % oscap_addon_status,
+                (FAIL_STATUS.get(oscap_addon_status, "unhandled_message")))
 
 CHOOSE_PROFILE_LABEL_NF = NotFound("\"Choose profile below:\" label",
                                    "label_not_found")
@@ -116,6 +100,7 @@ PROFILES_TABLE_NF = NotFound("profiles table", "table_not_found")
 PROFILES_NF = NotFound("profiles (table cells)", "cells_not_found")
 PROFILE_NF = NotFound("profile \"%s\"")
 def choose_manipulate(element, app_node, local_node, dryrun):
+    global _chosen_profile
     mode = get_attr(element, "mode", "manual")
     try:
         profiles_label = getnode(local_node, "label",
@@ -137,7 +122,6 @@ def choose_manipulate(element, app_node, local_node, dryrun):
     # selected profile needs to be remembered before selecting another one
     # because of check for random_strict mode
     selected_profile = [p for p in available_profiles if p.selected and p.text]
-    global _chosen_profile
     if not dryrun:
         if len(selected_profile) == 0:
             _chosen_profile = None
@@ -152,19 +136,17 @@ def choose_manipulate(element, app_node, local_node, dryrun):
         except IndexError:
             return PROFILE_NF % profile_name
     elif mode == "random":
-        profile = available_profiles[randint(0, len(available_profiles) - 1)]
+        profile = random.choice(available_profiles)
     # choose a random profile other than already selected
     elif mode == "random_strict":
         if len(available_profiles) > 1:
             if len(selected_profile) == 0:
-                profile = available_profiles[
-                    randint(0, len(available_profiles) - 1)]
+                profile = random.choice(available_profiles)
             elif len(selected_profile) == 1:
                 profile_no = available_profiles.index(selected_profile[0])
                 while (profile == None
                        or profile_no == available_profiles.index(profile)):
-                    profile = available_profiles[
-                        randint(0, len(available_profiles) - 1)]
+                    profile = random.choice(available_profiles)
         else:
             profile = available_profiles[0]
     else:
@@ -475,7 +457,7 @@ def datastream_manipulate(element, app_node, local_node, dryrun):
                 ds_combo.click()
                 return DATASTREAM_NF
         elif mode == "random":
-            ds_item = ds_items[randint(0, len(ds_items) - 1)]
+            ds_item = random.choice(ds_items)
         ds_item.click()
         if current_ds != ds_combo.name:
             _selected_profile = None
@@ -540,8 +522,7 @@ def checklist_manipulate(element, app_node, local_node, dryrun):
                 checklist_combo.click()
                 return CHECKLIST_NF % checklist
         elif mode == "random":
-            checklist_item = checklist_items[
-                randint(0, len(checklist_items) - 1)]
+            checklist_item = random.choice(checklist_items)
         else:
             return Fail("Unknown mode: \"%s\"" % mode)
         checklist_item.click()
