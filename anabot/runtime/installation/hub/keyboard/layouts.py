@@ -2,6 +2,13 @@
 
 from anabot.runtime.translate import lang_tr, keyboard_tr, active_languages
 
+import re
+
+__normalize_re = re.compile('(?P<lang>[^(]+) \((?P=lang) \((?P<rest>.*)\)\)')
+__normalize_sub = '\g<lang> (\g<rest>)'
+def normalize(intext):
+    return __normalize_re.sub(__normalize_sub, intext)
+
 class Layouts(object):
     __instance = None
 
@@ -57,7 +64,7 @@ class Layouts(object):
                 lang_tr(lang).capitalize(),
                 keyboard_tr(item.get_description())
             )
-        self.__layouts[target] = text
+        self.__layouts[target] = normalize(text)
 
     def __country_variants(self, c_reg, item, user_data=None):
         country_name = item.get_name()
@@ -77,7 +84,7 @@ class Layouts(object):
             target = u"%s" % item.get_name()
             text = u"%s (%s)" % (country, keyboard_tr(item.get_description()))
         if target not in self.__layouts:
-            self.__layouts[target] = text
+            self.__layouts[target] = normalize(text)
 
     def __getitem__(self, key):
         self.reload()

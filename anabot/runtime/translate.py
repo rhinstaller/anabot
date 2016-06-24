@@ -30,10 +30,10 @@ def set_languages(languages):
                                                languages=languages,
                                                fallback=True)
     __translate_lang = gettext.translation('iso_639',
-                                           languages=['cs_CZ.UTF-8'],
+                                           languages=languages,
                                            fallback=True)
     __translate_country = gettext.translation('iso_3166',
-                                              languages=['cs_CZ.UTF-8'],
+                                              languages=languages,
                                               fallback=True)
     __languages = languages
 
