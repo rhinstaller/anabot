@@ -5,6 +5,7 @@ logger = logging.getLogger('anabot')
 import teres
 reporter = teres.Reporter.get_reporter()
 
+import random
 from fnmatch import fnmatchcase
 
 from anabot.runtime.decorators import handle_action, handle_check
@@ -17,6 +18,9 @@ from anabot.runtime.translate import tr, comps_tr_env, comps_tr_group, comps_tr_
 _local_path = '/installation/hub/software_selection'
 handle_act = lambda x: handle_action(_local_path + x)
 handle_chck = lambda x: handle_check(_local_path + x)
+
+def random_sublist(inlist):
+    return [x for x in inlist if random.choice((True, False))]
 
 @handle_act('')
 def base_handler(element, app_node, local_node):
@@ -91,7 +95,9 @@ def environment_check(element, app_node, local_node):
         return action_result(element)
     return environment_manipulate(element, app_node, local_node, True)
 
+__last_random_addons = None
 def addon_handler_manipulate(element, app_node, local_node, dry_run):
+    global __last_random_addons
     comps = get_comps()
     try:
         env = current_env(local_node)
@@ -100,14 +106,24 @@ def addon_handler_manipulate(element, app_node, local_node, dry_run):
     logger.debug("Current environment is: %s", env)
     check = get_attr(element, "action", "select") == "select"
     group_match = get_attr(element, "id")
+    group_ids = [g for g in comps.groups_list(env) if fnmatchcase(g, group_match)]
+    subselect = get_attr(element, "subselect")
+    if subselect == "random":
+        # define in schema, that just_check* conflicts with subselect=random
+        if dry_run:
+            group_ids = __last_random_addons
+        else:
+            group_ids = random_sublist(group_ids)
+            __last_random_addons = group_ids
     result = check
     try:
         # group list is second list box
         group_list = getnodes(local_node, "list box")[1]
     except TimeoutError:
+        __last_random_addons = None
         return (False, 'Couldn\'t find list of groups')
     found = False
-    for group_id in [g for g in comps.groups_list(env) if fnmatchcase(g, group_match)]:
+    for group_id in group_ids:
         found = True
         group_label_text = comps_tr_group(group_id)+"\n"+comps_tr_group_desc(group_id)
         logger.debug("Using group label: %s", group_label_text)
@@ -123,6 +139,8 @@ def addon_handler_manipulate(element, app_node, local_node, dry_run):
                 group_checkbox.click()
             else:
                 result = not check
+    if dry_run:
+        __last_random_addons = None
     if not found:
         return (False, "Desired groups (%s) are not available for current environment (%s)." % (group_match, env))
     if result != check:
