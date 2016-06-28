@@ -88,7 +88,7 @@ def region_check(element, app_node, local_node):
     region_combo = getsibling(region_label, 1, "combo box")
     if unicode(region_combo.name) == unicode(region_name):
         return True
-    return (False, "Expected region: '%s', saw: '%s'" % (region_combo.name, region_name))
+    return (False, "Expected region: '%s', saw: '%s'" % (region_name, region_combo.name))
 
 @handle_act('/city')
 def city_handler(element, app_node, local_node):
@@ -128,7 +128,7 @@ def city_check(element, app_node, local_node):
     city_combo = getsibling(city_label, 1, "combo box")
     if unicode(city_combo.name) == unicode(city_name):
         return True
-    return (False, "Expected city: '%s', saw: '%s'" % (city_combo.name, city_name))
+    return (False, "Expected city: '%s', saw: '%s'" % (city_name, city_combo.name))
 
 @handle_act('/ntp')
 def ntp_handler(element, app_node, local_node):
