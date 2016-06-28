@@ -180,6 +180,7 @@ def replace_layouts_handler(element, app_node, local_node):
         table = getnode(local_node, "table", tr("Selected Layouts"))
     except TimeoutError:
         return LAYOUTS_TABLE_NOT_FOUND
+    getnode(table, "table cell").click()
     while len(getnodes(table, "table cell")) > 1:
         do_result = do_toolbar(local_node, "_Remove layout")
         if do_result == False:
