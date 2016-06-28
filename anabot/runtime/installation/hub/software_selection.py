@@ -67,8 +67,19 @@ def current_env(local_node):
     env_name = getsibling(selected, 1, "label").text.split("\n")[0]
     return comps_tr_env_rev(env_name)
 
+__last_random_env = None
 def environment_manipulate(element, app_node, local_node, dry_run):
+    global __last_random_env
+    # define in schema, that id and select attributes conflict
+    # define in schema, that just_check* conflicts with select=random
     env_id = get_attr(element, "id")
+    select = get_attr(element, "select")
+    if select == "random":
+        if dry_run:
+            env_id = __last_random_env
+        else:
+            env_id = random.choice(get_comps().env_list())
+            __last_random_env = env_id
     if env_id is not None:
         env_name = comps_tr_env(env_id)
         env_label_text = env_name+"\n"+comps_tr_env_desc(env_id)
