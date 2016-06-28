@@ -82,6 +82,8 @@ def environment_manipulate(element, app_node, local_node, dry_run):
             __last_random_env = env_id
     if env_id is not None:
         env_name = comps_tr_env(env_id)
+        if env_name is None:
+            return (False, 'Specified environment is not known: %s' % env_id)
         env_label_text = env_name+"\n"+comps_tr_env_desc(env_id)
         logger.debug("Using environment label: %s", env_label_text)
     # group list is first list box
