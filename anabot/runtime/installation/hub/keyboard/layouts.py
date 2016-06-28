@@ -4,8 +4,10 @@ from anabot.runtime.translate import lang_tr, keyboard_tr, active_languages
 
 import re
 
-__normalize_re = re.compile('(?P<lang>[^(]+) \((?P=lang) \((?P<rest>.*)\)\)')
-__normalize_sub = '\g<lang> (\g<rest>)'
+__normalize_re = re.compile(
+    r'(?P<lang>[^(]+) \((?P=lang)(?P<rest>( \(.+\))?)\)'
+)
+__normalize_sub = r'\g<lang>\g<rest>'
 def normalize(intext):
     return __normalize_re.sub(__normalize_sub, intext)
 
