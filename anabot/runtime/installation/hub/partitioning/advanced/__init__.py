@@ -7,7 +7,7 @@ from fnmatch import fnmatchcase
 
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler, action_result
-from anabot.runtime.functions import get_attr, waiton, getnode, getnodes, getparent, getsibling
+from anabot.runtime.functions import get_attr, waiton, getnode, getnodes, getparent, getsibling, press_key
 from anabot.runtime.errors import TimeoutError
 from anabot.runtime.translate import tr
 from anabot.runtime.installation.hub.partitioning.advanced.common import schema_name
@@ -249,6 +249,7 @@ def add_mountpoint_handler_manipulate(element, app_node, local_node, dryrun):
     textfield = getnode(combo, "text")
     if not dryrun:
         textfield.typeText(mountpoint)
+        press_key('enter')
     else:
         return textfield.text == mountpoint
 
