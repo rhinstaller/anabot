@@ -1,1 +1,4 @@
-<welcome />
+<welcome>
+  <continue />
+  <beta_dialog policy="should_fail" />
+</welcome>
