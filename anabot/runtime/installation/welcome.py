@@ -44,7 +44,6 @@ def beta_dialog_handler(element, app_node, local_node):
         button = getnode(beta_dialog, "push button", button_text)
         button.click()
     except TimeoutError as e:
-        raise e
         return False
     return True
 
