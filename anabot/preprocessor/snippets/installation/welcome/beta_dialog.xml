@@ -1,0 +1,1 @@
+<beta_dialog policy="get_variable('beta')?should_pass:should_fail" />

@@ -43,8 +43,18 @@ def pop_property(element, prop_name, namespace=None):
 def pop_child(element, child_name):
     pass
 
-def copy_content(src, dst):
+def copy_content(src, dst, prepend=False):
     for prop in src.xpathEval("./@*"):
         dst.addChild(prop)
-    for child in src.xpathEval("./*"):
-        dst.addChild(child)
+    if prepend:
+        try:
+            first_el = dst.xpathEval("./*")[0]
+        except IndexError:
+            first_el = None
+        for child in src.xpathEval("./*"):
+            dst.addChild(child)
+            if first_el is not None:
+                first_el.addPrevSibling(child)
+    else:
+        for child in src.xpathEval("./*"):
+            dst.addChild(child)

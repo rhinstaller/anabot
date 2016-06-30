@@ -1,6 +1,4 @@
 <welcome>
   <language value="from ../welcome@language" />
   <locality value="from ../welcome@language" />
-  <continue />
-  <beta_dialog policy="should_fail" />
 </welcome>
