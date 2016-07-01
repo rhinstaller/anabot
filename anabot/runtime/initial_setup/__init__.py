@@ -32,8 +32,12 @@ def finish_handler(element, app_node, local_node):
 
     run_posthooks()
     reporter.test_end()
+    # ignore sigterm in this part of code
+    # because initial-setup exits and it causes sigterm to our process
+    import signal
+    signal.signal(signal.SIGTERM, lambda src,frame: None)
     button.click()
-    sys.exit(0) # initial setup exits and Xorg too - it causes unnecessary errors  
+    sys.exit(0) 
 
 @handle_action('/initial_setup/quit')
 def quit_handler(element, app_node, local_node):
@@ -46,6 +50,10 @@ def quit_handler(element, app_node, local_node):
         # clicking button causes initial-setup exit, run hooks and cleanup here
         run_posthooks()
         reporter.test_end()
+        # ignore sigterm in this part of code
+        # because initial-setup exits and it causes sigterm to our process
+        import signal
+        signal.signal(signal.SIGTERM, lambda src,frame: None)
         button.click()
         sys.exit(0) # initial setup exits and Xorg too - it causes unnecessary errors  
     else:
