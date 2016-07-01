@@ -43,13 +43,17 @@ def beta_dialog_handler(element, app_node, local_node):
         button_text = tr(button_text, context="GUI|Welcome|Beta Warn Dialog")
         button = getnode(beta_dialog, "push button", button_text)
         button.click()
-    except TimeoutError as e:
+    except TimeoutError:
         return False
     return True
 
 @handle_act('/continue')
 def continue_handler(element, app_node, local_node):
-    getnode(local_node, "push button", "_Continue").click()
+    try:
+        getnode(local_node, "push button", "_Continue").click()
+    except TimeoutError:
+        return False
+    return True
 
 @handle_act('/language')
 def language_handler(element, app_node, local_node):
