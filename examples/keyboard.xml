@@ -1,0 +1,27 @@
+<ez:installation xmlns:ez="http://example.com/path/anabot/easy">
+  <hub>
+    <keyboard>
+      <add_layout name="de (deadgraveacute)" dialog="reject" />
+      <add_layout name="us" />
+      <layout name="cz">
+	<move_down />
+	<move_up />
+	<position value="1" policy="just_check" />
+	<remove />
+      </layout>
+      <layout name="us">
+	<show />
+	<test action="clear" />
+	<test action="type" value="qwerty" />
+	<test value="qwerty" policy="just_check" />
+	<options>
+	  <shortcut name="Alt+Shift" action="enable" />
+	  <shortcut name="Alt+Shift" action="disable" />
+	  <shortcut name="Left Ctrl" action="enable" />
+	  <shortcut name="Left Ctrl" action="disable" />
+	</options>
+      </layout>
+    </keyboard>
+    <ez:autopart />
+  </hub>
+</ez:installation>
