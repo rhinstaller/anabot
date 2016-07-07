@@ -22,6 +22,9 @@ class ActionResult(object):
                             (self.__class__.__name__,
                              other.__class__.__name__))
 
+    def __ne__(self, other):
+        return not (self == other)
+
     def __getitem__(self, index):
         if index == 0:
             return self.result

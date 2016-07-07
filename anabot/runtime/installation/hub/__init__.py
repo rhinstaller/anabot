@@ -34,6 +34,7 @@ def begin_installation_handler(element, app_node, local_node):
 @handle_check('/installation/hub/begin_installation')
 def begin_installation_check(element, app_node, local_node):
     if action_result(element) != None:
+        logger.debug('begin_installation returns action_result')
         return action_result(element)
     try:
         begin_button = getnode(
