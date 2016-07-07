@@ -6,6 +6,5 @@
       <addon id="N/A" action="select" />
       <addon id="*" action="select" />
     </package_selection>
-    <ez:autopart />
-  </hub>
+  </ez:hub>
 </ez:installation>

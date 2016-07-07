@@ -72,6 +72,9 @@ def replace_hub(element, default_for=None):
     if len(element.xpathEval('./partitioning')) == 0:
         new = load_snippet("/installation/hub/autopart", default_for, tag_name="_default_for")
         element.addChild(new)
+    if len(element.xpathEval('./begin_installation')) == 0:
+        new = load_snippet("/installation/hub/begin_installation", default_for, tag_name="_default_for")
+        element.addChild(new)
 
 @replace("/installation/hub/autopart")
 def replace_autopart(element, default_for=None):

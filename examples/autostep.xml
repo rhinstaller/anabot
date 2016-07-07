@@ -91,6 +91,7 @@
       <openscap />
       <kdump />
     </addons>
+    <begin_installation />
   </hub>
   <configuration>
     <root_password>

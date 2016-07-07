@@ -6,7 +6,7 @@
         <language value="Čeština" />
         <locality value="Česká republika" />
     </welcome>
-    <hub>
+    <ez:hub>
         <!-- Main element for entering the OSCAP addon spoke.
              Optional attributes are:
              * 'expected_message' - message expected to be shown in OSCAP selector
@@ -153,7 +153,7 @@
             <select />
             <done />
         </oscap_addon>
-    </hub>
+    </ez:hub>
     <!--<configuration>-->
         <!--<ez:root password="fo0m4nchU" />-->
         <!--<ez:user fullname="Justin Time" password="fo0m4nchU" />-->

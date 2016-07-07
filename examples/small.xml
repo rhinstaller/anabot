@@ -2,6 +2,7 @@
   <ez:welcome language="English (United Kingdom)" />
   <hub>
     <ez:autopart />
+    <begin_installation />
   </hub>
   <configuration>
     <ez:root password="fo0m4nchU" />

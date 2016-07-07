@@ -101,5 +101,6 @@
 	<summary />
       </advanced>
     </partitioning>
+    <begin_installation />
   </hub>
 </ez:installation>
