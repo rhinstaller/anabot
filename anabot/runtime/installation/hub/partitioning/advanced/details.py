@@ -32,6 +32,11 @@ def base_handler(element, app_node, local_node):
     details_node = getnodes(details_node, "page tab", sensitive=None)[0]
     default_handler(element, app_node, details_node)
 
+@handle_chck('')
+def base_check(element, app_node, local_node):
+    # nothing to check here
+    return True
+
 @handle_act('/mountpoint')
 def mountpoint_handler(element, app_node, local_node):
     value = get_attr(element, "value")
@@ -54,6 +59,15 @@ def size_handler(element, app_node, local_node):
     size = getsibling(size_label, 1, "text")
     size.typeText(value)
 
+@handle_chck('/size')
+def size_check(element, app_node, local_node):
+    value = get_attr(element, "value")
+    size_label = getnode(local_node, "label", tr("_Desired Capacity:"))
+    size = getsibling(size_label, 1, "text")
+    if size.text == value:
+        return True
+    return (False, u"Size doesn't match, expected: '%s' found: '%s'" % (size.text, value))
+
 @handle_act('/name')
 def name_handler(element, app_node, local_node):
     value = get_attr(element, "value")
@@ -75,6 +89,15 @@ def device_type_handler(element, app_node, local_node):
     device_type = getsibling(device_type_label, 1, "combo box")
     device_type.click()
     getnode(device_type, "menu item", schema_name(dev_type)).click()
+
+@handle_chck('/device_type')
+def device_type_check(element, app_node, local_node):
+    dev_type = get_attr(element, "select")
+    device_type_label = getnode(local_node, "label", tr("Device _Type:", context="GUI|Custom Partitioning|Configure"))
+    device_type = getsibling(device_type_label, 1, "combo box")
+    if device_type.name == schema_name(dev_type):
+        return True
+    return (False, u"Device type doesn't match, expected: '%s', found: '%s'" % (schema_name(dev_type), device_type.name))
 
 @handle_act('/devices')
 def devices_handler(element, app_node, local_node):

@@ -4,7 +4,7 @@ logger = logging.getLogger('anabot')
 from fnmatch import fnmatchcase
 from time import sleep
 
-from anabot.runtime.decorators import handle_action, handle_check
+from anabot.runtime.decorators import handle_action, handle_check, check_action_result
 from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.functions import getnode, TimeoutError
 from anabot.runtime.translate import tr
@@ -18,8 +18,10 @@ def hub_handler(element, app_node, local_node):
     default_handler(element, app_node, local_node)
 
 @handle_check('/installation/hub')
+@check_action_result
 def hub_check(element, app_node, local_node):
-    return action_result(element)
+    # TODO: check that the hub is not visible anymore
+    return True
 
 @handle_action('/installation/hub/begin_installation')
 def begin_installation_handler(element, app_node, local_node):

@@ -5,7 +5,7 @@ logger = logging.getLogger('anabot')
 
 from fnmatch import fnmatchcase
 
-from anabot.runtime.decorators import handle_action, handle_check
+from anabot.runtime.decorators import handle_action, handle_check, check_action_result
 from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.functions import get_attr, waiton, getnode, getnodes, getparent, getsibling, press_key
 from anabot.runtime.errors import TimeoutError
@@ -67,6 +67,18 @@ def schema_handler(element, app_node, local_node):
         return (False, "Couldn't find combo box for partitioning schema")
     schema_node.click()
     getnode(schema_node, "menu item", schema_name(schema)).click()
+
+@handle_chck('/schema')
+@check_action_result
+def schema_check(element, app_node, local_node):
+    schema = get_attr(element, "value")
+    new_install_sub = {"name": ".*", "version": ".*"}
+    new_install_text = tr("New %(name)s %(version)s Installation") % new_install_sub
+    new_install = getnode(local_node, "toggle button", new_install_text)
+    schema_node = getnode(new_install, "combo box")
+    if schema_node.name == schema_name(schema):
+        return True
+    return (False, u"Different schema is set: %s" % schema_node.name)
 
 @handle_act('/select')
 def select_handler(element, app_node, local_node):
@@ -259,7 +271,7 @@ def add_mountpoint_handler(element, app_node, local_node):
 
 @handle_chck('/add/mountpoint')
 def add_mountpoint_check(element, app_node, local_node):
-    add_mountpoint_handler_manipulate(element, app_node, local_node, True)
+    return add_mountpoint_handler_manipulate(element, app_node, local_node, True)
 
 def add_size_handler_manipulate(element, app_node, local_node, dryrun):
     size = get_attr(element, "value")
@@ -277,7 +289,7 @@ def add_size_handler(element, app_node, local_node):
 
 @handle_chck('/add/size')
 def add_size_check(element, app_node, local_node):
-    add_size_handler_manipulate(element, app_node, local_node, True)
+    return add_size_handler_manipulate(element, app_node, local_node, True)
 
 @handle_act('/done')
 def done_handler(element, app_node, local_node):
