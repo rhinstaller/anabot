@@ -43,7 +43,9 @@ def disk_manipulate(element, app_node, local_node, dryrun):
     for disk in disks:
         # selected disk has icon without name
         scrollto(disk)
+        logger.debug("getting icon")
         icon = getnode(disk, node_type="icon", visible=None)
+        logger.debug("got icon")
         if action == "select" and icon.name != "":
             if dryrun:
                 return False

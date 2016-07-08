@@ -292,6 +292,9 @@ def scrollto(node):
         )
 
     scroll = getparent(node, "scroll pane")
+    logger.debug("Scroll pane: %s" % scroll)
+    logger.debug("Scroll location: %s" % repr(scroll.position))
+    logger.debug("Scroll size: %s" % repr(scroll.size))
     def scroll_dirs():
         corners = getcorners(scroll)
         # directions are in fact mouse button numbers
@@ -328,21 +331,25 @@ def scrollto(node):
     scrollbars = getnodes(scroll, "scroll bar", recursive=False)
     for scrollbar in scrollbars:
         if scrollbar.size[0] > scrollbar.size[1]:
+            logger.debug("Setting x scrollbar")
             xbar = scrollbar
             # Beware: this doesn't seem to match real mouse behaviour!
             scroll_left = lambda: xbar.click(MOUSE_SCROLL_UP)
             scroll_right = lambda: xbar.click(MOUSE_SCROLL_DOWN)
         else:
+            logger.debug("Setting y scrollbar")
             ybar = scrollbar
             scroll_up = lambda: ybar.click(MOUSE_SCROLL_UP)
             scroll_down = lambda: ybar.click(MOUSE_SCROLL_DOWN)
 
     def toUp():
+        logger.debug("Scrolling up")
         if ybar is not None:
             while ybar.value != 0:
                 scroll_up()
 
     def toLeft():
+        logger.debug("Scrolling left")
         if xbar is not None:
             while xbar.value != 0:
                 scroll_left()
@@ -357,13 +364,19 @@ def scrollto(node):
             toUp()
             toLeft()
             while not inside():
+                logger.debug("getting there")
                 if xbar is not None:
+                    logger.debug("we have xbar")
                     while xbar.value < xbar.maxValue:
+                        logger.debug("scrolling right")
                         scroll_right()
                         if inside():
+                            logger.debug("inside return!")
                             return
                     toLeft()
+                logger.debug("scrolling down")
                 scroll_down()
+            logger.debug("inside!")
 
     scroll_to_screen()
     while scroll_dirs() != (0,0):
@@ -371,13 +384,27 @@ def scrollto(node):
         logger.debug("Location: %s" % repr(node.position))
         logger.debug("Scroll direction: %s" % repr(scroll_dirs()))
         if scroll_dirs()[0] == -1:
+            logger.debug("Scroll left")
             scroll_left()
         if scroll_dirs()[0] == 1:
+            logger.debug("Scroll right")
             scroll_right()
         if scroll_dirs()[1] == -1:
+            logger.debug("Scroll up")
             scroll_up()
         if scroll_dirs()[1] == 1:
+            logger.debug("Scroll down")
             scroll_down()
+
+    logger.debug("Everything should be fine now")
+    logger.debug("Scroll pane: %s" % scroll)
+    logger.debug("Scroll location: %s" % repr(scroll.position))
+    logger.debug("Scroll size: %s" % repr(scroll.size))
+    logger.debug("Node: %s" % node)
+    logger.debug("Location: %s" % repr(node.position))
+    logger.debug("Size: %s" % repr(node.size))
+    logger.debug("Scroll direction: %s" % repr(scroll_dirs()))
+
 
 def combo_scroll(item, point=True, click=None, doubleclick=None):
     # need to import dogtail.rawinput after display is on, so this is probably

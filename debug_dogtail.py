@@ -1,5 +1,10 @@
 #!/usr/bin/python2 -i
 
+import logging
+logger = logging.getLogger("anabot")
+logger.addHandler(logging.StreamHandler())
+logger.setLevel(logging.DEBUG)
+
 import sys
 import os
 
