@@ -42,7 +42,8 @@ def disk_manipulate(element, app_node, local_node, dryrun):
              if fnmatchcase(disk.children[0].children[3].text, name)]
     for disk in disks:
         # selected disk has icon without name
-        scrollto(disk)
+        if not dryrun:
+            scrollto(disk)
         logger.debug("getting icon")
         icon = getnode(disk, node_type="icon", visible=None)
         logger.debug("got icon")
