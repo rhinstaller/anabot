@@ -303,11 +303,17 @@ def scrollto(node):
         if center[0] - INSIDE_INTOLERANCE < corners[0][0]:
             dirx = -1
         if center[0] + INSIDE_INTOLERANCE > corners[1][0]:
-            dirx = 1
+            if dirx != 0:
+                dirx = 0
+            else:
+                dirx = 1
         if center[1] - INSIDE_INTOLERANCE < corners[0][1]:
             diry = -1
         if center[1] + INSIDE_INTOLERANCE > corners[1][1]:
-            diry = 1
+            if diry != 0:
+                diry = 0
+            else:
+                diry = 1
         return dirx, diry
 
     if scroll_dirs() == (0, 0):
@@ -323,8 +329,9 @@ def scrollto(node):
     for scrollbar in scrollbars:
         if scrollbar.size[0] > scrollbar.size[1]:
             xbar = scrollbar
-            scroll_left = lambda: xbar.click(MOUSE_SCROLL_LEFT)
-            scroll_right = lambda: xbar.click(MOUSE_SCROLL_RIGHT)
+            # Beware: this doesn't seem to match real mouse behaviour!
+            scroll_left = lambda: xbar.click(MOUSE_SCROLL_UP)
+            scroll_right = lambda: xbar.click(MOUSE_SCROLL_DOWN)
         else:
             ybar = scrollbar
             scroll_up = lambda: ybar.click(MOUSE_SCROLL_UP)
@@ -345,8 +352,6 @@ def scrollto(node):
         def inside():
             return scroll_dirs() != (None, None)
         if not inside():
-            xbar = None
-            ybar = None
             # scroll through all possible points in view
             # this is done similar way as typewriter types
             toUp()
