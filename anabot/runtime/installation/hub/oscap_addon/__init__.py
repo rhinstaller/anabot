@@ -7,7 +7,7 @@ from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.decorators import check_action_result
 from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.functions import get_attr, getnode, getnodes, getsibling
-from anabot.runtime.functions import getnode_scroll
+from anabot.runtime.functions import getnode_scroll, scrollto
 from anabot.runtime.functions import getparents, TimeoutError
 from anabot.runtime.translate import tr
 from anabot.runtime.translate import oscap_tr as oscap_tr_
@@ -94,6 +94,8 @@ def base_check(element, app_node, local_node):
 
 CHOOSE_PROFILE_LABEL_NF = NotFound("\"Choose profile below:\" label",
                                    "label_not_found")
+PROFILES_PANE_NF = NotFound("scroll pane", fail_type="pane_not_found",
+                            whose="profile list")
 PROFILES_TABLE_NF = NotFound("profiles table", "table_not_found")
 PROFILES_NF = NotFound("profiles (table cells)", "cells_not_found")
 PROFILE_NF = NotFound("profile \"%s\"")
@@ -107,7 +109,11 @@ def choose_manipulate(element, app_node, local_node, dryrun):
     except TimeoutError:
         return CHOOSE_PROFILE_LABEL_NF
     try:
-        profiles_table = getsibling(profiles_label, 1, "table")
+        profiles_pane = getsibling(profiles_label, 1, "scroll pane")
+    except TimeoutError:
+        return PROFILES_PANE_NF
+    try:
+        profiles_table = getnode(profiles_pane, "table")
     except TimeoutError:
         return PROFILES_TABLE_NF
     try:
@@ -164,6 +170,7 @@ def choose_manipulate(element, app_node, local_node, dryrun):
                 return Fail("Profile choice hasn't changed.")
         return result
     else:
+        scrollto(profile)
         _selected_profile = profile
         profile.click()
 
@@ -555,6 +562,8 @@ def changes_line_handler(element, app_node, local_node):
 
 CHANGES_LABEL_NF = NotFound("\"Changes that were done...\" label",
                             "label_not_found")
+CHANGES_PANE_NF = NotFound("scroll pane", fail_type="pane_not_found",
+                           whose="table with changes")
 CHANGES_TABLE_NF = NotFound("table with changes", "table_not_found")
 CHANGES_TABLE_LINE_NF = NotFound("line \"%s\"", "cell_not_found",
                                  where="changes table")
@@ -567,7 +576,8 @@ def changes_line_check(element, app_node, local_node):
     if params is not None:
         params = tuple(params.split())
     # ugly workaround for broken translations:
-    if raw_text == "No rules for the pre-installation phase":
+    if raw_text in ("No rules for the pre-installation phase",
+                    "make sure to create password with minimal length of %d characters"):
         translated_text = oscap_tr_(raw_text)
     else:
         translated_text = raw_text
@@ -584,11 +594,15 @@ def changes_line_check(element, app_node, local_node):
     except TimeoutError:
         return CHANGES_LABEL_NF
     try:
-        changes_table = getsibling(changes_label, 1, "table")
+        changes_pane = getsibling(changes_label, 1, "scroll pane")
+    except TimeoutError:
+        return CHANGES_PANE_NF
+    try:
+        changes_table = getnode(changes_pane, "table")
     except TimeoutError:
         return CHANGES_TABLE_NF
     try:
-        getnode(changes_table, "table cell", translated_text)
+        getnode_scroll(changes_table, "table cell", translated_text)
         return True
     except TimeoutError:
         return CHANGES_TABLE_LINE_NF % translated_text
