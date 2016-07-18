@@ -1,5 +1,7 @@
 import logging
 logger = logging.getLogger('anabot')
+import teres
+reporter = teres.Reporter.get_reporter()
 
 from fnmatch import fnmatchcase
 
@@ -34,29 +36,45 @@ def base_check(element, app_node, local_node):
     except TimeoutError:
         return True
 
+# Anaconda doesn't provide enough information for ATK about disk selection
+# so we need to remember the disk selection ourself.
+__disk_selection = {}
 def disk_manipulate(element, app_node, local_node, dryrun):
+    def disk_name(node):
+        return node.children[0].children[3].text
     name = get_attr(element, "name")
     action = get_attr(element, "action", "select")
     disks = getnodes(local_node, node_type="disk overview", visible=None)
-    disks = [disk for disk in disks
-             if fnmatchcase(disk.children[0].children[3].text, name)]
+    # Expected behaviour is, that when there is only one disk, it's selected.
+    # When there are more disks, they are not selected.
+    if len(__disk_selection) == 0:
+        d_names = [disk_name(d) for d in disks]
+        logger.debug("Found disks: %s", ",".join(d_names))
+        if len(d_names) == 1:
+            __disk_selection[d_names[0]] = True
+        else:
+            for d_name in d_names:
+                __disk_selection[d_name] = False
+    # Filter those, that match name attribute
+    disks = [disk for disk in disks if fnmatchcase(disk_name(disk), name)]
+    logger.debug("Filtered disks: %s", ",".join([disk_name(d) for d in disks]))
     for disk in disks:
-        # selected disk has icon without name
-        if not dryrun:
-            scrollto(disk)
-        logger.debug("getting icon")
-        icon = getnode(disk, node_type="icon", visible=None)
-        logger.debug("got icon")
-        if action == "select" and icon.name != "":
-            if dryrun:
-                return False
-            else:
+        if dryrun:
+            # report warning
+            reporter.log_info("Checking disk selection doesn't work at the moment due to https://bugzilla.redhat.com/show_bug.cgi?id=1353850")
+            return True
+        else:
+            logger.debug("Selecting/deselecting disk: %s", disk_name(disk))
+            if action == "select" and not __disk_selection[disk_name(disk)]:
+                logger.debug("Clicking on disk %s.", disk_name(disk))
+                scrollto(disk)
                 disk.click()
-        elif action == "deselect" and icon.name == "":
-            if dryrun:
-                return False
-            else:
+                __disk_selection[disk_name(disk)] = True
+            elif action == "deselect" and __disk_selection[disk_name(disk)]:
+                logger.debug("Clicking on disk %s.", disk_name(disk))
+                scrollto(disk)
                 disk.click()
+                __disk_selection[disk_name(disk)] = False
     if dryrun:
         return True
 
