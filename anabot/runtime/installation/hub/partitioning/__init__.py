@@ -5,7 +5,7 @@ reporter = teres.Reporter.get_reporter()
 
 from fnmatch import fnmatchcase
 
-from anabot.runtime.decorators import handle_action, handle_check
+from anabot.runtime.decorators import handle_action, handle_check, check_action_result
 from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.functions import get_attr, getnode, getnodes, getnode_scroll, scrollto
 from anabot.runtime.errors import TimeoutError
@@ -34,7 +34,17 @@ def base_check(element, app_node, local_node):
         getnode(app_node, "panel", tr("INSTALLATION DESTINATION"))
         return (False, "Installation destination panel is still visible.")
     except TimeoutError:
-        return True
+        pass
+    partitioning_label = tr("INSTALLATION _DESTINATION", context="GUI|Spoke")
+    partitioning = getnode(app_node, "spoke selector", partitioning_label,
+                           visible=None)
+    try:
+        getnode(partitioning, "label",
+                tr("Error checking storage configuration"), visible=None)
+        return (False, "Error checking storage configuration")
+    except TimeoutError:
+        pass
+    return True
 
 # Anaconda doesn't provide enough information for ATK about disk selection
 # so we need to remember the disk selection ourself.
@@ -133,8 +143,13 @@ def done_handler(element, app_node, local_node):
     return True
 
 @handle_chck('/done')
+@check_action_result
 def done_check(element, app_node, local_node):
-    return action_result(element)
+    try:
+        warning_bar = getnode(local_node, 'info bar', tr('Warnings'))
+        return (False, "Error occured")
+    except TimeoutError:
+        return True
 
 @handle_act('/reclaim')
 def reclaim_handler(element, app_node, local_node):
