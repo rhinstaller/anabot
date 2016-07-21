@@ -55,6 +55,7 @@ def quit_handler(element, app_node, local_node):
         import signal
         signal.signal(signal.SIGTERM, lambda src,frame: None)
         button.click()
+        reporter.test_end()
         sys.exit(0) # initial setup exits and Xorg too - it causes unnecessary errors  
     else:
         button = getnode(dialog, 'push button', tr('No'))
