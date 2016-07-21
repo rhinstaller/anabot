@@ -39,7 +39,7 @@ def server_input_chck(element, app_node, local_node):
     if server_input.text == server_text:
         return (True, "Server name is expected one")
     else:
-        return (False, "Server name is not requested one '%s' vs expected '%s'", (server_input.text, server_text,))
+        return (False, "Server name is not requested one '%s' vs expected '%s'" % (server_input.text, server_text,))
 
 @handle_act('/default_server')
 def server_default_button_handler(element, app_node, local_node):
@@ -53,7 +53,7 @@ def server_default_button_chck(element, app_node, local_node):
     if server_input.text == server_text:
         return (True, "Server name is expected one")
     else:
-        return (False, "Server name is not requested one '%s' vs expected '%s'", (server_input.text, server_text,))
+        return (False, "Server name is not requested one '%s' vs expected '%s'" % (server_input.text, server_text,))
 
 @handle_act('/back')
 def back_handler(element, app_node, local_node):
