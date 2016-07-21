@@ -3,6 +3,7 @@
 import logging
 logger = logging.getLogger('anabot')
 
+from functools import wraps
 from fnmatch import fnmatchcase
 
 from anabot.runtime.decorators import handle_action, handle_check, check_action_result
@@ -31,13 +32,19 @@ def check_partitioning_error(app_node):
     except TimeoutError:
         return True
 
+def main_view(func):
+    @wraps(func)
+    def wrapped(element, app_node, local_node, *args, **kwargs):
+        return func(element, app_node, local_node.children[1], *args, **kwargs)
+    return wrapped
+
 @handle_act('')
 def base_handler(element, app_node, local_node):
     try:
         manual_label = getnode(app_node, "label", tr("MANUAL PARTITIONING"))
         # advanced partitioning panel is second child of filler which
         # is first parent of MANUAL PARTITIONING label
-        advanced_panel = getparent(manual_label, "filler").children[1]
+        advanced_panel = getparent(manual_label, "filler")
     except TimeoutError:
         return (False, "Manual partitioning panel not found")
     except IndexError:
@@ -46,6 +53,7 @@ def base_handler(element, app_node, local_node):
     return True
 
 @handle_act('/schema')
+@main_view
 def schema_handler(element, app_node, local_node):
     schema = get_attr(element, "value")
     schema_node = None
@@ -70,6 +78,7 @@ def schema_handler(element, app_node, local_node):
 
 @handle_chck('/schema')
 @check_action_result
+@main_view
 def schema_check(element, app_node, local_node):
     schema = get_attr(element, "value")
     new_install_sub = {"name": ".*", "version": ".*"}
@@ -105,12 +114,14 @@ def select_handler(element, app_node, local_node):
         return getnode(device_panel, "label", visible=None).name
     fndevice = get_attr(element, "device", None)
     mountpoint = get_attr(element, "mountpoint", None)
+    devices_node = getnodes(local_node, "scroll pane")[1]
     processed = []
     done = False
     _current_selection = None
     while not done:
         done = True
-        for device in devs(local_node, fndevice, mountpoint):
+        # need to use something different then local node!
+        for device in devs(devices_node, fndevice, mountpoint):
             name = devname(device)
             if name not in processed:
                 group_node = None
@@ -301,11 +312,14 @@ def done_handler(element, app_node, local_node):
         return (False, "Didn't find visible and clickable Done button")
 
 @handle_chck('/done')
+@check_action_result
 def done_check(element, app_node, local_node):
-    # Dogtail unfortunatelly thinks, that the button is still visible and
-    # clickable when summary dialog is shown, so we can rely only on the
-    # action result
-    return action_result(element)
+    try:
+        warning_bar = getnode(local_node, 'info bar', tr('Warnings'))
+        return (False, "Error occured")
+    except TimeoutError:
+        return True
+    return True
 
 @handle_act('/summary')
 def summary_handler(element, app_node, local_node):
