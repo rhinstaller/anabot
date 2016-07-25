@@ -67,7 +67,7 @@ def run_posthooks():
         else:
             _run_hook(nochroots.pop())
     # run also registered post hooks
-    for prio, hook in sorted(_post_hooks, lambda x: x[0]):
+    for prio, hook in sorted(_post_hooks, key=lambda x: x[0]):
         try:
             hook()
         except Exception as e:
