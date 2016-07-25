@@ -10,6 +10,7 @@ __translate_lang = None
 __translate_country = None
 __languages = None
 __oscap_translate = None
+__gtk_translate = None
 __locality = None
 __locality_re = re.compile(r"(?P<lang>[^(]*) (?:\((?P<loc>[^)]*)\))?")
 
@@ -40,6 +41,9 @@ def set_languages(languages):
     __oscap_translate = gettext.translation('oscap-anaconda-addon',
                                             languages=languages,
                                             fallback=True)
+    __gtk_translate = gettext.translation('gtk30',
+                                          languages=languages,
+                                          fallback=True)
 
 def _tr(translate, intext, drop_underscore=True, context=None):
     if not isinstance(intext, (str, unicode)):
@@ -64,6 +68,8 @@ def tr(intext, drop_underscore=True, context=None):
 def oscap_tr(intext, drop_underscore=True, context=None):
     return _tr(__oscap_translate, intext, drop_underscore, context)
 
+def gtk_tr(intext, drop_underscore=True, context=None):
+    return _tr(__gtk_translate, intext, drop_underscore, context)
 
 def comps_tr_env(env_id):
     comps = get_comps()
