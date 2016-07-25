@@ -25,7 +25,7 @@ def set_languages_by_name(locality):
                    "en"])
 
 def set_languages(languages):
-    global __translate, __languages, __oscap_translate, __translate_keyboard, __translate_lang, __translate_coutntry
+    global __translate, __languages, __oscap_translate, __translate_keyboard, __translate_lang, __translate_country, __gtk_translate
     __translate = gettext.translation('anaconda', languages=languages,
                                       fallback=True)
     __translate_keyboard = gettext.translation('xkeyboard-config',
