@@ -10,7 +10,7 @@ from anabot.runtime.decorators import handle_action, handle_check, check_action_
 from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.functions import get_attr, waiton, getnode, getnodes, getparent, getsibling, press_key
 from anabot.runtime.errors import TimeoutError
-from anabot.runtime.translate import tr
+from anabot.runtime.translate import tr, gtk_tr
 from anabot.runtime.installation.hub.partitioning.advanced.common import schema_name
 
 from dogtail.predicate import GenericPredicate # pylint: disable=import-error
@@ -315,7 +315,7 @@ def done_handler(element, app_node, local_node):
 @check_action_result
 def done_check(element, app_node, local_node):
     try:
-        warning_bar = getnode(local_node, 'info bar', tr('Warnings'))
+        warning_bar = getnode(local_node, 'info bar', gtk_tr('Warning'))
         return (False, "Error occured")
     except TimeoutError:
         return True
