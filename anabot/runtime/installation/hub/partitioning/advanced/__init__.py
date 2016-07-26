@@ -178,7 +178,7 @@ def remove_check(element, app_node, local_node):
     logger.debug("Is device dead?: %s", _current_selection.dead)
     logger.debug("Is device showing?: %s", _current_selection.showing)
     if dialog_action in ("no dialog", "accept"):
-        return _current_selection.dead and not _current_selection.showing
+        return not _current_selection.showing
     elif dialog_action == "reject":
         return not _current_selection.dead and _current_selection.showing
     return (False, "Undefined state")
