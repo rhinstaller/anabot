@@ -34,7 +34,7 @@ class Comps(object):
         candidates = [x.content for x in self.root.xpathEval(xpath)]
         # filter out those groups that are only referenced, but not defined
         defined_xpath = '/comps/group/id/text()'
-        defined_groups = set(self.root.xpathEval(defined_xpath))
+        defined_groups = set([x.content for x in self.root.xpathEval(defined_xpath)])
         candidates = [x for x in candidates if x in defined_groups]
         # shown are those that are visible and have non-zero count of
         # non-optional packages
