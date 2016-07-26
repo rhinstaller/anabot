@@ -29,7 +29,7 @@ def boot_current(intext):
 
 try:
     efibootmgr_output = subprocess.check_output(['efibootmgr'])
-except subprocess.CalledProcessError:
+except (subprocess.CalledProcessError, OSError):
     raise UnrelatedException('Efibootmgr call failed. The system is probably not running in UEFI mode.')
 
 reporter.log_info("Going to fix UEFI boot order after installation.")
