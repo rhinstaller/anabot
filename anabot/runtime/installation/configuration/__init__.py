@@ -8,7 +8,7 @@ reporter = teres.Reporter.get_reporter()
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler
 from anabot.runtime.functions import get_attr, getnode, TimeoutError, getparent, getsibling, log_screenshot
-from anabot.runtime.translate import tr
+from anabot.runtime.translate import tr, gtk_tr
 from anabot.runtime.hooks import run_posthooks
 
 _local_path = '/installation/configuration'
@@ -37,6 +37,29 @@ def wait_until_complete_handler(element, app_node, local_node):
             stable_counter += 1
         else:
             stable_counter = 0
+    return True
+
+@handle_act('/eula_notice')
+def eula_notice_handler(element, app_node, local_node):
+    reporter.log_info("Eula notice has only check, no action.")
+
+@handle_chck('/eula_notice')
+def eula_notice_check(element, app_node, local_node):
+    try:
+        warn_bar = getnode(local_node, "info bar", gtk_tr('Warning'))
+    except TimeoutError:
+        return (False, "Couldn't find warning bar containing eula notice.")
+    try:
+        # This probably needs to be changed for Fedora
+        eula_text = tr("Use of this product is subject to the license agreement found at %s") % "/usr/share/redhat-release/EULA"
+        getnode(warn_bar, "label", eula_text)
+    except TimeoutError:
+        reporter.log_info("Following labels were found in place where eula notice was expected:")
+        for label_node in getnodes(warn_bar, "label"):
+            reporter.log_info(label_node.text)
+        reporter.log_info("End of labels.")
+        reporter.log_info(u"Expected eula text was: %s" % eula_text)
+        return (False, "Warning bar doesn't contain label with correct text")
     return True
 
 @handle_act('/reboot')
