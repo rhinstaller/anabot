@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import time
 import logging
 logger = logging.getLogger('anabot')
 import teres
@@ -20,17 +21,26 @@ import root_password, create_user
 def base_handler(element, app_node, local_node):
     default_handler(element, app_node, local_node)
 
+@handle_act('wait_until_complete')
+def wait_until_complete_handler(element, app_node, local_node):
+    reporter.log_debug("Looking for installation progress bar.")
+    try:
+        progress = getnode(app_node, "progress bar")
+    except:
+        return (False, "Couldn't find progress bar")
+    reporter.log_debug("WAITING FOR REBOOT")
+    while progress.value < 1:
+        time.sleep(1)
+    return True
+
 @handle_act('/reboot')
 def reboot_handler(element, app_node, local_node):
-    logger.debug("WAITING FOR REBOOT")
-    while True:
-        try:
-            reboot_button = getnode(app_node, "push button",
-                                    tr("_Reboot", context="GUI|Progress"),
-                                    timeout=15)
-            break
-        except TimeoutError:
-            pass
+    try:
+        reboot_button = getnode(app_node, "push button",
+                                tr("_Reboot", context="GUI|Progress"),
+                                timeout=15)
+    except TimeoutError:
+        return (False, "Couldn't find clickable Reboot button.")
 
     run_posthooks()
     reporter.test_end()

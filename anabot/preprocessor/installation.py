@@ -88,7 +88,13 @@ def replace_configuration(element, default_for=None):
     if len(element.xpathEval("./root_password")) == 0:
         new = load_snippet("/installation/configuration/root_password", default_for, tag_name="_default_for")
         element.addChild(new)
+        first_el = element.xpathEval("./*")[0]
+        if first_el != new:
+            first_el.addPrevSibling(new)
     if len(element.xpathEval("./reboot")) == 0:
+        if len(element.xpathEval("./wait_until_complete")) == 0:
+            new = load_snippet("/installation/configuration/wait_until_complete", default_for, tag_name="_default_for")
+            element.addChild(new)
         new = load_snippet("/installation/configuration/reboot", default_for, tag_name="_default_for")
         element.addChild(new)
 
