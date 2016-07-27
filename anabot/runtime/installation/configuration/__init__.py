@@ -19,13 +19,14 @@ import root_password, create_user
 
 @handle_act('')
 def base_handler(element, app_node, local_node):
-    default_handler(element, app_node, local_node)
+    settings_panel = getnode(app_node, "panel", tr("CONFIGURATION"))
+    default_handler(element, app_node, settings_panel)
 
 @handle_act('/wait_until_complete')
 def wait_until_complete_handler(element, app_node, local_node):
     reporter.log_debug("Looking for installation progress bar.")
     try:
-        progress = getnode(app_node, "progress bar")
+        progress = getnode(local_node, "progress bar")
     except:
         return (False, "Couldn't find progress bar")
     reporter.log_debug("WAITING FOR REBOOT")
@@ -41,7 +42,7 @@ def wait_until_complete_handler(element, app_node, local_node):
 @handle_act('/reboot')
 def reboot_handler(element, app_node, local_node):
     try:
-        reboot_button = getnode(app_node, "push button",
+        reboot_button = getnode(local_node, "push button",
                                 tr("_Reboot", context="GUI|Progress"),
                                 timeout=15)
     except TimeoutError:
