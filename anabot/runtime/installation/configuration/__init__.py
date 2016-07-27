@@ -21,7 +21,7 @@ import root_password, create_user
 def base_handler(element, app_node, local_node):
     default_handler(element, app_node, local_node)
 
-@handle_act('wait_until_complete')
+@handle_act('/wait_until_complete')
 def wait_until_complete_handler(element, app_node, local_node):
     reporter.log_debug("Looking for installation progress bar.")
     try:
@@ -29,8 +29,13 @@ def wait_until_complete_handler(element, app_node, local_node):
     except:
         return (False, "Couldn't find progress bar")
     reporter.log_debug("WAITING FOR REBOOT")
-    while progress.value < 1:
+    stable_counter = 0
+    while stable_counter < 5:
         time.sleep(1)
+        if progress.value >= 1:
+            stable_counter += 1
+        else:
+            stable_counter = 0
     return True
 
 @handle_act('/reboot')
