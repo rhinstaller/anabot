@@ -35,7 +35,11 @@ class Comps(object):
         # filter out those groups that are only referenced, but not defined
         defined_xpath = '/comps/group/id/text()'
         defined_groups = set([x.content for x in self.root.xpathEval(defined_xpath)])
-        candidates = [x for x in candidates if x in defined_groups]
+        # filter out groups that are not visible
+        visible_xpath = '/comps/group[uservisible/text() != "false"]/id/text()'
+        visible_groups = set([x.content for x in self.root.xpathEval(visible_xpath)])
+        matching_criteria = defined_groups & visible_groups
+        candidates = [x for x in candidates if x in matching_criteria]
         # shown are those that are visible and have non-zero count of
         # non-optional packages
         common_xpath = '/comps/group[uservisible/text() = "true" and count(packagelist/packagereq[@type != "optional" and @type != "conditional"])]/id/text()'
