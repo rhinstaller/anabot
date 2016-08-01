@@ -184,6 +184,13 @@ def raid_type(element, app_node, local_node):
     combo_target = getnode(combo_selection, "menu item", raid_level)
     combo_target.click()
 
+@handle_chck('/raid_type')
+def raid_type_check(element, app_node, local_node):
+    raid_level = raid_name(get_attr(element, "select"), drop_span=False)
+    raid_label = getnode(local_node, "label", tr("RAID Level:"))
+    raid_combo = getsibling(raid_label, 1, "combo box")
+    return raid_level == raid_combo.name
+
 @handle_act('/new_volume_group')
 def new_volume_group(element, app_node, local_node):
     # Volume Group is not translated, file bug!
