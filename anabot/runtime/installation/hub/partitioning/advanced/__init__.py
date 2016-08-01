@@ -115,15 +115,13 @@ def select_handler(element, app_node, local_node):
     fndevice = get_attr(element, "device", None)
     mountpoint = get_attr(element, "mountpoint", None)
     devices_node = getnodes(local_node, "scroll pane")[1]
-    processed = []
+    processed = [] # remember ATK nodes instead of device names
     done = False
     _current_selection = None
     while not done:
         done = True
-        # need to use something different then local node!
         for device in devs(devices_node, fndevice, mountpoint):
-            name = devname(device)
-            if name not in processed:
+            if device not in processed:
                 group_node = None
                 if not device.showing:
                     group_node = getparent(device, "toggle button")
@@ -131,7 +129,7 @@ def select_handler(element, app_node, local_node):
                 _current_selection = device
                 device.click()
                 default_handler(element, app_node, local_node)
-                processed.append(name)
+                processed.append(device)
                 done = False
                 break
     return True
