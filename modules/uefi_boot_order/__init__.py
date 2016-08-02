@@ -27,6 +27,9 @@ def boot_order(intext):
 def boot_current(intext):
     return efiboot_entry(intext, 'BootCurrent:')
 
+if "ks=" in open('/proc/cmdline').read():
+    raise UnrelatedException('Running in kickstart, UEFI boot order should be fixed by post script.')
+
 try:
     efibootmgr_output = subprocess.check_output(['efibootmgr'])
 except (subprocess.CalledProcessError, OSError):
