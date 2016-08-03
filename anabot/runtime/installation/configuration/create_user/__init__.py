@@ -17,8 +17,11 @@ handle_chck = lambda x: handle_check(_local_path + x)
 
 @handle_act('')
 def user_spoke_handler(element, app_node, local_node):
-    user_spoke = getnode(app_node, "spoke selector",
-                                  tr("_USER CREATION", context="GUI|Spoke"))
+    try:
+        user_spoke = getnode(app_node, "spoke selector",
+                             tr("_USER CREATION", context="GUI|Spoke"))
+    except:
+        return (False, "User spoke selector not found or not clickable")
     user_spoke.click()
     try:
         user_panel = getnode(app_node, "panel", tr("CREATE USER"))

@@ -23,8 +23,11 @@ def check_rootpw_error(parent_node):
 
 @handle_act('')
 def root_password_handler(element, app_node, local_node):
-    root_password_spoke = getnode(app_node, "spoke selector",
-                                  tr("_ROOT PASSWORD", context="GUI|Spoke"))
+    try:
+        root_password_spoke = getnode(app_node, "spoke selector",
+                                      tr("_ROOT PASSWORD", context="GUI|Spoke"))
+    except:
+        return (False, "Root password spoke selector not found or not clickable.")
     root_password_spoke.click()
     try:
         root_password_panel = getnode(app_node, "panel", tr("ROOT PASSWORD"))
