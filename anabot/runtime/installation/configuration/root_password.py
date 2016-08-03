@@ -4,7 +4,7 @@ logger = logging.getLogger('anabot')
 
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler, action_result
-from anabot.runtime.functions import get_attr, getnode, TimeoutError, getparent, getsibling
+from anabot.runtime.functions import get_attr, getnode, TimeoutError, getparent, getsibling, clear_text
 from anabot.runtime.translate import tr
 from anabot.runtime.hooks import run_posthooks
 
@@ -41,6 +41,7 @@ def root_password_text_manipulate(element, app_node, local_node, dry_run):
     password_entry = getnode(local_node, "password text", tr("Password"))
     if not dry_run:
         password_entry.click()
+        clear_text(password_entry)
         password_entry.typeText(value)
     else:
         # the password length is trippled in ATK
@@ -60,6 +61,7 @@ def root_password_confirm_manipulate(element, app_node, local_node, dry_run):
                              tr("Confirm Password"))
     if not dry_run:
         password_entry.click()
+        clear_text(password_entry)
         password_entry.typeText(value)
     else:
         # the password length is trippled in ATK
