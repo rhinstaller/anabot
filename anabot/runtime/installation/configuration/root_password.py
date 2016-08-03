@@ -2,15 +2,24 @@
 import logging
 logger = logging.getLogger('anabot')
 
-from anabot.runtime.decorators import handle_action, handle_check
+from anabot.runtime.decorators import handle_action, handle_check, check_action_result
 from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.functions import get_attr, getnode, TimeoutError, getparent, getsibling, clear_text
-from anabot.runtime.translate import tr
+from anabot.runtime.translate import tr, gtk_tr
 from anabot.runtime.hooks import run_posthooks
 
 _local_path = '/installation/configuration/root_password'
 handle_act = lambda x: handle_action(_local_path + x)
 handle_chck = lambda x: handle_check(_local_path + x)
+
+def check_rootpw_error(parent_node):
+    try:
+        warning_bar = getnode(parent_node, "info bar", gtk_tr("Warning"))
+        warn_icon = getnode(warning_bar, "icon", gtk_tr("Warning"))
+        warn_text = getsibling(warn_icon, 1, "label")
+        return (False, warn_text.text)
+    except TimeoutError:
+        return True
 
 @handle_act('')
 def root_password_handler(element, app_node, local_node):
@@ -86,3 +95,7 @@ def root_password_done_handler(element, app_node, local_node):
     root_password_done.click()
     return True # done for password found and was clicked
 
+@handle_chck('/done')
+@check_action_result
+def root_password_done_check(element, app_node, local_node):
+    return check_rootpw_error(local_node)
