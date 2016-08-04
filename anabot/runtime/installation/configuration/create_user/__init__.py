@@ -4,7 +4,7 @@ logger = logging.getLogger('anabot')
 
 from anabot.runtime.decorators import handle_action, handle_check, check_action_result
 from anabot.runtime.default import default_handler
-from anabot.runtime.functions import get_attr, getnode, TimeoutError, getparent, getsibling, handle_checkbox, check_checkbox
+from anabot.runtime.functions import get_attr, getnode, TimeoutError, getparent, getsibling, handle_checkbox, check_checkbox, clear_text
 from anabot.runtime.translate import tr
 from anabot.runtime.hooks import run_posthooks
 
@@ -95,6 +95,7 @@ def user_require_passwd_check(element, app_node, local_node):
 def user_password_handler(element, app_node, local_node):
     entry = getnode(local_node, "password text", tr('_Password', context="GUI|User"))
     password = get_attr(element, 'value')
+    clear_text(entry)
     entry.typeText(password)
     return True #cannot verify password via ATK
 
@@ -103,6 +104,7 @@ def user_confirm_password_handler(element, app_node, local_node):
     print "searching for %s" % tr('Confirm password')
     entry = getnode(local_node, "password text", tr('Confirm Password')) # translation error  label "_Povrďte heslo"
     password = get_attr(element, 'value')
+    clear_text(entry)
     entry.typeText(password)
     return True #cannot verify password via ATK
 
