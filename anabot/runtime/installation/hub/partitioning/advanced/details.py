@@ -173,6 +173,7 @@ def volume_group_dialog(element, app_node, local_node):
         return (False, "Undefined state")
     button_text = tr(button_text, context=context)
     getnode(local_node, "push button", button_text).click()
+    return True
 
 @handle_act('/raid_type')
 def raid_type(element, app_node, local_node):
@@ -235,6 +236,15 @@ def vg_name(element, app_node, local_node):
     name_label = getnode(local_node, "label", name_label_text)
     name = getsibling(name_label, 1, "text")
     name.typeText(value)
+
+@handle_vg_chck('/name')
+def vg_name_check(element, app_node, local_node):
+    value = get_attr(element, "value")
+    name_label_text = tr("_Name:",
+                         context="GUI|Custom Partitioning|Container Dialog")
+    name_label = getnode(local_node, "label", name_label_text)
+    name = getsibling(name_label, 1, "text")
+    return name == value
 
 @handle_vg_act('/devices')
 def vg_devices(element, app_node, local_node):
