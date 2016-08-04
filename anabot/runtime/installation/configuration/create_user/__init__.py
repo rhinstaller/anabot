@@ -2,7 +2,7 @@
 import logging
 logger = logging.getLogger('anabot')
 
-from anabot.runtime.decorators import handle_action, handle_check
+from anabot.runtime.decorators import handle_action, handle_check, check_action_result
 from anabot.runtime.default import default_handler
 from anabot.runtime.functions import get_attr, getnode, TimeoutError, getparent, getsibling, handle_checkbox, check_checkbox
 from anabot.runtime.translate import tr
@@ -28,6 +28,15 @@ def user_spoke_handler(element, app_node, local_node):
     except TimeoutError:
         return (False, "User creation spoke not found")
     default_handler(element, app_node, user_panel)
+
+@handle_chck('')
+@check_action_result
+def user_spoke_check(element, app_node, local_node):
+    try:
+        user_panel = getnode(app_node, "panel", tr("CREATE USER"))
+        return (False, "User spoke is still visible")
+    except TimeoutError:
+        return True
 
 @handle_act('/full_name')
 def user_full_name_handler(element, app_node, local_node):
