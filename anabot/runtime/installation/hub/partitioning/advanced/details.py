@@ -244,7 +244,7 @@ def vg_name_check(element, app_node, local_node):
                          context="GUI|Custom Partitioning|Container Dialog")
     name_label = getnode(local_node, "label", name_label_text)
     name = getsibling(name_label, 1, "text")
-    return name == value
+    return name.text == value
 
 @handle_vg_act('/devices')
 def vg_devices(element, app_node, local_node):
