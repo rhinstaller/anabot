@@ -55,14 +55,15 @@ def fix_boot_order():
         reporter.log_debug("Finding set of old entry numbers hoping to replace them by just one new entry number.")
         in_old = set(old_boot_order) - set(changed_boot_order)
         in_new = list(set(changed_boot_order) - set(old_boot_order))
-        if len(in_new) != 1:
+        if len(in_new) > 1:
             reporter.log_error("New anaconda's bootorder contains more new entries that were in the original one.")
             reporter.log_error("Old: %s" % ",".join(old_boot_order))
             reporter.log_error("New: %s" % ",".join(changed_boot_order))
-        in_new = in_new[0]
+        new_entry = changed_boot_order[0]
+        reporter.log_debug("Using first entry in changed boot order (%s) as new boot entry." % new_entry)
         def old_to_new(entry):
             if entry in in_old:
-                return in_new
+                return new_entry
             return entry
         new_boot_order = [old_to_new(x) for x in old_boot_order]
     new_boot_order = ",".join(new_boot_order)
