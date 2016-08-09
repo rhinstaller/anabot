@@ -20,6 +20,7 @@ def action_result(node_path, implicit_result=ActionResultNone()):
 
 from .functions import get_attr, log_screenshot, dump
 from .decorators import ACTIONS, CHECKS, handle_action, handle_check
+from . import universal
 
 NODE_NUM = re.compile(r'\[[0-9]+\]')
 
@@ -98,20 +99,6 @@ def handle_step(element, app_node, local_node):
 def default_handler(element, app_node, local_node):
     for child in element.xpathEval("./*"):
         handle_step(child, app_node, local_node)
-    return True
-
-@handle_action("debug_stop")
-def debug_stop(element, app_node, local_node):
-    from time import sleep
-    import os
-    RESUME_FILEPATH = '/var/run/anabot/resume'
-    sleep(5)
-    dump(app_node, '/tmp/dogtail.dump')
-    logger.debug('DEBUG STOP at %s, touch %s to resume',
-                 element.nodePath(), RESUME_FILEPATH)
-    while not os.path.exists(RESUME_FILEPATH):
-        sleep(0.1)
-    os.remove(RESUME_FILEPATH)
     return True
 
 @handle_action(None)
