@@ -40,24 +40,28 @@ def _check_result(result):
             return ActionResultFail()
     return result
 
+def get_handler_check(element):
+    raw_node_path = element.nodePath()
+    node_path = re.sub(NODE_NUM, '', raw_node_path)
+    node_name = element.name
+
+    hnd = ACTIONS.get(node_path) or ACTIONS.get(node_name) or ACTIONS.get(None)
+    chck = CHECKS.get(node_path) or CHECKS.get(node_name) or CHECKS.get(None)
+
+    return hnd, chck
+
 def handle_step(element, app_node, local_node):
     raw_node_path = element.nodePath()
     node_path = re.sub(NODE_NUM, '', raw_node_path)
     node_line = element.lineNo()
     policy = get_attr(element, "policy", "should_pass")
     fail_type = get_attr(element, "fail_type")
-    handler_path = node_path
+    handler, check = get_handler_check(element)
     reporter.log_info("Processing: %s" % raw_node_path)
-    if handler_path not in ACTIONS:
-        handler_path = None
     if policy in ("should_pass", "should_fail", "may_fail"):
-        result = ACTIONS.get(handler_path)(element, app_node, local_node)
+        result = handler(element, app_node, local_node)
         RESULTS[raw_node_path] = _check_result(result)
-    if handler_path is None:
-        return
-    if handler_path not in CHECKS:
-        handler_path = None
-    result = _check_result(CHECKS.get(handler_path)(element, app_node, local_node))
+    result = _check_result(check(element, app_node, local_node))
     if policy == "may_fail":
         return
     if result == None:
@@ -92,24 +96,28 @@ def handle_step(element, app_node, local_node):
     log_screenshot()
 
 def default_handler(element, app_node, local_node):
-    if element.name == 'debug_stop':
-        from time import sleep
-        import os
-        RESUME_FILEPATH = '/var/run/anabot/resume'
-        sleep(5)
-        dump(app_node, '/tmp/dogtail.dump')
-        logger.debug('DEBUG STOP at %s, touch %s to resume',
-                     element.nodePath(), RESUME_FILEPATH)
-        while not os.path.exists(RESUME_FILEPATH):
-            sleep(0.1)
-        os.remove(RESUME_FILEPATH)
     for child in element.xpathEval("./*"):
         handle_step(child, app_node, local_node)
+    return True
+
+@handle_action("debug_stop")
+def debug_stop(element, app_node, local_node):
+    from time import sleep
+    import os
+    RESUME_FILEPATH = '/var/run/anabot/resume'
+    sleep(5)
+    dump(app_node, '/tmp/dogtail.dump')
+    logger.debug('DEBUG STOP at %s, touch %s to resume',
+                 element.nodePath(), RESUME_FILEPATH)
+    while not os.path.exists(RESUME_FILEPATH):
+        sleep(0.1)
+    os.remove(RESUME_FILEPATH)
+    return True
 
 @handle_action(None)
 def unimplemented_handler(element, app_node, local_node):
     reporter.log_error('Unhandled element: %s' % element.nodePath())
-    default_handler(element, app_node, local_node)
+    return default_handler(element, app_node, local_node)
 
 @handle_check(None)
 def unimplemented_handler_check(element, app_node, local_node):
