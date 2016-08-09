@@ -1,0 +1,9 @@
+<ez:installation xmlns:ez="http://example.com/path/anabot/easy">
+  <ez:configuration>
+    <wait_until_complete />
+    <script><![CDATA[
+      echo "Hello!" > /mnt/sysimage/root/anabot_message
+    ]]></script>
+    <reboot />
+  </ez:configuration>
+</ez:installation>
