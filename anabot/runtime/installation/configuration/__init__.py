@@ -10,6 +10,7 @@ from anabot.runtime.default import default_handler
 from anabot.runtime.functions import get_attr, getnode, getnodes, TimeoutError, getparent, getsibling, log_screenshot
 from anabot.runtime.translate import tr, gtk_tr
 from anabot.runtime.hooks import run_posthooks
+from anabot.runtime.variables import get_variable
 
 _local_path = '/installation/configuration'
 handle_act = lambda x: handle_action(_local_path + x)
@@ -19,7 +20,10 @@ import root_password, create_user
 
 @handle_act('')
 def base_handler(element, app_node, local_node):
-    settings_panel = getnode(app_node, "panel", tr("CONFIGURATION"))
+    timeout = None
+    if get_variable('interactive_kickstart', False):
+        timeout = 180
+    settings_panel = getnode(app_node, "panel", tr("CONFIGURATION"), timeout=timeout)
     default_handler(element, app_node, settings_panel)
 
 @handle_act('/wait_until_complete')
