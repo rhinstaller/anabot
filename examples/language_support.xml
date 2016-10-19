@@ -1,9 +1,9 @@
 <ez:installation xmlns:ez="http://example.com/path/anabot/easy">
-  <hub>
+  <ez:hub>
     <language_spoke>
 <!--
         <language select="*">
-            <locality name="*" action="select" />
+            <locality name="*" />
         </language>
 -->
         <language select="English">
@@ -15,6 +15,9 @@
             <locality name="English (Antigua &amp; Barbuda)" action="uncheck" />
             <locality name="English (Antigua &amp; Barbuda)" action="check" />
         </language>
+        <language select="Czech">
+            <locality name="*" />
+        </language>
         <language select="Dutch">
             <locality name="*" />
         </language>
@@ -22,7 +25,8 @@
             <locality name="*" />
         </language>
     </language_spoke>
+<!--
     <debug_stop />
-    <ez:autopart />
-  </hub>
+-->
+  </ez:hub>
 </ez:installation>

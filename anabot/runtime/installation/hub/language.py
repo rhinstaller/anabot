@@ -4,7 +4,7 @@ Handle language support spoke.
 import fnmatch
 import logging
 
-from anabot.runtime.decorators import handle_action, handle_check
+from anabot.runtime.decorators import handle_action, handle_check, check_action_result
 from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.functions import getnode, getnodes, get_attr, getparents, getsibling
 from anabot.runtime.functions import scrollto, getnode_scroll
@@ -76,10 +76,9 @@ def base_handler(element, app_node, local_node):
 
 
 @handle_chck('')
+@check_action_result
 def base_check(element, app_node, local_node):
     """Base check for <language> tag."""
-    if action_result(element) == False:
-        return action_result(element)
     return PASS
 
 
@@ -109,10 +108,9 @@ def language_handler(element, app_node, local_node):
 
 
 @handle_chck('/language')
+@check_action_result
 def language_check(element, app_node, local_node):
     """Check the <language> settings."""
-    if action_result(element) == False:
-        return action_result(element)
     return PASS
 
 
@@ -125,18 +123,18 @@ def locality_handler(element, app_node, local_node):
 
     matched = False
 
-    for locality_node in getnodes(locality_table,
+    for locality_name in getnodes(locality_table,
                                   "table cell",
-                                  visible=None)[::2]:
+                                  visible=None)[1::2]:
 
-        locality_name = getsibling(locality_node, 1, visible=None).name
-
-        if fnmatch.fnmatchcase(locality_name, locality):
+        if fnmatch.fnmatchcase(locality_name.text, locality):
             matched = True
-            scrollto(locality_node)
 
-            if locality_node.checked != check:
-                locality_node.click()
+            locality_checkbox = getsibling(locality_name, -1, "table cell", visible=None, sensitive=None)
+            scrollto(locality_name)
+
+            if locality_checkbox.checked != check:
+                locality_checkbox.click()
 
     if not matched:
         return Fail("Could not match any locality.")
