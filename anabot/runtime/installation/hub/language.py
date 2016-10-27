@@ -2,7 +2,7 @@
 Handle language support spoke.
 """
 import fnmatch
-import logging
+import teres
 
 from anabot.runtime.decorators import handle_action, handle_check, check_action_result
 from anabot.runtime.default import default_handler, action_result
@@ -14,7 +14,8 @@ from anabot.runtime.actionresult import ActionResultPass as Pass
 from anabot.runtime.actionresult import ActionResultFail as Fail
 from anabot.runtime.actionresult import NotFoundResult as NotFound
 
-logger = logging.getLogger('anabot')
+reporter = teres.Reporter.get_reporter()
+
 _local_path = '/installation/hub/language_spoke'
 
 
@@ -145,4 +146,27 @@ def locality_handler(element, app_node, local_node):
 @handle_chck('/language/locality')
 def locality_check(element, app_node, local_node):
     """Check <locality>."""
-    pass
+    locality = get_attr(element, "name")
+    locality_table = getnodes(local_node, "table")[0]
+    check = get_attr(element, "action", "check") == "check"
+
+    matched = False
+
+    for locality_name in getnodes(locality_table,
+                                  "table cell",
+                                  visible=None,
+                                  sensitive=None)[1::2]:
+
+        if fnmatch.fnmatchcase(locality_name.text, locality):
+            matched = True
+
+            locality_checkbox = getsibling(locality_name, -1, "table cell", visible=None, sensitive=None)
+            scrollto(locality_name)
+
+            if locality_checkbox.checked != check:
+                Fail("Check failed for {}".format(locality_name))
+
+    if not matched:
+        return Fail("Could not match any locality.")
+
+    return PASS
