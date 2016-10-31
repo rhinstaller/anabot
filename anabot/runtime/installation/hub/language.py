@@ -68,10 +68,9 @@ def base_handler(element, app_node, local_node):
     # Click the Done button.
     try:
         done_button = getnode(local_node, "push button", tr("_Done", False))
+        done_button.click()
     except TimeoutError:
         return DONE_NOT_FOUND
-
-    done_button.click()
 
     return PASS
 
@@ -80,8 +79,13 @@ def base_handler(element, app_node, local_node):
 @check_action_result
 def base_check(element, app_node, local_node):
     """Base check for <language> tag."""
-    return PASS
-
+    if action_result(element)[0] == False:
+        return action_result(element)
+    try:
+        spoke_label = getnode(app_node, "label", tr("LANGUAGE SUPPORT"), visible=False)
+        return True
+    except TimeoutError:
+        return Fail("Language support spoke is still visible.")
 
 @handle_act('/language')
 def language_handler(element, app_node, local_node):
