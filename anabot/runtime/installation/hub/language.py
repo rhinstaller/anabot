@@ -90,8 +90,11 @@ def base_check(element, app_node, local_node):
 @handle_act('/language')
 def language_handler(element, app_node, local_node):
     """Handle <language> tag and process its options."""
-    lang = get_attr(element, "select")
-    lang_table = getnodes(local_node, "table")[1]
+    try:
+        lang = get_attr(element, "select")
+        lang_table = getnodes(local_node, "table")[1]
+    except TimeoutError:
+        return Fail("Language table not found.")
 
     matched = False
 
@@ -122,10 +125,13 @@ def language_check(element, app_node, local_node):
 @handle_act('/language/locality')
 def locality_handler(element, app_node, local_node):
     """Handle <locality> tag and process its options."""
-    locality = get_attr(element, "name")
-    locality_table = getnodes(local_node, "table")[0]
-    check = get_attr(element, "action", "check") == "check"
+    try:
+        locality = get_attr(element, "name")
+        locality_table = getnode(local_node, "table")
+    except TimeoutError:
+        return Fail("Locality table not found.")
 
+    check = get_attr(element, "action", "check") == "check"
     matched = False
 
     for locality_name in getnodes(locality_table,
@@ -150,8 +156,12 @@ def locality_handler(element, app_node, local_node):
 @handle_chck('/language/locality')
 def locality_check(element, app_node, local_node):
     """Check <locality>."""
-    locality = get_attr(element, "name")
-    locality_table = getnodes(local_node, "table")[0]
+    try:
+        locality = get_attr(element, "name")
+        locality_table = getnode(local_node, "table")
+    except TimeoutError:
+        return Fail("Locality table not found.")
+
     check = get_attr(element, "action", "check") == "check"
 
     matched = False
