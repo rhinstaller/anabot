@@ -83,7 +83,7 @@ def base_check(element, app_node, local_node):
         return action_result(element)
     try:
         spoke_label = getnode(app_node, "label", tr("LANGUAGE SUPPORT"), visible=False)
-        return True
+        return PASS
     except TimeoutError:
         return Fail("Language support spoke is still visible.")
 
