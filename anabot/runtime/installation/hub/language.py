@@ -110,7 +110,7 @@ def language_handler(element, app_node, local_node):
             default_handler(element, app_node, local_node)
 
     if not matched:
-        return Fail("Could not match any language.")
+        return NotFound('language "{}"'.format(lang), where="language table")
 
     return PASS
 
@@ -148,7 +148,7 @@ def locality_handler(element, app_node, local_node):
                 locality_checkbox.click()
 
     if not matched:
-        return Fail("Could not match any locality.")
+        return NotFound('locality "{}"'.format(locality), where="locality table")
 
     return PASS
 
@@ -181,6 +181,6 @@ def locality_check(element, app_node, local_node):
                 Fail("Check failed for {}".format(locality_name))
 
     if not matched:
-        return Fail("Could not match any locality.")
+        return NotFound('locality "{}"'.format(locality), where="locality table")
 
     return PASS
