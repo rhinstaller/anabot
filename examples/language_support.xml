@@ -6,6 +6,12 @@
             <locality name="*" />
         </language>
 -->
+        <language select="Foobar">
+            <locality name="*" />
+        </language>
+        <language select="Welsh">
+            <locality name="Foobar" />
+        </language>
         <language select="English">
             <locality name="English (Denmark)" />
             <locality name="English (India)" action="check" />
