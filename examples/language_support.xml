@@ -6,11 +6,11 @@
             <locality name="*" />
         </language>
 -->
-        <language select="Foobar">
+        <language select="Foobar" policy="should_fail">
             <locality name="*" />
         </language>
         <language select="Welsh">
-            <locality name="Foobar" />
+            <locality name="Foobar" policy="should_fail" />
         </language>
         <language select="English">
             <locality name="English (Denmark)" />
