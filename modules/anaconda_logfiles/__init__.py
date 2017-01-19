@@ -17,7 +17,7 @@ watched_files = [
     '/tmp/packaging.log',
     '/tmp/program.log',
     '/tmp/storage.log',
-    '/tmp/sys.log',
+    '/tmp/syslog',
 ]
 
 def mainloop():
