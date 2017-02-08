@@ -34,7 +34,8 @@ def storage_error_dialog_handler(element, app_node, local_node):
 
         mo = re.match(translated_re, msg)
         if mo is None:
-            return Fail("Wrong dialog foud.")
+            logger.info("Wrong dialog found.")
+            continue
 
         blivet_err = mo.group(1)
         logger.info("Blivet error: %s", blivet_err)
@@ -59,4 +60,6 @@ def storage_error_dialog_handler(element, app_node, local_node):
         else:
             pass
 
-        Pass()
+        return Pass()
+
+    return NotFound("storage error dialog")
