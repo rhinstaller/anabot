@@ -2,6 +2,8 @@ from anabot.runtime.functions import getnode, get_attr
 from anabot.runtime.decorators import handle_action, handle_check
 from .common import set_language
 
+import time
+
 _local_path = '/installation/welcome/locality'
 handle_act = lambda x: handle_action(_local_path + x)
 handle_chck = lambda x: handle_check(_local_path + x)

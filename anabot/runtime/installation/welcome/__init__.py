@@ -8,8 +8,6 @@ from anabot.runtime.translate import tr
 from anabot.runtime.errors import TimeoutError
 from .common import set_language
 
-import time
-
 # submodules
 from . import language, locality, beta_dialog
 
