@@ -1,0 +1,16 @@
+<installation xmlns:ez="http://example.com/path/anabot/easy">
+  <welcome>
+    <storage_error_dialog err_type="multiple LVM volume groups with the same name" action="exit" />
+    <language value="English" />
+    <locality value="United Kingdom" />
+    <beta_dialog policy="should_fail" />
+  </welcome>
+  <hub>
+    <ez:autopart />
+    <begin_installation />
+  </hub>
+  <configuration>
+    <ez:root password="fo0m4nchU" />
+    <ez:user fullname="Macho" password="fo0m4nchU" />
+  </configuration>
+</installation>

@@ -9,7 +9,7 @@ from anabot.runtime.errors import TimeoutError
 from .common import set_language
 
 # submodules
-from . import language, locality, beta_dialog
+from . import language, locality, beta_dialog, storage_error_dialog
 
 _local_path = '/installation/welcome'
 handle_act = lambda x: handle_action(_local_path + x)
