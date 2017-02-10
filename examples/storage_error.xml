@@ -6,6 +6,4 @@
     <continue />
     <beta_dialog policy="should_fail" />
   </welcome>
-  <ez:hub />
-  <ez:configuration />
-</installation>
+</ez:installation>
