@@ -10,7 +10,9 @@ _post_hooks = []
 
 def register_post_hook(priority=None):
     def decorator(f):
-        _post_hooks.append((priority, f))
+        new_hook = (priority, f)
+        if new_hook not in _post_hooks:
+            _post_hooks.append(new_hook)
         return f
     return decorator
 
@@ -67,7 +69,15 @@ def run_posthooks():
         else:
             _run_hook(nochroots.pop())
     # run also registered post hooks
-    for prio, hook in sorted(_post_hooks, key=lambda x: x[0]):
+    def none_is_greater_cmp(x, y):
+        result = cmp(x, y)
+        if x is None or y is None:
+            result *= -1
+        return result
+    for prio, hook in sorted(
+            _post_hooks,
+            none_is_greater_cmp,
+            key=lambda x: x[0]):
         try:
             hook()
         except Exception as e:
