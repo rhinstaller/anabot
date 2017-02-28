@@ -58,6 +58,7 @@ def base_check(element, app_node, local_node):
         return (False, "Software selection spoke is still visible.")
 
 def env_list_node(local_node):
+    # env list is first list box
     return getnode(local_node, "list box")
 
 def current_env(local_node):
@@ -66,6 +67,10 @@ def current_env(local_node):
     selected = [e for e in getnodes(env_list, "radio button") if e.checked][0]
     env_name = getsibling(selected, 1, "label").text.split("\n")[0]
     return comps_tr_env_rev(env_name)
+
+def addons_list_node(local_node):
+    # addon list is second list box
+    return getnodes(local_node, "list box")[1]
 
 __last_random_env = None
 def environment_manipulate(element, app_node, local_node, dry_run):
@@ -86,7 +91,6 @@ def environment_manipulate(element, app_node, local_node, dry_run):
             return (False, 'Specified environment is not known: %s' % env_id)
         env_label_text = env_name+"\n"+comps_tr_env_desc(env_id)
         logger.debug("Using environment label: %s", env_label_text)
-    # group list is first list box
     env_list = env_list_node(local_node)
     try:
         env_label = getnode(env_list, "label", env_label_text)
@@ -130,8 +134,7 @@ def addon_handler_manipulate(element, app_node, local_node, dry_run):
             __last_random_addons = group_ids
     result = check
     try:
-        # group list is second list box
-        group_list = getnodes(local_node, "list box")[1]
+        group_list = addons_list_node(local_node)
     except TimeoutError:
         __last_random_addons = None
         return (False, 'Couldn\'t find list of groups')
