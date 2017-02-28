@@ -176,8 +176,8 @@ def getsibling(node, vector, node_type=None, node_name=None, visible=True,
     return findsibling(nodes, node, vector, criteria)
 
 
-def getselected(parent):
-    return [child for child in getnodes(parent) if child.selected]
+def getselected(parent, visible=True):
+    return [child for child in getnodes(parent, visible=visible) if child.selected]
 
 def log_screenshot(wait=None, progress_only=False):
     """Make screenshot. Check digest of new screenshot, if it's same as
