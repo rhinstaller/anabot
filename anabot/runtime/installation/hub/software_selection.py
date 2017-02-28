@@ -12,18 +12,36 @@ from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.functions import get_attr, getnode, getnode_scroll, getnodes, getparent, getsibling
 from anabot.runtime.comps import reload_comps, get_comps
+from anabot.runtime.hooks import register_post_hook
 from anabot.runtime.errors import TimeoutError
-from anabot.runtime.translate import tr, comps_tr_env, comps_tr_group, comps_tr_env_desc, comps_tr_group_desc, comps_tr_env_rev
+from anabot.runtime.translate import tr, comps_tr_env, comps_tr_group, comps_tr_env_desc, comps_tr_group_rev, comps_tr_group_desc, comps_tr_env_rev
 
 _local_path = '/installation/hub/software_selection'
 handle_act = lambda x: handle_action(_local_path + x)
 handle_chck = lambda x: handle_check(_local_path + x)
+
+__selected_environment = None
+__selected_addons = None
+
+PACKAGE_SELECTION_STORE = '/mnt/sysimage/root/anabot-packageset.txt'
+@register_post_hook(None)
+def record_package_selection():
+    if __selected_environment is None and __selected_addons is None:
+        return
+    reporter.log_info('Saving package selection to %s'%PACKAGE_SELECTION_STORE)
+    with open(PACKAGE_SELECTION_STORE, 'w') as outfile:
+        outfile.write("@^" + __selected_environment + "\n")
+        for addon in __selected_addons:
+            outfile.write("@" + addon + "\n")
 
 def random_sublist(inlist):
     return [x for x in inlist if random.choice((True, False))]
 
 @handle_act('')
 def base_handler(element, app_node, local_node):
+    global __selected_environment
+    global __selected_addons
+    save_selection = get_attr(element, "save-selection", "no") == "yes"
     try:
         spoke_selector = getnode(
             local_node, "spoke selector",
@@ -40,6 +58,10 @@ def base_handler(element, app_node, local_node):
     except TimeoutError:
         return (False, 'Couldn\'t find software selection spoke.')
     default_handler(element, app_node, local_node)
+    # save information about selected package selection
+    if save_selection:
+        __selected_environment = current_env(local_node)
+        __selected_addons = current_addons(local_node)
     try:
         done_button = getnode(local_node, "push button", tr("_Done", False))
         done_button.click()
@@ -71,6 +93,19 @@ def current_env(local_node):
 def addons_list_node(local_node):
     # addon list is second list box
     return getnodes(local_node, "list box")[1]
+
+def current_addons(local_node):
+    groups_list = []
+    comps = get_comps()
+    addons_list = addons_list_node(local_node)
+    for group_checkbox in getnodes(addons_list, "check box", visible=None):
+        if not group_checkbox.checked:
+            continue
+        group_name = getsibling(
+            group_checkbox, 1, "label", visible=None
+        ).text.split("\n")[0]
+        groups_list.append(comps_tr_group_rev(group_name))
+    return groups_list
 
 __last_random_env = None
 def environment_manipulate(element, app_node, local_node, dry_run):
