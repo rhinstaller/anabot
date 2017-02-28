@@ -6,7 +6,7 @@ from anabot.runtime.functions import getnode, getselected
 from anabot.runtime.translate import set_languages_by_name
 
 def set_language(local_node):
-    locales = getnode(local_node, "table", "Locales")
-    language = getselected(locales)[0].name
+    locales = getnode(local_node, "table", "Locales", visible=None)
+    language = getselected(locales, visible=None)[0].name
     set_languages_by_name(language)
     logger.info("Setting translator to: %s", language)
