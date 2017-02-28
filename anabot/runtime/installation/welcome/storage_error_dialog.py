@@ -31,6 +31,10 @@ def get_retry_button(dialog):
     try:
         return getnode(dialog, "push button", translate("_Retry"))
     except TimeoutError:
+        try:
+            return getnode(dialog, "push button", "Retry")
+        except TimeoutError:
+            return None
         return None
 
 
@@ -38,6 +42,10 @@ def get_exit_button(dialog):
     try:
         return getnode(dialog, "push button", translate("_Exit Installer"))
     except TimeoutError:
+        try:
+            return getnode(dialog, "push button", "Exit Installer")
+        except TimeoutError:
+            return None
         return None
 
 
@@ -56,6 +64,15 @@ def storage_error_dialog_handler(element, app_node, local_node):
         translated = translate(STORAGE_ERR_LABEL)
         translated_re = translated % {"errortxt": "(.*)"}
         mo = re.match(translated_re, unicode(label.text))
+
+        # Workaround for bug 1420226
+        original_re = STORAGE_ERR_LABEL % {"errortxt": "(.*)"}
+        mo_original = re.match(original_re, label.text)
+
+        if mo_original is not None and translated != STORAGE_ERR_LABEL:
+            reporter.log_fail(
+                "The storage error dialog isn't traslated. See bug 1420226")
+            mo = mo_original
 
         if mo is None:
             logger.info("Wrong dialog found.")
