@@ -26,6 +26,21 @@ STORAGE_ERR_LABEL = "" + \
 "Once you have resolved the issue you can retry the storage scan. If you do " + \
 "not fix it you will have to exit the installer."
 
+
+def get_retry_button(dialog):
+    try:
+        return getnode(dialog, "push button", translate("_Retry"))
+    except TimeoutError:
+        return None
+
+
+def get_exit_button(dialog):
+    try:
+        return getnode(dialog, "push button", translate("_Exit Installer"))
+    except TimeoutError:
+        return None
+
+
 @handle_act('')
 def storage_error_dialog_handler(element, app_node, local_node):
     err_type = get_attr(element, "err_type")
@@ -55,18 +70,15 @@ def storage_error_dialog_handler(element, app_node, local_node):
             return Fail("Different error message encountered.")
 
         if action == "retry":
-            try:
-                retry = getnode(dialog, "push button", translate("_Retry"))
-            except TimeoutError:
-                return NotFound("retry button")
-            retry.click()
+            retry_button = get_retry_button(dialog)
+            if retry_button is None:
+                return NotFound("retry button", where="error storage dialog")
+            retry_button.click()
         elif action == "exit":
-            try:
-                exit = getnode(dialog, "push button",
-                               translate("_Exit Installer"))
-            except TimeoutError:
-                return NotFound("exit button")
-            exit.click()
+            exit_button = get_exit_button(dialog)
+            if exit_button is None:
+                return NotFound("exit button", where="error storage dialog")
+            exit_button.click()
         else:
             pass
 
