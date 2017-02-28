@@ -1,3 +1,7 @@
+import teres
+import re
+import logging
+
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.functions import get_attr, getnode, getnodes
 from anabot.runtime.translate import tr as translate
@@ -6,9 +10,8 @@ from anabot.runtime.actionresult import ActionResultPass as Pass
 from anabot.runtime.actionresult import ActionResultFail as Fail
 from anabot.runtime.actionresult import NotFoundResult as NotFound
 
-import re
-import logging
 logger = logging.getLogger('anabot')
+reporter = teres.Reporter.get_reporter()
 
 _local_path = '/installation/welcome/storage_error_dialog'
 handle_act = lambda x: handle_action(_local_path + x)
