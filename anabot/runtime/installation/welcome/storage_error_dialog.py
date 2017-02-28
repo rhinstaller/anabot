@@ -1,6 +1,6 @@
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.functions import get_attr, getnode, getnodes
-from anabot.runtime.translate import tr
+from anabot.runtime.translate import tr as translate
 from anabot.runtime.errors import TimeoutError
 from anabot.runtime.actionresult import ActionResultPass as Pass
 from anabot.runtime.actionresult import ActionResultFail as Fail
@@ -29,7 +29,7 @@ def storage_error_dialog_handler(element, app_node, local_node):
             return NotFound("error dialog")
 
         msg = label.text.split("\n")[0] + '\n'
-        translated = tr(STORAGE_ERR_LABEL)
+        translated = translate(STORAGE_ERR_LABEL)
         translated_re = translated % {"errortxt": "(.*)"}
 
         mo = re.match(translated_re, msg)
@@ -47,13 +47,14 @@ def storage_error_dialog_handler(element, app_node, local_node):
 
         if action == "retry":
             try:
-                retry = getnode(dialog, "push button", tr("Retry"))
+                retry = getnode(dialog, "push button", translate("Retry"))
             except TimeoutError:
                 return NotFound("retry button")
             retry.click()
         elif action == "exit":
             try:
-                exit = getnode(dialog, "push button", tr("Exit Installer"))
+                exit = getnode(dialog, "push button",
+                               translate("Exit Installer"))
             except TimeoutError:
                 return NotFound("exit button")
             exit.click()
