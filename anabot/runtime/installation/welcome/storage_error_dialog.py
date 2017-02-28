@@ -40,8 +40,8 @@ def storage_error_dialog_handler(element, app_node, local_node):
 
         translated = translate(STORAGE_ERR_LABEL)
         translated_re = translated % {"errortxt": "(.*)"}
+        mo = re.match(translated_re, unicode(label.text))
 
-        mo = re.match(translated_re, label.text)
         if mo is None:
             logger.info("Wrong dialog found.")
             continue
