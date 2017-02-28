@@ -87,6 +87,10 @@ def comps_tr_group(group_id):
     comps = get_comps()
     return comps.tr_group(group_id, __languages)
 
+def comps_tr_group_rev(group_name):
+    comps = get_comps()
+    return comps.tr_group_rev(group_name, __languages)
+
 def comps_tr_group_desc(group_id):
     comps = get_comps()
     return comps.tr_group_desc(group_id, __languages)

@@ -98,6 +98,19 @@ class Comps(object):
         except IndexError:
             return None
 
+    def tr_group_rev(self, group_name, languages):
+        for lang in languages:
+            xpath = '/comps/group[name[@xml:lang="%s"]/text()="%s"]/id/text()' % (lang, group_name)
+            try:
+                return self.root.xpathEval(xpath)[0].content
+            except IndexError:
+                pass
+        xpath = '/comps/group[name[not(@xml:lang)]/text()="%s"]/id/text()' % group_name
+        try:
+            return self.root.xpathEval(xpath)[0].content
+        except IndexError:
+            return None
+
     def tr_group_desc(self, group_id, languages):
         for lang in languages:
             xpath = '/comps/group[id/text() = "%s"]/description[@xml:lang="%s"]/text()' % (group_id, lang)
