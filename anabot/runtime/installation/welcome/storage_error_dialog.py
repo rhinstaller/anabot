@@ -13,8 +13,15 @@ logger = logging.getLogger('anabot')
 _local_path = '/installation/welcome/storage_error_dialog'
 handle_act = lambda x: handle_action(_local_path + x)
 handle_chck = lambda x: handle_check(_local_path + x)
-STORAGE_ERR_LABEL = "There is a problem with your existing storage configuration: %(errortxt)s\n"
-
+STORAGE_ERR_LABEL = "" + \
+"There is a problem with your existing storage configuration: %(errortxt)s\n" + \
+"\n" + \
+"You must resolve this matter before the installation can proceed. There is a " + \
+"shell available for use which you can access by pressing ctrl-alt-f1 and " + \
+"then ctrl-b 2.\n" + \
+"\n" + \
+"Once you have resolved the issue you can retry the storage scan. If you do " + \
+"not fix it you will have to exit the installer."
 
 @handle_act('')
 def storage_error_dialog_handler(element, app_node, local_node):
@@ -28,11 +35,10 @@ def storage_error_dialog_handler(element, app_node, local_node):
         except TimeoutError:
             return NotFound("error dialog")
 
-        msg = label.text.split("\n")[0] + '\n'
         translated = translate(STORAGE_ERR_LABEL)
         translated_re = translated % {"errortxt": "(.*)"}
 
-        mo = re.match(translated_re, msg)
+        mo = re.match(translated_re, label.text)
         if mo is None:
             logger.info("Wrong dialog found.")
             continue
