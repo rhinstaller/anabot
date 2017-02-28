@@ -56,14 +56,14 @@ def storage_error_dialog_handler(element, app_node, local_node):
 
         if action == "retry":
             try:
-                retry = getnode(dialog, "push button", translate("Retry"))
+                retry = getnode(dialog, "push button", translate("_Retry"))
             except TimeoutError:
                 return NotFound("retry button")
             retry.click()
         elif action == "exit":
             try:
                 exit = getnode(dialog, "push button",
-                               translate("Exit Installer"))
+                               translate("_Exit Installer"))
             except TimeoutError:
                 return NotFound("exit button")
             exit.click()
