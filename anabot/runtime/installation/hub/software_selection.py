@@ -29,9 +29,11 @@ def record_package_selection():
     if __selected_environment is None and __selected_addons is None:
         return
     reporter.log_info('Saving package selection to %s'%PACKAGE_SELECTION_STORE)
+    addons_in_env = get_comps().mandatory_groups_list(__selected_environment)
+    addons = __selected_addons + addons_in_env
     with open(PACKAGE_SELECTION_STORE, 'w') as outfile:
         outfile.write("@^" + __selected_environment + "\n")
-        for addon in __selected_addons:
+        for addon in addons:
             outfile.write("@" + addon + "\n")
 
 def random_sublist(inlist):
