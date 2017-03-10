@@ -29,22 +29,37 @@ class Comps(object):
         xpath = '/comps/environment/id/text()'
         return [x.content for x in self.root.xpathEval(xpath)]
 
+    def defined_groups(self):
+        defined_xpath = '/comps/group/id/text()'
+        return [x.content for x in self.root.xpathEval(defined_xpath)]
+
+    def visible_groups(self):
+        visible_xpath = '/comps/group[uservisible/text() != "false"]/id/text()'
+        return [x.content for x in self.root.xpathEval(visible_xpath)]
+
+    def _filter_defined_groups(self, candidates):
+        return [x for x in candidates if x in self.defined_groups()]
+
+    def _filter_visible_groups(self, candidates):
+        return [x for x in candidates if x in self.visible_groups()]
+
     def groups_list(self, env):
         xpath = '/comps/environment[id/text() = "%s"]/optionlist/groupid/text()' % env
         candidates = [x.content for x in self.root.xpathEval(xpath)]
         # filter out those groups that are only referenced, but not defined
-        defined_xpath = '/comps/group/id/text()'
-        defined_groups = set([x.content for x in self.root.xpathEval(defined_xpath)])
-        # filter out groups that are not visible
-        visible_xpath = '/comps/group[uservisible/text() != "false"]/id/text()'
-        visible_groups = set([x.content for x in self.root.xpathEval(visible_xpath)])
-        matching_criteria = defined_groups & visible_groups
-        candidates = [x for x in candidates if x in matching_criteria]
+        candidates = self._filter_defined_groups(candidates)
         # shown are those that are visible and have non-zero count of
         # non-optional packages
         common_xpath = '/comps/group[uservisible/text() = "true" and count(packagelist/packagereq[@type != "optional" and @type != "conditional"])]/id/text()'
         common_candidates = [x.content for x in self.root.xpathEval(common_xpath)]
         return candidates + common_candidates
+
+    def mandatory_groups_list(self, env):
+        xpath = '/comps/environment[id/text() = "%s"]/grouplist/groupid/text()' % env
+        candidates = [x.content for x in self.root.xpathEval(xpath)]
+        # filter out those groups that are only referenced, but not defined
+        candidates = self._filter_defined_groups(candidates)
+        return candidates
 
     def tr_env(self, env_id, languages):
         for lang in languages:
