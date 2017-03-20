@@ -3,6 +3,8 @@ Description=Anaconda
 After=anaconda.service
 Wants=anabot-prepare.service
 After=anabot-prepare.service
+ConditionArchitecture=!s390
+ConditionArchitecture=!s390x
 
 [Service]
 ExecStart=/opt/start-anabot.py

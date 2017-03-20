@@ -4,7 +4,8 @@ Description=Anaconda
 Wants=anabot-prepare.service
 After=anabot-prepare.service
 # copied from anaconda-direct
-ConditionPathIsDirectory=|/sys/hypervisor/s390
+ConditionArchitecture=|s390
+ConditionArchitecture=|s390x
 
 [Service]
 ExecStart=/opt/start-anabot.py
