@@ -49,7 +49,7 @@ if modules_path is not None and os.path.isdir(modules_path):
         except UnrelatedException as e:
             logger.debug("Module reports, that it's not related for current environment")
 
-os.environ["DISPLAY"] = ":1"
+#os.environ["DISPLAY"] = ":1" moved to systemd unit
 
 from anabot.runtime import run_test
 from anabot.preprocessor import preprocess
