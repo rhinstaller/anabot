@@ -4,7 +4,7 @@ import time
 
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler
-from anabot.runtime.functions import get_attr, getnode, getselected
+from anabot.runtime.functions import get_attr, getnode, getselected, disappeared
 from anabot.runtime.translate import tr
 from anabot.runtime.errors import TimeoutError
 from .common import set_language
@@ -24,13 +24,7 @@ def base_handler(element, app_node, local_node):
 
 @handle_chck('')
 def base_check(element, app_node, local_node):
-    for i in range(10):
-        try:
-            welcome = getnode(app_node, "panel", "WELCOME")
-        except TimeoutError:
-            return True
-        time.sleep(1)
-    return False
+    return disappeared(app_node, "panel", "WELCOME")
 
 @handle_act('/continue')
 def continue_handler(element, app_node, local_node):
