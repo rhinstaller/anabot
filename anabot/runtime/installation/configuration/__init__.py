@@ -7,7 +7,7 @@ reporter = teres.Reporter.get_reporter()
 
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler
-from anabot.runtime.functions import get_attr, getnode, getnodes, TimeoutError, getparent, getsibling, log_screenshot
+from anabot.runtime.functions import get_attr, getnode, getnodes, TimeoutError, getparent, getsibling, log_screenshot, _DEFAULT_TIMEOUT
 from anabot.runtime.translate import tr, gtk_tr
 from anabot.runtime.hooks import run_posthooks
 from anabot.runtime.variables import get_variable
@@ -20,7 +20,7 @@ import root_password, create_user
 
 @handle_act('')
 def base_handler(element, app_node, local_node):
-    timeout = None
+    timeout = _DEFAULT_TIMEOUT
     if get_variable('interactive_kickstart', False):
         timeout = 180
     settings_panel = getnode(app_node, "panel", tr("CONFIGURATION"), timeout=timeout)
