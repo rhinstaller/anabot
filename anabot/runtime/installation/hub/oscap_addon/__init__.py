@@ -361,6 +361,10 @@ def change_content_fetch_check(element, app_node, local_node):
         return Fail("SCAP content fetch error: \"%s\", URL: %s"
                     % (error, url), fail_type)
 
+# 'Use Scap Security Guide' button in some cases can only be accessed
+# directly from the 'root' OSCAP element (e. g. in KS installation with
+# incorrect fingerprint specified)
+@handle_act('/use_ssg')
 @handle_act('/change_content/use_ssg')
 def change_content_use_ssg_handler(element, app_node, local_node):
     global _selected_profile
@@ -372,6 +376,7 @@ def change_content_use_ssg_handler(element, app_node, local_node):
     except TimeoutError:
         return SCAP_SECURITY_GUIDE_BUTTON_NF
 
+@handle_chck('/use_ssg')
 @handle_chck('/change_content/use_ssg')
 @check_action_result
 def change_content_use_ssg_check(element, app_node, local_node):
