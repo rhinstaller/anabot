@@ -177,6 +177,7 @@ def addon_handler_manipulate(element, app_node, local_node, dry_run):
         return (False, 'Couldn\'t find list of groups')
     found = False
     for group_id in group_ids:
+        logger.debug("Processing group with id: %s", group_id)
         found = True
         group_label_text = comps_tr_group(group_id)+"\n"+comps_tr_group_desc(group_id)
         logger.debug("Using group label: %s", group_label_text)
