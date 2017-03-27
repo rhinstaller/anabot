@@ -148,4 +148,6 @@ class Comps(object):
         try:
             return self.root.xpathEval(xpath)[0].content
         except IndexError:
-            return None
+            # return empty string, since this group probably doesn't have any
+            # description at all
+            return ""
