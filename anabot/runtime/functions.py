@@ -19,6 +19,8 @@ logger = logging.getLogger('anabot')
 import teres
 reporter = teres.Reporter.get_reporter()
 
+_DEFAULT_TIMEOUT = 7
+
 _SCREENSHOT_NUM = 0
 _SCREENSHOT_SUM = None
 _SCREENSHOT_PROGRESS_SUM = None
@@ -36,8 +38,8 @@ def visibility(node, value):
 def sensitivity(node, value):
     return (value is None) or (bool(value) == node.sensitive)
 
-def wait_until_disappear(node, predicates, timeout=7, make_screenshot=False,
-                         recursive=True):
+def wait_until_disappear(node, predicates, timeout=_DEFAULT_TIMEOUT,
+                         make_screenshot=False, recursive=True):
     count = 0
     if type(predicates) is not list:
         predicates = [predicates]
@@ -53,8 +55,8 @@ def wait_until_disappear(node, predicates, timeout=7, make_screenshot=False,
     log_screenshot(progress_only=True)
     raise TimeoutError("Queried element still visible.", locals())
 
-def disappeared(parent, node_type=None, node_name=None, timeout=7,
-                predicates=None, recursive=True):
+def disappeared(parent, node_type=None, node_name=None,
+                timeout=_DEFAULT_TIMEOUT, predicates=None, recursive=True):
     if predicates is None:
         predicates = {}
     if node_type is not None:
@@ -68,7 +70,8 @@ def disappeared(parent, node_type=None, node_name=None, timeout=7,
     except TimeoutError:
         return False
 
-def waiton(node, predicates, timeout=7, make_screenshot=False, visible=True, sensitive=True, recursive=True):
+def waiton(node, predicates, timeout=_DEFAULT_TIMEOUT, make_screenshot=False,
+           visible=True, sensitive=True, recursive=True):
     "wait unless item shows on the screen"
     count = 0
     if type(predicates) is not list:
@@ -85,7 +88,9 @@ def waiton(node, predicates, timeout=7, make_screenshot=False, visible=True, sen
     log_screenshot(progress_only=True)
     raise TimeoutError("No predicate matches within timeout period", locals())
 
-def waiton_all(node, predicates, timeout=7, make_screenshot=False, visible=True, sensitive=True, recursive=True):
+def waiton_all(node, predicates, timeout=_DEFAULT_TIMEOUT,
+               make_screenshot=False, visible=True, sensitive=True,
+               recursive=True):
     "wait unless items show on the screen"
     count = 0
     if type(predicates) is not list:
@@ -104,7 +109,7 @@ def waiton_all(node, predicates, timeout=7, make_screenshot=False, visible=True,
     log_screenshot(progress_only=True)
     raise TimeoutError("No predicate matches within timeout period", locals())
 
-def getnodes(parent, node_type=None, node_name=None, timeout=None,
+def getnodes(parent, node_type=None, node_name=None, timeout=_DEFAULT_TIMEOUT,
              predicates=None, visible=True, sensitive=True, recursive=True):
     if predicates is None:
         predicates = {}
@@ -112,21 +117,17 @@ def getnodes(parent, node_type=None, node_name=None, timeout=None,
         predicates['roleName'] = node_type
     if node_name is not None:
         predicates['name'] = node_name
-    if timeout is not None:
-        return waiton_all(parent, GenericPredicate(**predicates), timeout,
-                          visible=visible, sensitive=sensitive,
-                          recursive=recursive)
-    return waiton_all(parent, GenericPredicate(**predicates), visible=visible,
-                      sensitive=sensitive, recursive=recursive)
+    return waiton_all(parent, GenericPredicate(**predicates), timeout,
+                      visible=visible, sensitive=sensitive,
+                      recursive=recursive)
 
-def getnode(parent, node_type=None, node_name=None, timeout=None,
+def getnode(parent, node_type=None, node_name=None, timeout=_DEFAULT_TIMEOUT,
             predicates=None, visible=True, sensitive=True, recursive=True):
     return getnodes(parent, node_type, node_name, timeout, predicates, visible, sensitive, recursive)[0]
 
-def getnode_scroll(parent, node_type=None, node_name=None, timeout=None,
-            predicates=None, sensitive=True, recursive=True):
-    if timeout is None:
-        timeout = 7
+def getnode_scroll(parent, node_type=None, node_name=None,
+                   timeout=_DEFAULT_TIMEOUT, predicates=None, sensitive=True,
+                   recursive=True):
     for x in range(timeout):
         try:
             nodes = getnodes(parent, node_type, node_name, None, predicates,
