@@ -36,6 +36,38 @@ def visibility(node, value):
 def sensitivity(node, value):
     return (value is None) or (bool(value) == node.sensitive)
 
+def wait_until_disappear(node, predicates, timeout=7, make_screenshot=False,
+                         recursive=True):
+    count = 0
+    if type(predicates) is not list:
+        predicates = [predicates]
+    while count < timeout:
+        count += 1
+        for predicate in predicates:
+            found = node.findChild(predicate, retry=False, requireResult=False, recursive=recursive)
+            if found is None or visibility(found, False):
+                if make_screenshot:
+                    log_screenshot()
+                return
+        time.sleep(1)
+    log_screenshot(progress_only=True)
+    raise TimeoutError("Queried element still visible.", locals())
+
+def disappeared(parent, node_type=None, node_name=None, timeout=7,
+                predicates=None, recursive=True):
+    if predicates is None:
+        predicates = {}
+    if node_type is not None:
+        predicates['roleName'] = node_type
+    if node_name is not None:
+        predicates['name'] = node_name
+    try:
+        wait_until_disappear(parent, GenericPredicate(**predicates), timeout,
+                             recursive=recursive)
+        return True
+    except TimeoutError:
+        return False
+
 def waiton(node, predicates, timeout=7, make_screenshot=False, visible=True, sensitive=True, recursive=True):
     "wait unless item shows on the screen"
     count = 0
