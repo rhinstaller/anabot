@@ -1,5 +1,6 @@
 import logging
 logger = logging.getLogger('anabot')
+import time
 
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler
@@ -23,11 +24,13 @@ def base_handler(element, app_node, local_node):
 
 @handle_chck('')
 def base_check(element, app_node, local_node):
-    try:
-        welcome = getnode(app_node, "panel", "WELCOME", visible=False)
-        return True
-    except TimeoutError:
-        return False
+    for i in range(10):
+        try:
+            welcome = getnode(app_node, "panel", "WELCOME")
+        except TimeoutError:
+            return True
+        time.sleep(1)
+    return False
 
 @handle_act('/continue')
 def continue_handler(element, app_node, local_node):
