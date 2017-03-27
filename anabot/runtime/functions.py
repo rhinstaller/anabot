@@ -130,8 +130,8 @@ def getnode_scroll(parent, node_type=None, node_name=None,
                    recursive=True):
     for x in range(timeout):
         try:
-            nodes = getnodes(parent, node_type, node_name, None, predicates,
-                             None, sensitive, recursive)
+            nodes = getnodes(parent, node_type, node_name, _DEFAULT_TIMEOUT,
+                             predicates, None, sensitive, recursive)
         except TimeoutError:
             continue
         try:
