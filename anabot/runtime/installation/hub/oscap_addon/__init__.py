@@ -73,7 +73,8 @@ def base_check(element, app_node, local_node):
     FAIL_STATUS = {
         oscap_tr_("Not ready"): 'not_ready',
         oscap_tr_("Misconfiguration detected"): 'misconfiguration_detected',
-        oscap_tr_("Warnings appeared"): 'warnings_appeared'}
+        oscap_tr_("Warnings appeared"): 'warnings_appeared',
+        oscap_tr_("Error fetching and loading content"): 'content_fetch_load_error'}
 
     try:
         oscap_addon_selector = getnode_scroll(app_node, "spoke selector",
