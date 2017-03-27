@@ -37,22 +37,33 @@ class Comps(object):
         visible_xpath = '/comps/group[uservisible/text() != "false"]/id/text()'
         return [x.content for x in self.root.xpathEval(visible_xpath)]
 
+    def non_optional_non_conditional_groups(self):
+        xpath = '/comps/group[count(packagelist/packagereq[@type != "optional" and @type != "conditional"]) != 0]/id/text()'
+        return [x.content for x in self.root.xpathEval(xpath)]
+
     def _filter_defined_groups(self, candidates):
-        return [x for x in candidates if x in self.defined_groups()]
+        defined = self.defined_groups()
+        return [x for x in candidates if x in defined]
 
     def _filter_visible_groups(self, candidates):
-        return [x for x in candidates if x in self.visible_groups()]
+        visible = self.visible_groups()
+        return [x for x in candidates if x in visible]
+
+    def _filter_non_optional_non_conditional_groups(self, candidates):
+        non_optional_non_conditional = self.non_optional_non_conditional_groups()
+        return [x for x in candidates if x in non_optional_non_conditional]
 
     def groups_list(self, env):
         xpath = '/comps/environment[id/text() = "%s"]/optionlist/groupid/text()' % env
         candidates = [x.content for x in self.root.xpathEval(xpath)]
+        # shown are also those that are visible
+        candidates += self.visible_groups()
         # filter out those groups that are only referenced, but not defined
         candidates = self._filter_defined_groups(candidates)
-        # shown are those that are visible and have non-zero count of
-        # non-optional packages
-        common_xpath = '/comps/group[uservisible/text() = "true" and count(packagelist/packagereq[@type != "optional" and @type != "conditional"])]/id/text()'
-        common_candidates = [x.content for x in self.root.xpathEval(common_xpath)]
-        return candidates + common_candidates
+        # filter out those groups that contain only optional and/or conditional
+        # packages
+        candidates = self._filter_non_optional_non_conditional_groups(candidates)
+        return candidates
 
     def mandatory_groups_list(self, env):
         xpath = '/comps/environment[id/text() = "%s"]/grouplist/groupid/text()' % env
