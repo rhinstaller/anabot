@@ -170,7 +170,7 @@ def register_hooks(hooks_path):
 
 logger.debug('HOOK: registering hooks for profile %s', profile_name)
 profiles_path = os.path.dirname(os.path.abspath(__file__)) + '/profiles'
-for p in [config['default_hooks'], config['hooks'], profile_name + '/hooks']:
+for p in set([config['default_hooks'], config['hooks'], profile_name + '/hooks']):
     if (p is not None) and (p != ''):
         hooks_path = profiles_path + '/' + p
         if os.path.isdir(hooks_path):
