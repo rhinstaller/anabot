@@ -11,6 +11,7 @@ from anabot.runtime.functions import get_attr, getnode, getnodes, TimeoutError, 
 from anabot.runtime.translate import tr, gtk_tr
 from anabot.runtime.hooks import run_posthooks
 from anabot.runtime.variables import get_variable
+from anabot.runtime.actionresult import NotFoundResult as NotFound
 
 _local_path = '/installation/configuration'
 handle_act = lambda x: handle_action(_local_path + x)
@@ -18,12 +19,17 @@ handle_chck = lambda x: handle_check(_local_path + x)
 
 import root_password, create_user
 
+CONFIGURATION_PANEL_NOT_FOUND = NotFound("\"CONFIGURATION\" panel",
+                                         "panel_not_found")
 @handle_act('')
 def base_handler(element, app_node, local_node):
     timeout = _DEFAULT_TIMEOUT
     if get_variable('interactive_kickstart', False):
         timeout = 180
-    settings_panel = getnode(app_node, "panel", tr("CONFIGURATION"), timeout=timeout)
+    try:
+        settings_panel = getnode(app_node, "panel", tr("CONFIGURATION"), timeout=timeout)
+    except TimeoutError:
+        return CONFIGURATION_PANEL_NOT_FOUND
     default_handler(element, app_node, settings_panel)
 
 @handle_act('/wait_until_complete')
