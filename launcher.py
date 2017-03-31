@@ -46,10 +46,17 @@ config = {
     'log_level': None,
 }
 
+replacements = {
+    'profile_name': profile_name,
+}
+
 for option in config.keys():
     try:
         value = ini.get(profile_name, option)
-        config[option] = value
+        try:
+            config[option] = value % replacements
+        except KeyError:
+            config[option] = value
     except NoOptionError:
         pass
 
