@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if [ -z "$ANABOT_CONFIG_RECIPE" ]; then
+    echo "ANABOT_CONFIG_RECIPE env variable is not set!"
+    exit 2
+fi
+
+curl "$ANABOT_CONFIG_RECIPE" > /var/run/anabot/raw-recipe.xml

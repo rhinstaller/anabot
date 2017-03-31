@@ -1,0 +1,25 @@
+#!/bin/bash
+
+if [ "$ANABOT_PROFILE" != "subscription_manager_gui" ]; then
+    echo "This hook is not valid for this profile"
+    exit 2
+fi
+
+apps=($(pgrep -f 'subscription-manager-gui')) # it is started as /usr/bin/python /sbin/subscription-manager-gui so we need -f
+
+# find app with same $DISPLAY
+found=0
+for app in ${apps[@]}; do
+    appDISPLAY=$(xargs --null --max-args=1 echo < /proc/"$app"/environ | grep '^DISPLAY=:[0-9]')
+    if [ "$appDISPLAY" == "DISPLAY=$DISPLAY" ]; then
+        found=1
+        break
+    fi
+done
+
+if [ $found -eq 0 ]; then
+    echo "subscription-manager-gui is not running"
+    exit 2
+else
+    sleep 120   # give it some time to initialize
+fi

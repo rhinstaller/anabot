@@ -6,14 +6,38 @@ reporter = teres.Reporter.get_reporter()
 
 import os, shutil, subprocess, stat
 
+_preexec_hooks = []
+_pre_hooks = []
 _post_hooks = []
 
-def register_post_hook(priority=None):
+def register_preexec_hook(priority=None, func=None):
+    def decorator(f):
+        new_hook = (priority, f)
+        if new_hook not in _preexec_hooks:
+            _preexec_hooks.append(new_hook)
+        return f
+    if func is not None:
+        return decorator(func)
+    return decorator
+
+def register_pre_hook(priority=None, func=None):
+    def decorator(f):
+        new_hook = (priority, f)
+        if new_hook not in _pre_hooks:
+            _pre_hooks.append(new_hook)
+        return f
+    if func is not None:
+        return decorator(func)
+    return decorator
+
+def register_post_hook(priority=None, func=None):
     def decorator(f):
         new_hook = (priority, f)
         if new_hook not in _post_hooks:
             _post_hooks.append(new_hook)
         return f
+    if func is not None:
+        return decorator(func)
     return decorator
 
 def _hooks(event):
@@ -82,3 +106,25 @@ def run_posthooks():
             hook()
         except Exception as e:
             reporter.log_error("Post hook raised exception: %s" % e)
+
+def run_preexechooks():
+    # all preexec hooks should be registered as python functions in 
+    # launcher.py
+    def none_is_greater_cmp(x, y):
+        result = cmp(x, y)
+        if x is None or y is None:
+            result *= -1
+        return result
+    for prio, hook in sorted(
+            _preexec_hooks,
+            none_is_greater_cmp,
+            key=lambda x: x[0]):
+        try:
+            hook()
+        except Exception as e:
+            reporter.log_error("Preexec hook raised exception: %s" % e)
+
+def exec_shellscript(exec_path, chroot=None):
+    _run_hook(exec_path, chroot)
+
+     
