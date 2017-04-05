@@ -53,7 +53,7 @@ def register_post_hook(priority=None, func=None):
     return register_hook('post', priority, func)
 
 def _register_hook_executable(exe_path=None):
-    logger.debug('Found executable hook %s', exe_path)
+    logger.debug('Registering executable hook %s', exe_path)
     basename = os.path.basename(exe_path)
     # cut .suffix (it can be .hook but in theory anything else
     basename = basename.split('.', 1)[0]
