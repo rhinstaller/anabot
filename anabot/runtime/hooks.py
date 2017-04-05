@@ -76,7 +76,7 @@ def register_executable_hooks(path=None):
     logger.debug('Adding hooks from path %s', path)
     for hook in os.listdir(path):
         if hook.endswith('.hook'):
-            _register_hook_executable(path + '/' + hook)
+            _register_hook_executable(os.path.join(path, hook))
 
 def _run_executable_hook(executable=None, chroot=None, preexec_fn=None):
     preexec = preexec_fn
@@ -92,7 +92,7 @@ def _run_executable_hook(executable=None, chroot=None, preexec_fn=None):
         chrooted_path = config.get_option('chroot_hook_path')
         new_path = os.path.join(chroot, chrooted_path, os.path.basename(hook))
         shutil.copy(hook, new_path)
-        exec_path = os.path.join(chrooted_path, '/', os.path.basename(hook))
+        exec_path = os.path.join('/', chrooted_path, os.path.basename(hook))
         logger.debug("Copying hook for chroot to: %s", new_path)
         logger.debug("Running hook (in chroot %s): %s", chroot, exec_path)
     else:

@@ -71,11 +71,11 @@ for option in options_to_export.keys():
             os.environ[env_name] = value
 
 logger.debug('Registering hooks for profile %s', profile_name)
-hook_paths = [profile_name + '/hooks',]
+hook_paths = [os.path.join(profile_name, 'hooks'),]
 for opt in 'default_hooks', 'hooks':
     p = config.get_option(opt)
     if (p is not None) and (p != ''):
-        hook_paths.append(profiles_path + '/' + p)
+        hook_paths.append(os.path.join(profiles_path, p))
 
 for p in set(hook_paths):
     if os.path.isdir(p):

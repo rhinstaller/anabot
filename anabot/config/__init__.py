@@ -1,4 +1,4 @@
-import logging
+import logging, os
 from ConfigParser import RawConfigParser
 from anabot.paths  import defauls_path, profiles_path
 
@@ -29,7 +29,7 @@ def init_config(profile_name):
     global _profile_name
     global _config
 
-    ini_path = profiles_path + '/' + profile_name + '.ini'
+    ini_path = os.path.join(profiles_path, profile_name + '.ini')
     _config = RawConfigParser(allow_no_value=True)
     defaults = open(defauls_path, 'r')
     _config.readfp(defaults)

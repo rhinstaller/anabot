@@ -2,15 +2,15 @@ import sys, os
 anabot_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # modules paths
-teres_path = anabot_root + '/teres'
-dogtail_path = anabot_root + '/lib/python2.7/site-packages'
+teres_path = os.path.join(anabot_root, 'teres')
+dogtail_path = os.path.join(anabot_root, 'lib/python2.7/site-packages')
 
 # configuration paths
-defauls_path = anabot_root + '/profiles/default.ini'
-profiles_path = anabot_root + '/profiles'
+profiles_path = os.path.join(anabot_root, 'profiles')
+defauls_path = os.path.join(profiles_path, 'default.ini')
 
 # modules path
-modules_path = anabot_root + '/modules'
+modules_path = os.path.join(anabot_root, 'modules')
 
 # set sys.path
 #   anabot path
