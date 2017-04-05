@@ -30,7 +30,9 @@ def _is_hook_registered(hook, hook_list):
         return hook in hook_list
 
  
-def register_hook(priority=None, hook_type=None, func=None):
+def register_hook(hook_type, priority=None, func=None):
+    '''registers hook function in internal list
+    can be used as a decorator'''
     logger.debug('Registering hook %s, %s %s', priority, hook_type, func)
     def decorator(f):
         new_hook = (priority, f)
@@ -42,13 +44,13 @@ def register_hook(priority=None, hook_type=None, func=None):
     return decorator
 
 def register_preexec_hook(priority=None, func=None):
-    return register_hook(priority, 'preexec', func)
+    return register_hook('preexec', priority, func)
 
 def register_pre_hook(priority=None, func=None):
-    return register_hook(priority, 'pre', func)
+    return register_hook('pre', priority, func)
 
 def register_post_hook(priority=None, func=None):
-    return register_hook(priority, 'post', func)
+    return register_hook('post', priority, func)
 
 def _register_hook_executable(exe_path=None):
     logger.debug('Found executable hook %s', exe_path)
