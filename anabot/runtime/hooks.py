@@ -55,7 +55,7 @@ def register_post_hook(priority=None, func=None):
 def _register_hook_executable(exe_path=None):
     logger.debug('Registering executable hook %s', exe_path)
     basename = os.path.basename(exe_path)
-    # cut .suffix (it can be .hook but in theory anything else
+    # cut off \..* (it can be .hook but in theory anything else
     basename = basename.split('.', 1)[0]
     parts = basename.split('-')
     try:
