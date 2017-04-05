@@ -12,8 +12,9 @@ from .default import handle_step
 from .default import dump
 from . import installation, initial_setup
 import pyatspi # pylint: disable=import-error
+from anabot.runtime.hooks import run_prehooks, run_posthooks
 
-def run_test(file_path, appname="anaconda"):
+def run_test(file_path, appname="anaconda", children_required=0):
     """Run anabot with given path to anabot recipe.
 
     Given file needs to be in "raw" xml schema, which means that it's required
@@ -33,7 +34,9 @@ def run_test(file_path, appname="anaconda"):
     application.setCacheMask(pyatspi.cache.PARENT)
     signal.signal(signal.SIGUSR1, lambda x,y: dump(application, '/tmp/dogtail.dump'))
     doc = libxml2.parseFile(file_path)
+    run_prehooks()
     handle_step(doc.getRootElement(), application, None)
+    run_posthooks()
     doc.freeDoc()
 
 if __name__ == "__main__":

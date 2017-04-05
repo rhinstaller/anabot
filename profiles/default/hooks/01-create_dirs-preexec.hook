@@ -1,0 +1,4 @@
+#!/bin/bash
+
+mkdir -p /var/run/anabot
+mkdir -p /root/anabot

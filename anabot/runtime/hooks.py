@@ -5,51 +5,80 @@ import teres
 reporter = teres.Reporter.get_reporter()
 
 import os, shutil, subprocess, stat
+import functools
+from anabot import config
 
-_preexec_hooks = []
-_pre_hooks = []
-_post_hooks = []
+_hooks = {
+    'preexec': [],
+    'pre': [],
+    'post': [],
+}
+
+def _hook_in(hook, hook_list):
+    p = hook[0]
+    f = hook[1]
+    if isinstance(f, functools.partial):
+        for prio, func in hook_list:
+            if isinstance(func, functools.partial):
+                if (p == prio) and \
+                   (f.func == func.func) and \
+                   (f.args == func.args) and \
+                   (f.keywords == func.keywords):
+                    return True
+        return False
+    else:
+        return hook in hook_list
+
+ 
+def register_hook(priority=None, hook_type=None, func=None):
+    logger.debug('Registering hook %s, %s %s', priority, hook_type, func)
+    def decorator(f):
+        new_hook = (priority, f)
+        if not _hook_in(new_hook, _hooks[hook_type]):
+            _hooks[hook_type].append(new_hook)
+        return f
+    if func is not None:
+        return decorator(func)
+    return decorator
 
 def register_preexec_hook(priority=None, func=None):
-    def decorator(f):
-        new_hook = (priority, f)
-        if new_hook not in _preexec_hooks:
-            _preexec_hooks.append(new_hook)
-        return f
-    if func is not None:
-        return decorator(func)
-    return decorator
+    return register_hook(priority, 'preexec', func)
 
 def register_pre_hook(priority=None, func=None):
-    def decorator(f):
-        new_hook = (priority, f)
-        if new_hook not in _pre_hooks:
-            _pre_hooks.append(new_hook)
-        return f
-    if func is not None:
-        return decorator(func)
-    return decorator
+    return register_hook(priority, 'pre', func)
 
 def register_post_hook(priority=None, func=None):
-    def decorator(f):
-        new_hook = (priority, f)
-        if new_hook not in _post_hooks:
-            _post_hooks.append(new_hook)
-        return f
-    if func is not None:
-        return decorator(func)
-    return decorator
+    return register_hook(priority, 'post', func)
 
-def _hooks(event):
-    hooks_dir = os.path.join('/', 'opt', 'anabot-hooks', event)
-    for hook in sorted(os.listdir(hooks_dir)):
-        yield os.path.join(hooks_dir, hook)
+def _register_hook_executable(exe_path=None):
+    logger.debug('Found executable hook %s', exe_path)
+    basename = os.path.basename(exe_path)
+    # cut .suffix (it can be .hook but in theory anything else
+    basename = basename.split('.', 1)[0]
+    parts = basename.split('-')
+    try:
+        prio = int(parts[0])
+        hook_type = parts[-1]
+        want_chroot = True
+        if hook_type == 'nochroot':
+            want_chroot = False
+            hook_type = parts[-2]
+        if hook_type in ('preexec', 'pre'):
+            want_chroot = False
+        chroot = None
+        if want_chroot:
+            chroot = config.get_option('chroot')
+        register_hook(prio, hook_type, functools.partial(_run_executable_hook, executable=exe_path, chroot=chroot))
+    except ValueError:
+        logger.warning('Ignoring %s - cannot get prio - bad filename format', exe_path)
 
-def _run_hooks(hooks, chroot=None, preexec_fn=None):
-    for hook in hooks:
-        _run_hook(hook, chroot, preexec_fn)
+def register_executable_hooks(path=None):
+    logger.debug('Adding hooks from path %s', path)
+    for hook in os.listdir(path):
+        if hook.endswith('.hook'):
+            _register_hook_executable(path + '/' + hook)
 
-def _run_hook(hook, chroot=None, preexec_fn=None):
+def _run_executable_hook(executable=None, chroot=None, preexec_fn=None):
     preexec = preexec_fn
     if chroot is not None:
         def tmp_preexec():
@@ -57,15 +86,17 @@ def _run_hook(hook, chroot=None, preexec_fn=None):
                 preexec_fn()
             os.chroot(chroot)
         preexec = tmp_preexec
-    exec_path = hook
-    os.chmod(exec_path, stat.S_IEXEC)
+    hook = executable
+    os.chmod(executable, stat.S_IEXEC)
     if chroot is not None:
-        new_path = os.path.join(chroot, 'tmp', os.path.basename(hook))
+        chrooted_path = config.get_option('chroot_hook_path')
+        new_path = os.path.join(chroot, chrooted_path, os.path.basename(hook))
         shutil.copy(hook, new_path)
-        exec_path = os.path.join('/', 'tmp', os.path.basename(hook))
+        exec_path = os.path.join(chrooted_path, '/', os.path.basename(hook))
         logger.debug("Copying hook for chroot to: %s", new_path)
         logger.debug("Running hook (in chroot %s): %s", chroot, exec_path)
     else:
+        exec_path = hook
         logger.debug("Running hook: %s", exec_path)
     p = subprocess.Popen([exec_path], preexec_fn=preexec)
     p.wait()
@@ -73,58 +104,30 @@ def _run_hook(hook, chroot=None, preexec_fn=None):
         logger.debug("Removing hook from chroot: %s", new_path)
         os.unlink(new_path)
 
-def run_prehooks():
-    _run_hooks(_hooks('pre'))
-
-def run_posthooks():
-    def prio_cmp(x, y):
-        return cmp(os.path.basename(x), os.path.basename(y))
-    nochroots = list(_hooks('post-nochroot'))[::-1]
-    chroots = list(_hooks('post'))[::-1]
-    while len(chroots) > 0 or len(nochroots) > 0:
-        if len(chroots) <= 0:
-            _run_hook(nochroots.pop())
-            continue
-        if len(nochroots) <= 0:
-            _run_hook(chroots.pop(), chroot='/mnt/sysimage')
-            continue
-        if prio_cmp(chroots[-1], nochroots[-1]) < 0:
-            _run_hook(chroots.pop(), chroot='/mnt/sysimage')
-        else:
-            _run_hook(nochroots.pop())
-    # run also registered post hooks
+def _run_hooks(hook_type, preexec_fn=None):
     def none_is_greater_cmp(x, y):
+        # all hooks should be registered as python functions
         result = cmp(x, y)
         if x is None or y is None:
             result *= -1
         return result
-    for prio, hook in sorted(
-            _post_hooks,
-            none_is_greater_cmp,
-            key=lambda x: x[0]):
+    hook_list = sorted(
+        _hooks[hook_type],
+        none_is_greater_cmp,
+        key=lambda x: x[0], reverse=True)
+    while len(hook_list) > 0:
+        prio, hook = hook_list.pop()
         try:
             hook()
         except Exception as e:
-            reporter.log_error("Post hook raised exception: %s" % e)
+            reporter.log_error("Hook raised exception: %s" % e)
+    _hooks[hook_type] = hook_list
 
 def run_preexechooks():
-    # all preexec hooks should be registered as python functions in 
-    # launcher.py
-    def none_is_greater_cmp(x, y):
-        result = cmp(x, y)
-        if x is None or y is None:
-            result *= -1
-        return result
-    for prio, hook in sorted(
-            _preexec_hooks,
-            none_is_greater_cmp,
-            key=lambda x: x[0]):
-        try:
-            hook()
-        except Exception as e:
-            reporter.log_error("Preexec hook raised exception: %s" % e)
+    _run_hooks('preexec')
 
-def exec_shellscript(exec_path, chroot=None):
-    _run_hook(exec_path, chroot)
+def run_prehooks():
+    _run_hooks('pre')
 
-     
+def run_posthooks():
+    _run_hooks('post')

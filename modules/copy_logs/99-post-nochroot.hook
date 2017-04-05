@@ -1,4 +1,8 @@
 #!/bin/bash
 
-cp /var/log/anabot.log /mnt/sysimage/root/anabot.log
-journalctl -u anabot > /mnt/sysimage/root/anabot.journal.log
+case $ANABOT_PROFILE in
+    anaconda)
+        cp /var/log/anabot.log /mnt/sysimage/root/anabot.log
+        journalctl -u anabot > /mnt/sysimage/root/anabot.journal.log
+        ;;
+esac

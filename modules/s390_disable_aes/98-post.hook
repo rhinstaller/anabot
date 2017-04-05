@@ -1,8 +1,12 @@
 #!/bin/bash
 
-if [ `uname -m` != 's390x' ]; then
-   exit
-fi
+case $ANABOT_PROFILE in
+    anaconda)
+        if [ `uname -m` != 's390x' ]; then
+           exit
+        fi
 
-sed -r -i 's/parameters="([^"]+)"/parameters="\1 module_blacklist=aes_s390"/' /etc/zipl.conf
-zipl
+        sed -r -i 's/parameters="([^"]+)"/parameters="\1 module_blacklist=aes_s390"/' /etc/zipl.conf
+        zipl
+        ;;
+esac

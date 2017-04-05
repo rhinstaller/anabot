@@ -13,6 +13,11 @@ reporter = teres.Reporter.get_reporter()
 
 from anabot.exceptions import UnrelatedException
 from anabot.runtime.hooks import register_post_hook
+from anabot import config
+
+profile_name = config.get_option('profile_name')
+if profile_name != 'anaconda':
+    raise UnrelatedException("Do not change UEFI boot order in profile %s" % profile_name)
 
 def efiboot_entry(intext, key):
     lines = intext.split('\n')
