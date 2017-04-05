@@ -14,7 +14,7 @@ _hooks = {
     'post': [],
 }
 
-def _hook_in(hook, hook_list):
+def _is_hook_registered(hook, hook_list):
     p = hook[0]
     f = hook[1]
     if isinstance(f, functools.partial):
@@ -34,7 +34,7 @@ def register_hook(priority=None, hook_type=None, func=None):
     logger.debug('Registering hook %s, %s %s', priority, hook_type, func)
     def decorator(f):
         new_hook = (priority, f)
-        if not _hook_in(new_hook, _hooks[hook_type]):
+        if not _is_hook_registered(new_hook, _hooks[hook_type]):
             _hooks[hook_type].append(new_hook)
         return f
     if func is not None:
