@@ -61,14 +61,14 @@ def _register_hook_executable(exe_path=None):
     try:
         prio = int(parts[0])
         hook_type = parts[-1]
-        want_chroot = True
+        chroot_required = True
         if hook_type == 'nochroot':
-            want_chroot = False
+            chroot_required = False
             hook_type = parts[-2]
         if hook_type in ('preexec', 'pre'):
-            want_chroot = False
+            chroot_required = False
         chroot = None
-        if want_chroot:
+        if chroot_required:
             chroot = config.get_option('chroot')
         register_hook(prio, hook_type, functools.partial(_run_executable_hook, executable=exe_path, chroot=chroot))
     except ValueError:
