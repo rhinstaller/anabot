@@ -42,8 +42,6 @@ def init_config(profile_name):
 def get_option(option):
     if option == 'log_level':
         return _log_levels[_config.get(_profile_name, option)]
-    if option == 'profile_name':
-        return _profile_name
     value = _config.get(_profile_name, option) % replacements
     if value == "":
         if _empty_meanings.has_key(option):
