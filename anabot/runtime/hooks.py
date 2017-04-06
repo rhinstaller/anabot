@@ -57,6 +57,7 @@ def _register_hook_executable(exe_path=None):
     basename = os.path.basename(exe_path)
     # cut off .suffix (it can be .hook but in theory anything else
     hookname = basename.rsplit('.', 1)[0]
+    # TODO check filename format
     parts = hookname.split('-')
     try:
         prio = int(parts[0])
@@ -70,7 +71,7 @@ def _register_hook_executable(exe_path=None):
         chroot = None
         if chroot_required:
             chroot = config.get_option('chroot')
-        register_hook(prio, hook_type, functools.partial(_run_executable_hook, executable=exe_path, chroot=chroot))
+        register_hook(hook_type, prio, functools.partial(_run_executable_hook, executable=exe_path, chroot=chroot))
     except ValueError:
         logger.warning('Ignoring %s - cannot get prio - bad filename format', exe_path)
 
