@@ -47,7 +47,7 @@ reporter.add_handler(teres.handlers.LoggingHandler('anabot.test',
                                                    test_log_handler,
                                                    dest=None))
 
-from anabot.paths import profiles_path
+from anabot.paths import profiles_path, anabot_root
 from anabot.preprocessor import preprocess
 from anabot.runtime import run_test
 from anabot.runtime.hooks import register_executable_hooks, run_preexechooks
@@ -55,6 +55,7 @@ from anabot.runtime.hooks import register_executable_hooks, run_preexechooks
 # propagate some config values as environment variables
 os.environ['ANABOT_PROFILE'] = profile_name
 os.environ['ANABOT_CONFIG_RECIPE'] = recipe_url
+os.environ['ANABOT_BASEDIR' ] = anabot_root
 
 options_to_export = {
     # option_name: env_variable,
