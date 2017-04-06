@@ -49,7 +49,6 @@ reporter.add_handler(teres.handlers.LoggingHandler('anabot.test',
 
 from anabot.paths import profiles_path, anabot_root
 from anabot.preprocessor import preprocess
-from anabot.runtime import run_test
 from anabot.runtime.hooks import register_executable_hooks, run_preexechooks
 
 # propagate some config values as environment variables
@@ -125,5 +124,7 @@ reporter.send_file("/var/run/anabot/final-recipe.xml",
 # finally process recipe
 app_name = config.get_option('atk_app_name')
 min_children = config.get_option('atk_min_children')
+
+from anabot.runtime import run_test
 
 run_test("/var/run/anabot/final-recipe.xml", appname=app_name, children_required=min_children)
