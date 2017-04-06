@@ -125,6 +125,6 @@ reporter.send_file("/var/run/anabot/final-recipe.xml",
 app_name = config.get_option('atk_app_name')
 min_children = config.get_option('atk_min_children')
 
-from anabot.runtime import run_test
+from anabot.runtime.run_test import run_test
 
 run_test("/var/run/anabot/final-recipe.xml", appname=app_name, children_required=min_children)
