@@ -1,0 +1,11 @@
+#!/bin/bash
+
+script="$(dirname $0)/replace_by_env_variables.awk"
+recipe=$(mktemp)
+
+cp "/var/run/anabot/raw-recipe.xml" "$recipe"
+
+awk -f "$script" < "$recipe" > /var/run/anabot/raw-recipe.xml
+
+rm "$recipe"
+
