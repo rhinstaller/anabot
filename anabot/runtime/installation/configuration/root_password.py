@@ -7,6 +7,7 @@ from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.functions import get_attr, getnode, TimeoutError, getparent, getsibling, clear_text
 from anabot.runtime.translate import tr, gtk_tr
 from anabot.runtime.hooks import run_posthooks
+from anabot.runtime.actionresult import NotFoundResult as NotFound
 
 _local_path = '/installation/configuration/root_password'
 handle_act = lambda x: handle_action(_local_path + x)
@@ -47,10 +48,14 @@ def root_password_check(element, app_node, local_node):
         return True
 
 BLACK_CIRCLE = u'\u25cf'
+PASSWORD_TEXT_NOT_FOUND = NotFound("password text", "password_text_not_found")
 
 def root_password_text_manipulate(element, app_node, local_node, dry_run):
     value = get_attr(element, "value")
-    password_entry = getnode(local_node, "password text", tr("Password"))
+    try:
+        password_entry = getnode(local_node, "password text", tr("Password"))
+    except TimeoutError:
+        return PASSWORD_TEXT_NOT_FOUND
     if not dry_run:
         password_entry.click()
         clear_text(password_entry)
@@ -67,10 +72,16 @@ def root_password_text_handler(element, app_node, local_node):
 def root_password_text_check(element, app_node, local_node):
     return root_password_text_manipulate(element, app_node, local_node, True)
 
+PASSWORD_CONFIRM_TEXT_NOT_FOUND = NotFound("password confirmation text",
+                                           "password_confirm_text_not_found")
+
 def root_password_confirm_manipulate(element, app_node, local_node, dry_run):
     value = get_attr(element, "value")
-    password_entry = getnode(local_node, "password text",
-                             tr("Confirm Password"))
+    try:
+        password_entry = getnode(local_node, "password text",
+                                tr("Confirm Password"))
+    except TimeoutError:
+        return PASSWORD_CONFIRM_TEXT_NOT_FOUND
     if not dry_run:
         password_entry.click()
         clear_text(password_entry)
