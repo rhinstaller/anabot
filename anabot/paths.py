@@ -16,7 +16,8 @@ modules_path = os.path.join(anabot_root, 'modules')
 #   anabot path
 sys.path.append(anabot_root)
 #   dogtail path
-sys.path.append(dogtail_path)
+# it has to be added after preexec hooks are run
+#sys.path.append(dogtail_path)
 #   teres path
 sys.path.append(teres_path)
 #   add modules path
