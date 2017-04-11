@@ -4,6 +4,7 @@ import time
 import os, sys
 import libxml2
 import hashlib
+import functools
 
 import dogtail # pylint: disable=import-error
 import dogtail.utils # pylint: disable=import-error
@@ -309,7 +310,11 @@ MOUSE_SCROLL_DOWN = 5
 MOUSE_SCROLL_LEFT = 6
 MOUSE_SCROLL_RIGHT = 7
 OUTSIDE = -2147483648
+SCROLL_STEP = 15
 INSIDE_INTOLERANCE = 2 # in pixels
+
+def _change_value(node, diff):
+    node.value += diff
 
 def scrollto(node):
     def getcenter(node):
@@ -361,19 +366,30 @@ def scrollto(node):
     scroll_down = lambda: None
     scroll_left = lambda: None
     scroll_right = lambda: None
-    scrollbars = getnodes(scroll, "scroll bar", recursive=False)
+    scrollbars = getnodes(scroll, "scroll bar", recursive=False, visible=None)
+    # GTK rebase caused that scrollbars may be hidden and are visible only
+    # when mouse is over them, or when there's some mouse activity in
+    # corresponding scroll pane (but in that case, it's showing differently).
+
+    # The scrolling itself is unfortunately done by direct changing of
+    # scrollbars value, since it's position is not available anymore and
+    # it (or scroll pane) doesn't provide any action for this.
     for scrollbar in scrollbars:
-        if scrollbar.size[0] > scrollbar.size[1]:
+        if scrollbar.size == (1, 1):
+            # Ignore this scrollbar, it's present in ATK tree, not visible
+            # and not functional. It should be scrollbar for dimension that
+            # doesn't need scrollbar now.
+            continue
+        elif scrollbar.size[0] > scrollbar.size[1]:
             logger.debug("Setting x scrollbar")
             xbar = scrollbar
-            # Beware: this doesn't seem to match real mouse behaviour!
-            scroll_left = lambda: xbar.click(MOUSE_SCROLL_UP)
-            scroll_right = lambda: xbar.click(MOUSE_SCROLL_DOWN)
+            scroll_left = functools.partial(_change_value, xbar, -SCROLL_STEP)
+            scroll_right = functools.partial(_change_value, xbar, SCROLL_STEP)
         else:
             logger.debug("Setting y scrollbar")
             ybar = scrollbar
-            scroll_up = lambda: ybar.click(MOUSE_SCROLL_UP)
-            scroll_down = lambda: ybar.click(MOUSE_SCROLL_DOWN)
+            scroll_up = functools.partial(_change_value, ybar, -SCROLL_STEP)
+            scroll_down = functools.partial(_change_value, ybar, SCROLL_STEP)
 
     def toUp():
         logger.debug("Scrolling up")
