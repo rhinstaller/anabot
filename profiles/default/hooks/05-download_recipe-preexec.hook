@@ -5,4 +5,4 @@ if [ -z "$ANABOT_VAR_RECIPE" ]; then
     exit 2
 fi
 
-curl "$ANABOT_VAR_RECIPE" > /var/run/anabot/raw-recipe.xml
+curl -kfL "$ANABOT_VAR_RECIPE" > /var/run/anabot/raw-recipe.xml
