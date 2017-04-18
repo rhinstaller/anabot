@@ -7,7 +7,7 @@ import re
 from .decorators import replace, default
 from .functions import load_snippet, has_property, pop_property, copy_content
 from .defaults import delete_element
-from .variables import get_variable
+from anabot.variables import get_variable
 
 @replace("/installation")
 def replace_installation(element):
@@ -59,7 +59,7 @@ def replace_beta_dialog(element, default_for=None):
         default_for = element
         tag_name="_replacing"
     new = load_snippet("/installation/welcome/beta_dialog", default_for, tag_name=tag_name)
-    if get_variable('beta', False):
+    if get_variable('beta', '0') == '1':
         new.setProp("policy", "should_pass")
     else:
         new.setProp("policy", "should_fail")

@@ -10,7 +10,7 @@ from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.functions import get_attr, getnode, getnodes, getnode_scroll, scrollto
 from anabot.runtime.errors import TimeoutError
 from anabot.runtime.translate import tr
-from anabot.runtime.variables import get_variable
+from anabot.variables import get_variable
 
 # submodules
 from . import advanced
@@ -64,7 +64,7 @@ def disk_manipulate(element, app_node, local_node, dryrun):
     if len(__disk_selection) == 0:
         d_names = [disk_name(d) for d in disks]
         logger.debug("Found disks: %s", ",".join(d_names))
-        if len(d_names) == 1 or get_variable('interactive_kickstart', False):
+        if len(d_names) == 1 or get_variable('interactive_kickstart', '0') == '1':
             for d_name in d_names:
                 __disk_selection[d_name] = True
         else:

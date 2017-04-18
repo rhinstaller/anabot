@@ -4,16 +4,21 @@ import sys, os
 import logging
 from logging.handlers import SysLogHandler
 from anabot import config
+from anabot.variables import set_variable
 
 def show_help():
-    print '%s profile_name (recipe_url|recipe_file)' % sys.argv[0]
+    print '%s profile_name recipe_url [varname=value[,varname=value]]' % sys.argv[0]
 
 try:
     profile_name = sys.argv[1]
-    recipe_url = sys.argv[2]
 except IndexError as e:
     show_help()
     sys.exit(2)
+
+anabot_vars = {}
+for arg in sys.argv[2:]:
+    (name, value) = arg.split('=',1)
+    set_variable(name, value)
 
 config.init_config(profile_name)
 
@@ -53,7 +58,6 @@ from anabot.runtime.hooks import register_executable_hooks, run_preexechooks
 
 # propagate some config values as environment variables
 os.environ['ANABOT_PROFILE'] = profile_name
-os.environ['ANABOT_CONFIG_RECIPE'] = recipe_url
 os.environ['ANABOT_BASEDIR' ] = anabot_root
 
 options_to_export = {
