@@ -11,7 +11,8 @@ from anabot.runtime.functions import get_attr, getnode, getnodes, TimeoutError, 
 from anabot.runtime.translate import tr, gtk_tr
 from anabot.runtime.hooks import run_posthooks
 from anabot.variables import get_variable
-from anabot.runtime.actionresult import NotFoundResult as NotFound
+from anabot.runtime.actionresult import NotFoundResult as NotFound, ActionResultPass as Pass
+from anabot.runtime.default import action_result
 
 _local_path = '/installation/configuration'
 handle_act = lambda x: handle_action(_local_path + x)
@@ -72,6 +73,25 @@ def eula_notice_check(element, app_node, local_node):
         return (False, "Warning bar doesn't contain label with correct text")
     return True
 
+FINISH_BUTTON_NOT_FOUND = NotFound("\"Finish configuration\" button",
+                                   "button_not_found")
+
+@handle_act('/finish_configuration')
+def finish_handler(element, app_node, local_node):
+    try:
+        finish_button = getnode(local_node, "push button",
+                                tr("_Finish configuration"))
+    except TimeoutError:
+        return FINISH_BUTTON_NOT_FOUND
+    finish_button.click()
+    return Pass()
+
+@handle_chck('/finish_configuration')
+def finish_check(element, app_node, local_node):
+    return action_result(element)
+
+REBOOT_BUTTON_NOT_FOUND = NotFound("\"Reboot\" button", "button_not_found")
+
 @handle_act('/reboot')
 def reboot_handler(element, app_node, local_node):
     try:
@@ -79,9 +99,8 @@ def reboot_handler(element, app_node, local_node):
                                 tr("_Reboot", context="GUI|Progress"),
                                 timeout=15)
     except TimeoutError:
-        return (False, "Couldn't find clickable Reboot button.")
+        return REBOOT_BUTTON_NOT_FOUND
 
     run_posthooks()
     reporter.test_end()
     reboot_button.click()
-
