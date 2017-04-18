@@ -14,7 +14,7 @@ while [ ! -e "$socket_name" ]; do
         break
     fi
 done
-    
+
 if [ ! -e "$socket_name" ]; then
     # echo "X server start timeout ($WAIT_TIMEOUT sec)"
     exit 1

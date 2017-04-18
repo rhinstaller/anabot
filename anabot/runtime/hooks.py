@@ -29,7 +29,6 @@ def _is_hook_registered(hook, hook_list):
     else:
         return hook in hook_list
 
- 
 def register_hook(hook_type, priority=None, func=None):
     '''registers hook function in internal list
     can be used as a decorator'''
