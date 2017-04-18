@@ -86,7 +86,7 @@ for p in set(hook_paths):
         register_executable_hooks(p)
 
 # import modules - also registers modules hooks
-from modules import import_modules
+from anabot.modules import import_modules
 import_modules()
 
 # run preexec_hooks
