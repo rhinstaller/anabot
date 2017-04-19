@@ -1,24 +1,14 @@
-import logging, os
+import os
 from ConfigParser import RawConfigParser
 from anabot.paths  import defauls_path, profiles_path
 
 _profile_name = None
 _config = None
 
-
-# log_level translating
-_log_levels = {
-    None: logging.NOTSET,
-    'DEBUG': logging.DEBUG,
-    'INFO': logging.INFO,
-    'WARNING': logging.WARNING,
-    'ERROR': logging.ERROR,
-    'CRITICAL': logging.CRITICAL,
-}
-
 _empty_meanings = {
     'chroot': None,
     'atk_min_children': 0,
+    'log_level': 'NOTSET'
 }
 
 replacements = {
@@ -40,11 +30,8 @@ def init_config(profile_name):
     replacements['profile_name'] = profile_name
 
 def get_option(option):
-    if option == 'log_level':
-        return _log_levels[_config.get(_profile_name, option)]
     value = _config.get(_profile_name, option) % replacements
     if value == "":
-        if _empty_meanings.has_key(option):
-            value = _empty_meanings[option]
+        value = _empty_meanings.get(option, value)
     return value
 
