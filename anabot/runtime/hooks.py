@@ -92,7 +92,9 @@ def _run_executable_hook(executable=None, chroot=None, preexec_fn=None):
     os.chmod(executable, stat.S_IEXEC)
     if chroot is not None:
         chrooted_path = config.get_option('chroot_hook_path')
-        new_path = os.path.join(chroot, chrooted_path, os.path.basename(hook))
+        new_path = os.path.join(
+            chroot, chrooted_path.lstrip(os.path.sep), os.path.basename(hook)
+        )
         shutil.copy(hook, new_path)
         exec_path = os.path.join('/', chrooted_path, os.path.basename(hook))
         logger.debug("Copying hook for chroot to: %s", new_path)
