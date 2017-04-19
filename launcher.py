@@ -4,7 +4,7 @@ import sys, os
 import logging
 from logging.handlers import SysLogHandler
 from anabot import config
-from anabot.variables import set_variable
+from anabot.variables import set_variable, get_variable
 
 def show_help():
     print '%s profile_name recipe_url [varname=value[,varname=value]]' % sys.argv[0]
@@ -38,7 +38,7 @@ if os.path.exists(VIRTIO_CONSOLE):
 
 # teres - connection with beaker
 teres_logger = logging.getLogger("teres")
-teres_logger.setLevel(logging.DEBUG)
+teres_logger.setLevel(get_variable('teres_log_level', 'WARNING'))
 logger.addHandler(logging.FileHandler("/var/log/anabot-teres.log"))
 teres_stdout_handler = logging.StreamHandler(sys.stdout)
 teres_stdout_handler.setFormatter(logging.Formatter("TERES: %(message)s"))
