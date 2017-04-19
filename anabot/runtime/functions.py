@@ -11,6 +11,7 @@ import dogtail.utils # pylint: disable=import-error
 import dogtail.dump # pylint: disable=import-error
 import pyatspi # pylint: disable=import-error
 from dogtail.predicate import GenericPredicate # pylint: disable=import-error
+from anabot.paths import screenshot_executable
 
 from .errors import TimeoutError
 
@@ -254,7 +255,7 @@ def log_screenshot(wait=None, progress_only=False):
 def screenshot(target_path, wait=None):
     if wait is not None:
         time.sleep(wait)
-    os.system('/opt/make_screenshot %s' % target_path)
+    os.system('%s %s' % (screenshot_executable, target_path))
 
 def get_attr(element, name, default=None):
     try:

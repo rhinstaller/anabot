@@ -20,3 +20,5 @@ sys.path.append(anabot_root)
 sys.path.append(libs_path)
 #   add modules path
 sys.path.append(modules_path)
+# utility to take screenshot
+screenshot_executable = os.path.join(anabot_root, 'make_screenshot')

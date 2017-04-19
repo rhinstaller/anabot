@@ -4,7 +4,8 @@
 import sys, os
 # do not expect that PYTHONPATH is set any more
 # dogtail path
-sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/lib/python2.7/site-packages')
+my_path = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(my_path, 'lib/python2.7/site-packages'))
 import dogtail, dogtail.utils, dogtail.config
 
 def main(path):

@@ -2,7 +2,8 @@
 
 import os
 import sys
-sys.path.append('/opt/lib/python2.7/site-packages')
+my_path = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(my_path, 'lib/python2.7/site-packages'))
 
 if "DISPLAY" not in os.environ:
     os.environ["DISPLAY"] = ":1"
