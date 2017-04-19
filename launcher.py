@@ -27,14 +27,14 @@ logger = logging.getLogger('anabot')
 logger.setLevel(config.get_option('log_level'))
 logger.addHandler(logging.StreamHandler(sys.stdout))
 logger.addHandler(logging.FileHandler(config.get_option('log_file')))
-syslog = SysLogHandler(address="/dev/log", facility=SysLogHandler.LOG_LOCAL3)
-syslog.setFormatter(logging.Formatter(config.get_option('log_format')))
+#syslog = SysLogHandler(address="/dev/log", facility=SysLogHandler.LOG_LOCAL3)
+#syslog.setFormatter(logging.Formatter(config.get_option('log_format')))
+#logger.addHandler(syslog)
 
 # virtio console - useful for debugging
 VIRTIO_CONSOLE = '/dev/virtio-ports/com.redhat.anabot.0'
 if os.path.exists(VIRTIO_CONSOLE):
     logger.addHandler(logging.FileHandler(VIRTIO_CONSOLE))
-logger.addHandler(syslog)
 
 # teres - connection with beaker
 teres_logger = logging.getLogger("teres")
