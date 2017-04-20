@@ -10,7 +10,7 @@ from fnmatch import fnmatchcase
 
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler, action_result
-from anabot.runtime.functions import get_attr, getnode, getnode_scroll, getnodes, getparent, getsibling
+from anabot.runtime.functions import get_attr, getnode, getnode_scroll, getnodes, getparent, getsibling, disappeared
 from anabot.runtime.comps import reload_comps, get_comps
 from anabot.runtime.hooks import register_post_hook
 from anabot.runtime.errors import TimeoutError
@@ -75,10 +75,9 @@ def base_handler(element, app_node, local_node):
 def base_check(element, app_node, local_node):
     if action_result(element)[0] == False:
         return action_result(element)
-    try:
-        spoke_label = getnode(app_node, "label", tr("SOFTWARE SELECTION"), visible=False)
+    if disappeared(app_node, "label", tr("SOFTWARE SELECTION")):
         return True
-    except TimeoutError:
+    else:
         return (False, "Software selection spoke is still visible.")
 
 def env_list_node(local_node):
