@@ -2,6 +2,7 @@ import StringIO
 
 from anabot.runtime.hooks import register_post_hook
 import teres
+import teres.bkr_handlers # we should get rid of this in future
 
 LINE_FORMAT='<li class="result_%(result_name)s">[ %(result_name)s ] %(msg)s</li>\n'
 IMG_FORMAT='<li><img src="./%(logname)s" /></li>\n'
