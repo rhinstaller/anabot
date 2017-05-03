@@ -52,6 +52,7 @@ def fix_boot_order():
     changed_efibootmgr_output = subprocess.check_output(['efibootmgr'])
     changed_boot_order = boot_order(changed_efibootmgr_output)
     if set(changed_boot_order) == set(old_boot_order):
+        next_boot = changed_boot_order[0]
         new_boot_order = old_boot_order
         reporter.log_debug("New anaconda's bootorder contains same boot entry numbers. Using old bootorder.")
         reporter.log_debug("Old: %s" % ",".join(old_boot_order))
@@ -65,6 +66,7 @@ def fix_boot_order():
             reporter.log_error("Old: %s" % ",".join(old_boot_order))
             reporter.log_error("New: %s" % ",".join(changed_boot_order))
         new_entry = changed_boot_order[0]
+        next_boot = new_entry
         reporter.log_debug("Using first entry in changed boot order (%s) as new boot entry." % new_entry)
         def old_to_new(entry):
             if entry in in_old:
@@ -74,6 +76,5 @@ def fix_boot_order():
     new_boot_order = ",".join(new_boot_order)
     reporter.log_info("Setting boot order to: %s" % new_boot_order)
     subprocess.check_call(['efibootmgr', '-o', new_boot_order])
-    current = boot_current(efibootmgr_output)
-    reporter.log_info("Setting next boot to: %s" % current)
-    subprocess.check_call(['efibootmgr', '-n', current])
+    reporter.log_info("Setting next boot to: %s" % next_boot)
+    subprocess.check_call(['efibootmgr', '-n', next_boot])
