@@ -32,4 +32,4 @@ def locality_check(element, app_node, local_node):
         return NotFoundResult("locality table cell", whose=locality)
     if gui_locality.selected:
         return ActionResultPass()
-    return LOCALITY_NOT_SELECTED % "test"
+    return LOCALITY_NOT_SELECTED % locality
