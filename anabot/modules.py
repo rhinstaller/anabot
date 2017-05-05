@@ -17,8 +17,9 @@ def import_modules():
                 logger.debug("Imported anabot module: %s", module_name)
             except ImportError:
                 logger.debug("Import failed for anabot module: %s", module_name)
-            except UnrelatedException:
-                logger.debug("Module reports, that it's not related for current environment")
+            except UnrelatedException as e:
+                logger.debug("Module '%s' reports, that it's not related for current environment", module_name)
+                logger.debug("Reason was: '%s'", e.message)
                 register_module_hooks = False
             finally:
                 if register_module_hooks:
