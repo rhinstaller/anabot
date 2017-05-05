@@ -138,7 +138,8 @@ def locality_handler(element, app_node, local_node):
 
     for locality_name in getnodes(locality_table,
                                   "table cell",
-                                  visible=None)[1::2]:
+                                  visible=None,
+                                  sensitive=None)[1::2]:
 
         if fnmatch.fnmatchcase(locality_name.text, locality):
             matched = True
