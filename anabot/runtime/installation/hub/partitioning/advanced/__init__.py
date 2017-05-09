@@ -8,7 +8,7 @@ from fnmatch import fnmatchcase
 
 from anabot.runtime.decorators import handle_action, handle_check, check_action_result
 from anabot.runtime.default import default_handler, action_result
-from anabot.runtime.functions import get_attr, waiton, getnode, getnodes, getparent, getsibling, press_key
+from anabot.runtime.functions import get_attr, waiton, getnode, getnodes, getparent, getsibling, press_key, scrollto, dump
 from anabot.runtime.errors import TimeoutError
 from anabot.runtime.translate import tr, gtk_tr
 from anabot.runtime.installation.hub.partitioning.advanced.common import schema_name
@@ -22,6 +22,18 @@ handle_act = lambda x: handle_action(_local_path + x)
 handle_chck = lambda x: handle_check(_local_path + x)
 
 _current_selection = None
+
+__initialized_toggles = False
+def __initialize_toggles(devices_node):
+    global __initialized_toggles
+    import time
+    if __initialized_toggles:
+        return
+    for toggle in getnodes(devices_node, 'toggle button'):
+        toggle.actions['activate'].do()
+        time.sleep(0.5)
+        toggle.actions['activate'].do()
+    __initialized_toggles = True
 
 def check_partitioning_error(app_node):
     try:
@@ -118,6 +130,8 @@ def select_handler(element, app_node, local_node):
     processed = [] # remember ATK nodes instead of device names
     done = False
     _current_selection = None
+    # need to initialize "node visibility", toggle all toggle buttons
+    __initialize_toggles(devices_node)
     while not done:
         done = True
         for device in devs(devices_node, fndevice, mountpoint):
@@ -125,8 +139,9 @@ def select_handler(element, app_node, local_node):
                 group_node = None
                 if not device.showing:
                     group_node = getparent(device, "toggle button")
-                    group_node.click()
+                    group_node.actions['activate'].do()
                 _current_selection = device
+                scrollto(device)
                 device.click()
                 default_handler(element, app_node, local_node)
                 processed.append(device)
