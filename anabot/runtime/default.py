@@ -8,18 +8,10 @@ reporter = teres.Reporter.get_reporter()
 
 from .actionresult import ActionResultFail, ActionResultNone, ActionResultPass
 
-RESULTS = {}
-
-def action_result(node_path, implicit_result=ActionResultNone()):
-    if isinstance(node_path, libxml2.xmlNode):
-        node_path = node_path.nodePath()
-    result = RESULTS.get(node_path, implicit_result)
-    if isinstance(result, ActionResultNone):
-        result = implicit_result
-    return result
-
 from .functions import get_attr, log_screenshot, dump
-from .decorators import ACTIONS, CHECKS, handle_action, handle_check
+from .handlers import ACTIONS, CHECKS
+from .results import RESULTS, action_result
+from .decorators import handle_action, handle_check
 from . import universal
 
 NODE_NUM = re.compile(r'\[[0-9]+\]')

@@ -2,10 +2,8 @@ import logging
 logger = logging.getLogger('anabot')
 
 from functools import wraps
-from .default import action_result
-
-ACTIONS = {}
-CHECKS = {}
+from .handlers import ACTIONS, CHECKS
+from .results import action_result
 
 def handle_action(element_path, func=None):
     """Decorator for handler function.
