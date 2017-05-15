@@ -35,7 +35,6 @@ def base_handler(element, app_node, local_node):
     default_handler(element, app_node, datetime_panel)
     try:
         done_button = getnode(datetime_panel, "push button", tr("_Done", False))
-        done_button.click()
     except TimeoutError:
         return notfound("Done button", where="Date & Time spoke")
     done_button.click()
