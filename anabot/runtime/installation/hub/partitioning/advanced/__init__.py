@@ -101,6 +101,10 @@ def schema_check(element, app_node, local_node):
         return True
     return (False, u"Different schema is set: %s" % schema_node.name)
 
+def switch_toggle(device):
+    group_node = getparent(device, "toggle button")
+    group_node.actions['activate'].do()
+
 @handle_act('/select')
 def select_handler(element, app_node, local_node):
     global _current_selection
@@ -131,15 +135,16 @@ def select_handler(element, app_node, local_node):
     done = False
     _current_selection = None
     # need to initialize "node visibility", toggle all toggle buttons
-    __initialize_toggles(devices_node)
+    #__initialize_toggles(devices_node) - this is hopefully no longer needed
     while not done:
         done = True
         for device in devs(devices_node, fndevice, mountpoint):
             if device not in processed:
                 group_node = None
+                switch_toggle(device)
+                switch_toggle(device)
                 if not device.showing:
-                    group_node = getparent(device, "toggle button")
-                    group_node.actions['activate'].do()
+                    switch_toggle(device)
                 _current_selection = device
                 scrollto(device)
                 device.click()
