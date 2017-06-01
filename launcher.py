@@ -58,6 +58,7 @@ from anabot.runtime.hooks import register_executable_hooks, run_preexechooks
 
 # propagate some config values as environment variables
 os.environ['ANABOT_PROFILE'] = profile_name
+set_variable('profile', profile_name)
 os.environ['ANABOT_BASEDIR' ] = anabot_root
 
 options_to_export = {
