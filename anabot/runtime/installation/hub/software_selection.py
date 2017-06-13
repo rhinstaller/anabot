@@ -75,10 +75,10 @@ def base_handler(element, app_node, local_node):
 def base_check(element, app_node, local_node):
     if action_result(element)[0] == False:
         return action_result(element)
-    if disappeared(app_node, "label", tr("SOFTWARE SELECTION")):
+    if disappeared(app_node, "push button", tr("_Done", False)):
         return True
     else:
-        return (False, "Software selection spoke is still visible.")
+        return (False, "Done button (probably in software selection spoke) is still visible.")
 
 def env_list_node(local_node):
     # env list is first list box
