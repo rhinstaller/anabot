@@ -203,7 +203,7 @@ def remove_check(element, app_node, local_node):
 
 def remove_related_handler_manipulate(element, app_node, local_node, dry_run):
     check = get_attr(element, "value", "yes") == "yes"
-    checkbox_text = tr("Delete _all other file systems in the %s root as well.",
+    checkbox_text = tr("Delete _all file systems which are only used by %s.",
                        context="GUI|Custom Partitioning|Confirm Delete Dialog")
     checkbox_text %= "*"
     checkbox_text = unicode(checkbox_text)
