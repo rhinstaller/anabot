@@ -14,6 +14,8 @@ from anabot.runtime.translate import tr
 from anabot.variables import get_variable
 from anabot.runtime.actionresult import NotFoundResult as NotFound
 from anabot.runtime.actionresult import ActionResultPass as Pass, ActionResultFail as Fail
+from anabot.variables import set_variable, get_variable
+import os, subprocess, random
 
 # submodules
 from . import advanced
@@ -244,10 +246,9 @@ def luks_handler(element, app_node, local_node):
         luks_dialog = getparent(luks_label, "dialog")
     except TimeoutError:
         return LUKS_DIALOG_NOT_FOUND
-    default_handler(element, app_node, luks_dialog)
+    return default_handler(element, app_node, luks_dialog)
 
 @handle_chck('/luks')
-@check_action_result
 def luks_check(element, app_node, local_node):
     return action_result(element)
 
@@ -258,7 +259,9 @@ def luks_password_manipulate(element, app_node, local_node, dry_run):
     if not dry_run:
         pw_entry.click()
         clear_text(pw_entry)
+        logger.info("Entering LUKS password '%s'" % value)
         pw_entry.typeText(value)
+        set_variable("luks_password", value)
     else:
         if len(value)*BLACK_CIRCLE == unicode(pw_entry.text):
             return Pass()
@@ -280,7 +283,9 @@ def luks_confirm_password_manipulate(element, app_node, local_node, dry_run):
     if not dry_run:
         pw_confirm_entry.click()
         clear_text(pw_confirm_entry)
+        logger.info("Entering LUKS confirmation password '%s'" % value)
         pw_confirm_entry.typeText(value)
+        set_variable("luks_confirm_password", value)
     else:
         if len(value)*BLACK_CIRCLE == unicode(pw_confirm_entry.text):
             return Pass()
@@ -307,6 +312,9 @@ def luks_cancel_handler(element, app_node, local_node):
             return NotFound("active \"Cancel\" button")
     except TimeoutError:
         return NotFound("\"Cancel\" button")
+    finally:
+        set_variable("luks_password", "")
+        set_variable("luks_confirm_password", "")
 
 @handle_chck('/luks/cancel')
 @check_action_result
@@ -336,7 +344,13 @@ def luks_save_check(element, app_node, local_node):
         getnode(app_node, "push button", tr("_save", context="GUI|Passphrase Dialog"))
         return Fail("Active Save Passphrase button found", "button_found")
     except TimeoutError:
-        return Pass()
+        luks_password = get_variable("luks_password")
+        luks_confirm_password = get_variable("luks_confirm_password")
+        if luks_password == luks_confirm_password:
+            return Pass()
+        else:
+            return Fail("LUKS password and confirmation password don't match: "
+                        " '%s' '%s'" % (luks_password, luks_confirm_password))
 
 KB_PANEL_NOT_FOUND = NotFound("Keyboard Layout panel")
 KB_ICON_LABEL_NOT_FOUND = NotFound("keyboard layout icon or label")
