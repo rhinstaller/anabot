@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+[ $ANABOT_VAR_LUKS_PASSWORD ] || exit 0
+
+echo "LUKS password '$ANABOT_VAR_LUKS_PASSWORD' found, creating a key in initrd"
+
+# the following code was borrowed from nb.py:
+keyfile="/root/keyfile"
+dd if=/dev/urandom bs=1 count=32 of=$keyfile
+chmod 0400 $keyfile
+UUIDS=`cat /etc/crypttab | cut -d' ' -f2 | cut -d'=' -f2`
+for UUID in $UUIDS; do
+   echo $ANABOT_VAR_LUKS_PASSWORD | /sbin/cryptsetup luksAddKey /dev/disk/by-uuid/$UUID $keyfile
+done
+# modify /etc/crypttab, set key file in the third column of the file
+awk -v "KEY_FILE=$keyfile" '{$3=KEY_FILE; print $0}' /etc/crypttab > crypttab_mod
+mv -Z crypttab_mod /etc/crypttab
+chmod 0600 /etc/crypttab
+kernel_file=`grubby --default-kernel`
+initrd_file=`grubby --info=$kernel_file | grep ^initrd= | sed 's/^initrd=//' | head -n1`
+kernel_version=`rpm -qf $kernel_file | sed 's/^kernel-//'`
+/sbin/dracut -f -I $keyfile $initrd_file $kernel_version
+if [ -x /sbin/zipl ]; then
+   /sbin/zipl
+fi
