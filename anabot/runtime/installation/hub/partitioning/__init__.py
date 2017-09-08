@@ -15,7 +15,6 @@ from anabot.variables import get_variable
 from anabot.runtime.actionresult import NotFoundResult as NotFound
 from anabot.runtime.actionresult import ActionResultPass as Pass, ActionResultFail as Fail
 from anabot.variables import set_variable, get_variable
-import os, subprocess, random
 
 # submodules
 from . import advanced
