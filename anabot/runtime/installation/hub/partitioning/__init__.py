@@ -205,10 +205,13 @@ def reclaim_delete_all_check(element, app_node, local_node):
             return (False, "Not all disks/partitions are scheduled to be deleted")
     return True
 
-
+ENCRYPT_CHECKBOX_NOT_FOUND = NotFound("'Encrypt my data' checkbox'")
 def encrypt_data_manipulate(element, app_node, local_node, dry_run):
     action = get_attr(element, "action", "enable")
-    checkbox_text = tr("_Encrypt my data.")
+    try:
+        checkbox_text = tr("_Encrypt my data.")
+    except TimeoutError:
+        return ENCRYPT_CHECKBOX_NOT_FOUND
     encrypt_checkbox = getnode_scroll(local_node, "check box", checkbox_text)
     if not dry_run:
         if ((action == "enable") != encrypt_checkbox.checked or
