@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-[ $ANABOT_VAR_LUKS_PASSWORD ] || exit 0
+if [ -z $ANABOT_VAR_LUKS_PASSWORD ] || [ ! -s /etc/crypttab ]; then
+    exit 0
+fi
 
 echo "LUKS password '$ANABOT_VAR_LUKS_PASSWORD' found, adding it to initrd"
 
