@@ -68,6 +68,19 @@ def size_check(element, app_node, local_node):
         return True
     return (False, u"Size doesn't match, expected: '%s' found: '%s'" % (size.text, value))
 
+@handle_act('/reformat')
+def reformat_handler(element, app_node, local_node):
+    action = get_attr(element, "action", "check") == "check"
+    reformat = getnode(local_node, "check box", tr("Ref_ormat", context="GUI|Custom Partitioning|Configure"))
+    if action != reformat.checked:
+        reformat.click()
+
+@handle_chck('/reformat')
+def reformat_check(element, app_node, local_node):
+    action = get_attr(element, "action", "check") == "check"
+    reformat = getnode(local_node, "check box", tr("Ref_ormat", context="GUI|Custom Partitioning|Configure"))
+    return action != reformat.checked
+
 @handle_act('/name')
 def name_handler(element, app_node, local_node):
     value = get_attr(element, "value")
