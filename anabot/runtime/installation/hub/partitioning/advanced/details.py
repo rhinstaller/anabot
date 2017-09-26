@@ -11,6 +11,8 @@ from anabot.runtime.functions import get_attr, getnode, getnodes, getparent, get
 from anabot.runtime.errors import TimeoutError
 from anabot.runtime.translate import tr
 from anabot.runtime.installation.hub.partitioning.advanced.common import schema_name, raid_name
+from anabot.runtime.actionresult import NotFoundResult as NotFound, ActionResultPass as Pass,\
+    ActionResultFail as Fail
 
 _local_path = '/installation/hub/partitioning/advanced/details'
 _local_select_path = '/installation/hub/partitioning/advanced/select/details'
@@ -246,6 +248,28 @@ def edit_volume_group(element, app_node, local_node):
     vg_edit_button = getnode(vg_section, "push button", vg_edit_text)
     vg_edit_button.click()
     return volume_group_dialog(element, app_node, local_node)
+
+ENCRYPT_CHECKBOX_NOT_FOUND = NotFound("Encrypt checkbox")
+@handle_act('/encrypt')
+def encrypt_handler(element, app_node, local_node):
+    action = get_attr(element, "action")
+    try:
+        checkbox = getnode(local_node, "check box", tr("Encrypt"))
+    except TimeoutError:
+        return ENCRYPT_CHECKBOX_NOT_FOUND
+    if checkbox.checked != (action == "enable"):
+        checkbox.click()
+
+@handle_chck('/encrypt')
+def encrypt_check(element, app_node, local_node):
+    action = get_attr(element, "action")
+    try:
+        checkbox = getnode(local_node, "check box", tr("Encrypt"))
+    except TimeoutError:
+        return ENCRYPT_CHECKBOX_NOT_FOUND
+    if checkbox.checked == (action == "enable"):
+        return Pass()
+    return Fail("Encrypt check box is not in accordance with action '%s'" % action)
 
 def handle_vg_act(path):
     def decorator(func):
