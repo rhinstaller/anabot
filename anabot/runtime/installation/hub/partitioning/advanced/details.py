@@ -44,6 +44,15 @@ def mountpoint_handler(element, app_node, local_node):
     mountpoint = getsibling(mountpoint_label, 1, "text")
     mountpoint.typeText(value)
 
+@handle_chck('/mountpoint')
+def mountpoint_check(element, app_node, local_node):
+    value = get_attr(element, "value")
+    mountpoint_label = getnode(local_node, "label", tr("Mount _Point:"))
+    mountpoint = getsibling(mountpoint_label, 1, "text")
+    if mountpoint.text == value:
+        return True
+    return (False, u"Mountpoint doesn't match, expected: '%s', found: '%s'" % (value, mountpoint.text))
+
 @handle_act('/filesystem')
 def filesystem_handler(element, app_node, local_node):
     fstype = get_attr(element, "select")
@@ -66,7 +75,7 @@ def size_check(element, app_node, local_node):
     size = getsibling(size_label, 1, "text")
     if size.text == value:
         return True
-    return (False, u"Size doesn't match, expected: '%s' found: '%s'" % (size.text, value))
+    return (False, u"Size doesn't match, expected: '%s' found: '%s'" % (value, size.text))
 
 @handle_act('/reformat')
 def reformat_handler(element, app_node, local_node):
@@ -94,6 +103,15 @@ def label_handler(element, app_node, local_node):
     label_label = getnode(local_node, "label", tr("_Label:"))
     label = getsibling(label_label, 1, "text")
     label.typeText(value)
+
+@handle_chck('/label')
+def label_check(element, app_node, local_node):
+    value = get_attr(element, "value")
+    label_label = getnode(local_node, "label", tr("_Label:"))
+    label = getsibling(label_label, 1, "text")
+    if label.text == value:
+        return True
+    return (False, u"Label doesn't match, expected: '%s', found: '%s'" % (value, label.text))
 
 @handle_act('/device_type')
 def device_type_handler(element, app_node, local_node):
