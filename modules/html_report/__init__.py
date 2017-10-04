@@ -15,6 +15,9 @@ HEAD="""<html>
   color: green;
 }
 .result_FAIL {
+  color: red;
+}
+.result_ERROR {
   font-weight: bold;
   color: red;
 }
