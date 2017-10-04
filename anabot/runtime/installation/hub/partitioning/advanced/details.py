@@ -88,7 +88,7 @@ def reformat_handler(element, app_node, local_node):
 def reformat_check(element, app_node, local_node):
     action = get_attr(element, "action", "check") == "check"
     reformat = getnode(local_node, "check box", tr("Ref_ormat", context="GUI|Custom Partitioning|Configure"))
-    return action != reformat.checked
+    return action == reformat.checked
 
 @handle_act('/name')
 def name_handler(element, app_node, local_node):
