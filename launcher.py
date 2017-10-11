@@ -7,7 +7,7 @@ from anabot import config
 from anabot.variables import set_variable, get_variable
 
 def show_help():
-    print '%s profile_name recipe_url [varname=value[,varname=value]]' % sys.argv[0]
+    print '%s profile_name [recipe_url] [varname=value[,varname=value]]' % sys.argv[0]
 
 try:
     profile_name = sys.argv[1]
@@ -15,8 +15,18 @@ except IndexError as e:
     show_help()
     sys.exit(2)
 
-anabot_vars = {}
-for arg in sys.argv[2:]:
+# recipe_url is optional
+# second argument can either be recipe_url or varname=value
+try:
+    (name, value) = sys.argv[2].split('=',1)
+    set_variable(name, value)
+except IndexError:
+    pass
+except ValueError:
+    set_variable('recipe', sys.argv[2])
+
+# all arguments after recipe_url are varname=value
+for arg in sys.argv[3:]:
     (name, value) = arg.split('=',1)
     set_variable(name, value)
 
