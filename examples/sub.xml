@@ -1,0 +1,9 @@
+<ez:installation xmlns:ez="http://example.com/path/anabot/easy">
+  <!--
+      When running preprocessor manually:
+      ./preprocessor.py examples/sub.xml - profile_name lang=English
+  -->
+  <ez:welcome>
+    <ez:sub ez:name="language" value="{lang}" />
+  </ez:welcome>
+</ez:installation>

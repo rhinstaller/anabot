@@ -24,7 +24,7 @@ def preprocess(input_path='-', output_path='-', application="installation"):
         indoc = libxml2.parseFile(input_path)
     outdoc = indoc.copyDoc(True)
     xpath = outdoc.xpathNewContext()
-    xpath.xpathRegisterNs('ez', 'http://example.com/path/anabot/easy')
+    xpath.xpathRegisterNs('ez', EASY_NS_URI)
     easies = [(e, e.nodePath()) for e in xpath.xpathEval('//ez:*')]
     for element, node_path in sorted(easies, key=lambda x: x[1], reverse=True):
         do_replace(element)
