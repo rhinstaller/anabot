@@ -1,6 +1,6 @@
 Anabot
 ======
-Framework for anaconda GUI testing.
+Framework for (not only) anaconda GUI testing.
 
 Full Anabot documentation is available here: https://gitlab.example.com/user/anabot-doc
 

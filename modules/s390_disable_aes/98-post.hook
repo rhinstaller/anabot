@@ -1,7 +1,7 @@
 #!/bin/bash
 
 case $ANABOT_PROFILE in
-    anaconda)
+    anaconda_installer)
         if [ `uname -m` != 's390x' ]; then
            exit
         fi
