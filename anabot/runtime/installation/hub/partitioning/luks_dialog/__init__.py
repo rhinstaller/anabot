@@ -7,7 +7,7 @@ from anabot.runtime.decorators import handle_action, handle_check, check_action_
 from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.functions import get_attr, getnode,\
     getparent, clear_text, getsibling
-from anabot.runtime.errors import TimeoutError
+from anabot.runtime.errors import NonexistentError, TimeoutError
 from anabot.runtime.translate import tr
 from anabot.runtime.actionresult import NotFoundResult as NotFound
 from anabot.runtime.actionresult import ActionResultPass as Pass, ActionResultFail as Fail
@@ -57,11 +57,11 @@ def luks_password_manipulate(element, app_node, local_node, dry_run):
     try:
         pw_label = getnode(local_node, "label",
                            tr("_Passphrase:", context="GUI|Passphrase Dialog"))
-    except TimeoutError:
+    except NonexistentError:
         return PW_LABEL_NOT_FOUND
     try:
         pw_entry = getsibling(pw_label, -1, "password text")
-    except TimeoutError:
+    except NonexistentError:
         return PW_ENTRY_NOT_FOUND
     if not dry_run:
         pw_entry.click()
@@ -91,11 +91,11 @@ def luks_confirm_password_manipulate(element, app_node, local_node, dry_run):
     try:
         pw_confirm_label = getnode(local_node, "label",
                                    tr("Con_firm:", context="GUI|Passphrase Dialog"))
-    except TimeoutError:
+    except NonexistentError:
         return PW_CONFIRM_LABEL_NOT_FOUND
     try:
         pw_confirm_entry = getsibling(pw_confirm_label, -1, "password text")
-    except TimeoutError:
+    except NonexistentError:
         return PW_CONFIRM_ENTRY_NOT_FOUND
     if not dry_run:
         pw_confirm_entry.click()
@@ -124,7 +124,7 @@ def luks_cancel_handler(element, app_node, local_node):
         cancel_button = getnode(local_node, "push button",
                                 tr("_Cancel", context="GUI|Passphrase Dialog"))
         cancel_button.click()
-    except TimeoutError:
+    except NonexistentError:
         return NotFound("active \"Cancel\" button")
 
 @handle_chck('/cancel')
@@ -140,7 +140,7 @@ def luks_save_handler(element, app_node, local_node):
         save_button = getnode(local_node, "push button",
                               tr("_Save Passphrase", context="GUI|Passphrase Dialog"))
         save_button.click()
-    except TimeoutError:
+    except NonexistentError:
         return NotFound("active \"Save Passphrase\" button")
     if _entered_luks_password == _entered_luks_confirm_password:
         set_variable("luks_password", _entered_luks_password)
@@ -162,13 +162,13 @@ def luks_keyboard_manipulate(element, app_node, local_node, dry_run):
     required_layout = get_attr(element, "layout")
     try:
         panel = getnode(local_node, "panel", "Keyboard Layout")
-    except TimeoutError:
+    except NonexistentError:
         return KB_PANEL_NOT_FOUND
     try:
         icon = getnode(panel, "icon")
         kb_label = getsibling(icon, 1, "label")
         initial_layout = kb_label.text
-    except TimeoutError:
+    except NonexistentError:
         return KB_ICON_LABEL_NOT_FOUND
 
     if dry_run:
