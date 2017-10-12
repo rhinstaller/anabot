@@ -13,7 +13,7 @@ import pyatspi # pylint: disable=import-error
 from dogtail.predicate import GenericPredicate # pylint: disable=import-error
 from anabot.paths import screenshot_executable
 
-from .errors import TimeoutError
+from .errors import NonexistentError, TimeoutError
 
 import logging
 logger = logging.getLogger('anabot')
@@ -27,6 +27,24 @@ _SCREENSHOT_NUM = 0
 _SCREENSHOT_SUM = None
 _SCREENSHOT_PROGRESS_SUM = None
 
+def is_alive(node):
+    # just 'not node.dead' is not sufficient because of the way dogtail behaves
+    return not node.dead or node.showing
+
+def _alive(node):
+    if not is_alive(node):
+        raise NonexistentError("Queried node '%s' is dead and not showing." % node)
+    return node
+
+def _check_existence(func):
+    @functools.wraps(func)
+    def wrapper(node, *args, **kwargs):
+        if not is_alive(node):
+            raise NonexistentError("Node '%s' queried in function '%s' is dead "
+                                   "and not showing." % (node, func.__name__))
+        return func(node, *args, **kwargs)
+    return wrapper
+
 def inrange(what, border1, border2):
     if border1 == border2:
         return what == border1
@@ -34,9 +52,11 @@ def inrange(what, border1, border2):
         return border1 <= what and what < border2
     return border2 <= what and what < border1
 
+@_check_existence
 def visibility(node, value):
     return (value is None) or (bool(value) == node.showing)
 
+@_check_existence
 def sensitivity(node, value):
     return (value is None) or (bool(value) == node.sensitive)
 
@@ -48,7 +68,7 @@ def wait_until_disappear(node, predicates, timeout=_DEFAULT_TIMEOUT,
     while count < timeout:
         count += 1
         for predicate in predicates:
-            found = node.findChild(predicate, retry=False, requireResult=False, recursive=recursive)
+            found = _alive(node).findChild(predicate, retry=False, requireResult=False, recursive=recursive)
             if found is None or visibility(found, False):
                 if make_screenshot:
                     log_screenshot()
@@ -81,7 +101,7 @@ def waiton(node, predicates, timeout=_DEFAULT_TIMEOUT, make_screenshot=False,
     while count < timeout:
         count += 1
         for predicate in predicates:
-            found = node.findChild(predicate, retry=False, requireResult=False, recursive=recursive)
+            found = _alive(node).findChild(predicate, retry=False, requireResult=False, recursive=recursive)
             if found is not None and visibility(found, visible) and sensitivity(found, sensitive):
                 if make_screenshot:
                     log_screenshot()
@@ -100,8 +120,8 @@ def waiton_all(node, predicates, timeout=_DEFAULT_TIMEOUT,
     while count < timeout:
         count += 1
         for predicate in predicates:
-            found = [x for x in node.findChildren(predicate,
-                                                  recursive=recursive) if
+            found = [x for x in _alive(node).findChildren(predicate,
+                                                          recursive=recursive) if
                      visibility(x, visible) and sensitivity(x, sensitive)]
             if len(found):
                 if make_screenshot:
@@ -154,7 +174,7 @@ def getparent(child, node_type=None, node_name=None, predicates=None):
         predicates['roleName'] = node_type
     if node_name is not None:
         predicates['name'] = node_name
-    return child.findAncestor(GenericPredicate(**predicates))
+    return _alive(child).findAncestor(GenericPredicate(**predicates))
 
 def getparents(child, node_type=None, node_name=None, predicates=None):
     parents = []
@@ -183,6 +203,7 @@ def findsibling(items, item, distance, criteria=lambda x: True):
     return None
 
 
+@_check_existence
 def nodematching(node, node_type=None, node_name=None, visible=True,
                sensitive=True):
     if node_type is not None and node.roleName != node_type:
@@ -196,6 +217,7 @@ def nodematching(node, node_type=None, node_name=None, visible=True,
     return True
 
 
+@_check_existence
 def getsibling(node, vector, node_type=None, node_name=None, visible=True,
                sensitive=True):
     """
@@ -297,10 +319,12 @@ def type_text(text):
     import dogtail.rawinput # pylint: disable=import-error
     dogtail.rawinput.typeText(text)
 
+@_check_existence
 def clear_text(node):
     node.keyCombo("<Control>a")
     node.keyCombo("<Delete>")
 
+@_check_existence
 def dump(node, filename=None):
     reporter.log_debug("Dumping node")
     dogtail.dump.plain(node, fileName=filename)
@@ -314,9 +338,11 @@ OUTSIDE = -2147483648
 SCROLL_STEP = 15
 INSIDE_INTOLERANCE = 2 # in pixels
 
+@_check_existence
 def _change_value(node, diff):
     node.value += diff
 
+@_check_existence
 def scrollto(node):
     def getcenter(node):
         return (
@@ -493,19 +519,20 @@ def combo_scroll(item, point=True, click=None, doubleclick=None):
         following = getsibling(item, 1, "menu item")
 
     while yborders(previous)[0] < miny:
-        menu.click(MOUSE_SCROLL_UP)
+        _alive(menu).click(MOUSE_SCROLL_UP)
     while yborders(following)[1] > maxy:
-        menu.click(MOUSE_SCROLL_DOWN)
+        _alive(menu).click(MOUSE_SCROLL_DOWN)
 
     do_actions()
 
-
+@_check_existence
 def handle_checkbox(node, element):
     value = get_attr(element, 'checked')
     req_checked = (value == 'yes')
     if node.checked != req_checked:
-        node.click()
+        _alive(node).click()
 
+@_check_existence
 def check_checkbox(node, element, name, message="%(name)s is %(found)s, expected: %(expected)s", status_true='checked', status_false='unchecked'):
     if isinstance(element, libxml2.xmlNode):
         req_checked = get_attr(element, 'checked', 'yes') == 'yes'

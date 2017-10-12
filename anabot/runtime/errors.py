@@ -1,8 +1,8 @@
 #!/bin/env python2
 
-class TimeoutError(Exception):
+class NonexistentError(Exception):
     def __init__(self, message=None, data=None, *args):
-        super(TimeoutError, self).__init__()
+        super(NonexistentError, self).__init__()
         self.message = message
         self.data = data
         self.args = args
@@ -39,3 +39,6 @@ class TimeoutError(Exception):
     def __repr__(self):
         return (self.__class__.__name__ + ": "
                 + str(tuple([self.message, self.data, self.args])))
+
+class TimeoutError(NonexistentError):
+    pass
