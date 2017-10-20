@@ -6,7 +6,7 @@ reporter = teres.Reporter.get_reporter()
 
 import os, shutil, subprocess, stat
 import functools
-from anabot import config
+from anabot import config, variables
 
 _hooks = {
     'preexec': [],
@@ -107,6 +107,14 @@ def _run_executable_hook(executable=None, chroot=None, preexec_fn=None):
     if chroot is not None:
         logger.debug("Removing hook from chroot: %s", new_path)
         os.unlink(new_path)
+    # executable hooks needs some method to set env and variables back in main process
+    vars_file = config.get_option('hook_update_vars_file')
+    env_file = config.get_option('hook_update_env_file')
+    if chroot is not None:
+        vars_file = os.path.join('/', chrooted_path, vars_file)
+        env_file = os.path.join('/', chrooted_path, env_file)
+    _merge_hook_data(vars_file, variables.set_variable)
+    _merge_hook_data(env_file, variables.set_env_variable)
 
 def _run_hooks(hook_type, preexec_fn=None):
     def none_is_greater_cmp(x, y):
@@ -135,3 +143,18 @@ def run_prehooks():
 
 def run_posthooks():
     _run_hooks('post')
+
+def _merge_hook_data(datafile, set_func):
+    '''
+parse datafile for key=value lines and call set_func(key, value)
+    '''
+    if not os.path.exists(datafile):
+        return False
+    with open(datafile, 'r') as data:
+        for l in data.lines():
+            try:
+                name, value = l.split('=', 1)
+                set_func(name, value)
+            except ValueError:
+                logger.warning("Ignoring line - cannot get key/value pair '%s'", l)
+    os.unlink(datafile)

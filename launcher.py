@@ -4,7 +4,7 @@ import sys, os
 import logging
 from logging.handlers import SysLogHandler
 from anabot import config
-from anabot.variables import set_variable, get_variable
+from anabot.variables import set_variable, get_variable, set_env_variable
 
 def show_help():
     print '%s profile_name [recipe_url] [varname=value[,varname=value]]' % sys.argv[0]
@@ -67,15 +67,17 @@ from anabot.preprocessor import preprocess
 from anabot.runtime.hooks import register_executable_hooks, run_preexechooks
 
 # propagate some config values as environment variables
-os.environ['ANABOT_PROFILE'] = profile_name
+set_env_variable('ANABOT_PROFILE', profile_name)
 set_variable('profile', profile_name)
-os.environ['ANABOT_BASEDIR' ] = anabot_root
+set_env_variable('ANABOT_BASEDIR', anabot_root)
 
 options_to_export = {
     # option_name: env_variable,
     'x_display': 'DISPLAY',
     'log_file': 'ANABOT_CONFIG_LOG_FILE',
     'hooks': 'ANABOT_CONFIG_HOOKS',
+    'hook_update_env_file': 'ANABOT_HOOK_UPDATE_ENV',
+    'hook_update_vars_file': 'ANABOT_HOOK_UPDATE_VARS',
 }
 
 for option in options_to_export.keys():
@@ -83,7 +85,7 @@ for option in options_to_export.keys():
     if not os.environ.has_key(env_name):
         value = config.get_option(option)
         if value is not None:
-            os.environ[env_name] = value
+            set_env_variable(env_name, value)
 
 logger.debug('Registering hooks for profile %s', profile_name)
 hook_paths = [os.path.join(profile_name, 'hooks'),]
