@@ -5,7 +5,7 @@ ConditionArchitecture=!s390
 ConditionArchitecture=!s390x
 
 [Service]
-ExecStart=/opt/launcher.py anaconda_installer
+ExecStart=/opt/python_launcher.sh /opt/launcher.py anaconda_installer
 Environment="ANABOT_MODULES=/opt/anabot-modules"
 Environment="ANABOT_CONF=/opt/anabot.ini"
 Environment="TERES_PATH=/opt/teres"
