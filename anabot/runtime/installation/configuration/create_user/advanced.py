@@ -35,7 +35,6 @@ def user_adv_homedir_handler(element, app_node, local_node):
 @handle_chck('/home')
 def user_adv_homedir_check(element, app_node, local_node):
     label = getnode(local_node, "label", tr('Home _directory:', context="GUI|Advanced User"))
-    print 'found homedir label'
     entry = getsibling(label, 1, node_type="text")
     homedir = get_attr(element, 'value')
     if entry.text == homedir:

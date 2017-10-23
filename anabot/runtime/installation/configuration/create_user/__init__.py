@@ -101,7 +101,7 @@ def user_password_handler(element, app_node, local_node):
 
 @handle_act('/confirm_password')
 def user_confirm_password_handler(element, app_node, local_node):
-    print "searching for %s" % tr('Confirm password')
+    logger.debug("searching for %s" % tr('Confirm password'))
     entry = getnode(local_node, "password text", tr('Confirm Password')) # translation error  label "_Povrďte heslo"
     password = get_attr(element, 'value')
     clear_text(entry)

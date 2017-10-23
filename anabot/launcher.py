@@ -7,7 +7,7 @@ from anabot import config
 from anabot.variables import set_variable, get_variable, set_env_variable
 
 def show_help(arg0):
-    print '%s profile_name [recipe_url] [varname=value[,varname=value]]' % sys.argv[0]
+    print('%s profile_name [recipe_url] [varname=value[,varname=value]]' % sys.argv[0])
 
 def main(*args):
     try:
