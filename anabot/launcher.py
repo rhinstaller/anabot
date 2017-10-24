@@ -45,7 +45,7 @@ def main(*args):
     # virtio console - useful for debugging
     VIRTIO_CONSOLE = '/dev/virtio-ports/com.redhat.anabot.0'
     if os.path.exists(VIRTIO_CONSOLE):
-        logger.addHandler(logging.FileHandler(VIRTIO_CONSOLE))
+        logger.addHandler(logging.FileHandler(VIRTIO_CONSOLE, mode='w'))
 
     # teres - connection with beaker
     teres_logger = logging.getLogger("teres")
