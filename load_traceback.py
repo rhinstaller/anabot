@@ -2,7 +2,7 @@
 
 import sys
 import os
-import cPickle
+import pickle
 import urllib2
 
 def list_dirs(path):
@@ -33,7 +33,7 @@ def main(source=None):
         source = file(source)
     else:
         source = urllib2.urlopen(source)
-    return cPickle.load(source)
+    return pickle.load(source)
 
 if __name__ == "__main__":
     import pprint
