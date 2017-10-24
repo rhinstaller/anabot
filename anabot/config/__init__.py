@@ -1,5 +1,9 @@
 import os
-from ConfigParser import RawConfigParser
+
+try: # python3
+    from configparser import RawConfigParser
+except ImportError: # python2
+    from ConfigParser import RawConfigParser
 from anabot.paths  import defauls_path, profiles_path
 from anabot.variables import set_variable
 
