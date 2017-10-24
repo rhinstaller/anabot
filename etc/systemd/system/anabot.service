@@ -9,6 +9,7 @@ ExecStart=/opt/launcher.py anaconda_installer
 Environment="ANABOT_MODULES=/opt/anabot-modules"
 Environment="TERES_PATH=/opt/teres"
 Environment="DISPLAY=:1"
+Environment="USER=root"
 ExecReload=/bin/kill -s SIGUSR1 ${MAINPID}
 
 [Install]
