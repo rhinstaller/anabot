@@ -3,7 +3,13 @@ anabot_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # modules paths
 teres_path = os.path.join(anabot_root, 'teres')
-libs_path = os.path.join(anabot_root, 'lib/python2.7/site-packages')
+libs_path = os.path.join(
+    anabot_root,
+    'lib/python%(major)s.%(minor)s/site-packages' % {
+        'major': sys.version_info.major,
+        'minor': sys.version_info.minor,
+    }
+)
 
 # configuration paths
 profiles_path = os.path.join(anabot_root, 'profiles')
