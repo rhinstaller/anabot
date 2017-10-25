@@ -10,3 +10,6 @@
 [submodule "modules/harness-beaker"]
 	path = modules/harness-beaker
 	url = git@gitlab.example.com:user/anabot-harness-beaker.git
+[submodule "dogtail"]
+	path = dogtail
+	url = https://gitlab.com/dogtail/dogtail.git
