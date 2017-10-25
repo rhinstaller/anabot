@@ -131,17 +131,22 @@ def _run_executable_hook(executable=None, chroot=None, preexec_fn=None):
     _merge_hook_data(vars_file, variables.set_variable)
     _merge_hook_data(env_file, variables.set_env_variable)
 
+def _none_is_greater_cmp(x, y):
+    # all hooks should be registered as python functions
+    if x == y: return 0
+    if x is None or x > y: return 1
+    if y is None or x < y: return -1
+    raise Exception('Comparison unexpected state')
+
+def _first_key_none_is_greater(x, y):
+    return _none_is_greater_cmp(x[0], y[0])
+
 def _run_hooks(hook_type, preexec_fn=None):
-    def none_is_greater_cmp(x, y):
-        # all hooks should be registered as python functions
-        result = cmp(x, y)
-        if x is None or y is None:
-            result *= -1
-        return result
     hook_list = sorted(
         _hooks[hook_type],
-        none_is_greater_cmp,
-        key=lambda x: x[0], reverse=True)
+        key=functools.cmp_to_key(_first_key_none_is_greater),
+        reverse=True
+    )
     while len(hook_list) > 0:
         prio, hook = hook_list.pop()
         try:
