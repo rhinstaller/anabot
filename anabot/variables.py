@@ -1,10 +1,11 @@
 import os
+import six
 
 __VARIABLES = {}
 __ENV_PREFIX = 'ANABOT_VAR_'
 
 def set_variable(name, value):
-    if not isinstance(value, (str, unicode)):
+    if not isinstance(value, six.string_types):
         raise TypeError("Only 'str' and 'unicode', %s given" % type(value))
     __VARIABLES[name] = value
     set_env_variable(__ENV_PREFIX + name.upper(), value)
