@@ -83,7 +83,7 @@ def main(*args):
 
     for option in options_to_export.keys():
         env_name = options_to_export[option]
-        if not os.environ.has_key(env_name):
+        if env_name not in os.environ:
             value = config.get_option(option)
             if value is not None:
                 set_env_variable(env_name, value)
