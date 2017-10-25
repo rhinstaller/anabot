@@ -1,4 +1,5 @@
 import sys, os, platform
+import site
 anabot_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # modules paths
@@ -26,14 +27,11 @@ defauls_path = os.path.join(profiles_path, 'default.ini')
 # modules path
 modules_path = os.path.join(anabot_root, 'modules')
 
-# set sys.path
-#   anabot path
-sys.path.append(anabot_root)
-#   additional libs path (we don't want to mess the system, so we use our
-#   site-packages dirs)
-sys.path.append(libs_path)
-sys.path.append(libs_arch_path)
-#   add modules path
+# additional libs path (we don't want to mess the system, so we use our
+# site-packages dirs)
+site.addsitedir(libs_path)
+site.addsitedir(libs_arch_path)
+# add modules path
 sys.path.append(modules_path)
 # utility to take screenshot
 screenshot_executable = os.path.join(anabot_root, 'make_screenshot')
