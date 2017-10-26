@@ -1,6 +1,7 @@
 #!/bin/python
 
 import re
+import six
 import gettext
 import langtable # pylint: disable=import-error
 from .comps import get_comps
@@ -46,7 +47,7 @@ def set_languages(languages):
                                           fallback=True)
 
 def _tr(translate, intext, drop_underscore=True, context=None):
-    if not isinstance(intext, (str, unicode)):
+    if not isinstance(intext, six.string_types):
         raise TypeError("Can't translate object of type %s." % type(intext))
 
     # Some translations have context but python gettext doesn't support
@@ -54,13 +55,13 @@ def _tr(translate, intext, drop_underscore=True, context=None):
     # https://bugs.python.org/issue2504#msg106121
     if context is not None:
         intext = context + "\x04" + intext
-    outtext = translate.ugettext(intext)
+    outtext = translate.gettext(intext)
     # drop context if there is no translation
     if context is not None and outtext == intext:
         outtext = outtext[len(context)+1:]
     if drop_underscore:
         outtext = outtext.replace('_', '', 1)
-    return outtext
+    return six.u(outtext)
 
 def tr(intext, drop_underscore=True, context=None):
     return _tr(__translate, intext, drop_underscore, context)
@@ -104,25 +105,25 @@ def datetime_tr(name):
     return name
 
 def keyboard_tr(intext):
-    if isinstance(intext, unicode):
-        outtext = __translate_keyboard.ugettext(intext)
+    if isinstance(intext, six.text_type):
+        outtext = __translate_keyboard.gettext(intext)
     else:
-        outtext = __translate_keyboard.ugettext(intext.decode('utf-8'))
+        outtext = __translate_keyboard.gettext(intext.decode('utf-8'))
     return outtext
 
 def lang_tr(intext):
-    if isinstance(intext, unicode):
-        outtext = __translate_lang.ugettext(intext)
+    if isinstance(intext, six.text_type):
+        outtext = __translate_lang.gettext(intext)
     else:
-        outtext = __translate_lang.ugettext(intext.decode('utf-8'))
+        outtext = __translate_lang.gettext(intext.decode('utf-8'))
     return outtext
 
 def country_tr(intext):
     # not used yet, but we can keep it for future
-    if isinstance(intext, unicode):
-        outtext = __translate_country.ugettext(intext)
+    if isinstance(intext, six.text_type):
+        outtext = __translate_country.gettext(intext)
     else:
-        outtext = __translate_country.ugettext(intext.decode('utf-8'))
+        outtext = __translate_country.gettext(intext.decode('utf-8'))
     return outtext
 
 set_languages(['en'])
