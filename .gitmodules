@@ -1,5 +1,5 @@
-[submodule "teres"]
-	path = teres
+[submodule "bundled/teres"]
+	path = bundled/teres
 	url = https://github.com/tlamer/teres.git
 [submodule "modules/beaker"]
 	path = modules/beaker
@@ -10,6 +10,6 @@
 [submodule "modules/harness-beaker"]
 	path = modules/harness-beaker
 	url = git@gitlab.example.com:user/anabot-harness-beaker.git
-[submodule "dogtail"]
-	path = dogtail
+[submodule "bundled/dogtail"]
+	path = bundled/dogtail
 	url = https://gitlab.com/dogtail/dogtail.git
