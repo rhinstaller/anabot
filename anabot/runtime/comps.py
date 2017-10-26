@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import urllib2
 import libxml2
 
 DEFAULT_COMPS_PATH = "/tmp/yum.cache/anaconda/gen/comps.xml"
