@@ -281,7 +281,7 @@ def log_screenshot(wait=None, progress_only=False):
     screenshot(target_path, wait)
 
     sha1sum = hashlib.sha1()
-    with open(target_path) as new_file:
+    with open(target_path, 'rb') as new_file:
         sha1sum.update(new_file.read())
     new_sum = sha1sum.digest()
 
