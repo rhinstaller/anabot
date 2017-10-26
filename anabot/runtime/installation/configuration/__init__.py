@@ -20,7 +20,7 @@ _local_path = '/installation/configuration'
 handle_act = lambda x: handle_action(_local_path + x)
 handle_chck = lambda x: handle_check(_local_path + x)
 
-import root_password, create_user
+from . import root_password, create_user
 
 CONFIGURATION_PANEL_NOT_FOUND = NotFound("\"CONFIGURATION\" panel",
                                          "panel_not_found")

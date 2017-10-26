@@ -9,7 +9,7 @@ from anabot.runtime.translate import tr
 from anabot.runtime.hooks import run_posthooks
 
 # import advanced dialog
-import advanced
+from . import advanced
 
 _local_path = '/installation/configuration/create_user'
 handle_act = lambda x: handle_action(_local_path + x)
