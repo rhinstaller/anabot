@@ -1,23 +1,6 @@
-#!/usr/bin/env python2
+#!/bin/bash
 
-
-import sys, os
-# do not expect that PYTHONPATH is set any more
-# dogtail path
-my_path = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.join(my_path, 'lib/python2.7/site-packages'))
-import dogtail, dogtail.utils, dogtail.config
-
-def main(path):
-    dogtail.utils.enableA11y()
-    filename = os.path.basename(path)
-    dirname = os.path.dirname(path)
-    if len(dirname) == 0:
-        dirname = os.getcwd()
-    dogtail.config.config.scratchDir = dirname
-    dogtail.utils.screenshot(filename, timeStamp=False)
-
-if __name__ == "__main__":
-    if "DISPLAY" not in os.environ:
-        os.environ["DISPLAY"] = ":1"
-    sys.exit(main(*sys.argv[1:]))
+# Thanks!
+# https://stackoverflow.com/questions/59895/getting-the-source-directory-of-a-bash-script-from-within
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+exec ${DIR}/python_launcher.sh ${DIR}/make_screenshot.py "$@"
