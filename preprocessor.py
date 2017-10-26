@@ -1,5 +1,13 @@
 #!/bin/env python
 
+# usage:
+# preprocessor.py [input [output [appname [varname=value [varname2=value2 ...]]]]]
+# if no params are given reads stdin outputs stdout and use installation appname
+# input / output can be set to '-' for stdin / stdout
+# appname is preprocessor profile
+# varname=value is used to set internal anabot variables 
+#  (useful for dynamically setting usernames/hostnames/passwords in recipe file)
+
 import sys
 from anabot.preprocessor import preprocess
 from anabot.variables import set_variable
