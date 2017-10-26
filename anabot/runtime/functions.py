@@ -338,6 +338,7 @@ def key_action(keyName, action):
         return
     gtk_name = dogtail.rawinput.keyNameAliases[keyName]
     keyCode = dogtail.rawinput.keyNameToKeyCode(gtk_name)
+    # pylint: disable=no-value-for-parameter
     pyatspi.Registry.generateKeyboardEvent(keyCode, None, actions[action])
     dogtail.rawinput.doTypingDelay()
 
@@ -355,7 +356,7 @@ def clear_text(node):
 @_check_existence
 def dump(node, filename=None):
     reporter.log_debug("Dumping node")
-    dogtail.dump.plain(node, fileName=filename)
+    dogtail.dump.plain(node, output=filename)
     reporter.log_debug("Node dumped")
 
 MOUSE_SCROLL_UP = 4
@@ -532,7 +533,7 @@ def combo_scroll(item, point=True, click=None, doubleclick=None):
         if click is not None:
             dogtail.rawinput.click(centerx, posy, click)
         if doubleclick is not None:
-            dogtail.rawinput.doubleclick(centerx, posy, doubleclick)
+            dogtail.rawinput.doubleClick(centerx, posy, doubleclick)
 
     miny, maxy = yborders(menu)
     # item should be inside of menu borders, so don't scroll
