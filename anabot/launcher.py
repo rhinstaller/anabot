@@ -65,7 +65,7 @@ def main(*args):
 
     from anabot.paths import profiles_path, anabot_root
     from anabot.preprocessor import preprocess
-    from anabot.runtime.hooks import register_executable_hooks, run_preexechooks
+    from anabot.runtime.hooks import register_executable_hooks, run_preexechooks, run_postexechooks
 
     # propagate some config values as environment variables
     set_env_variable('ANABOT_PROFILE', profile_name)
@@ -146,6 +146,7 @@ def main(*args):
     from anabot.runtime.run_test import run_test
 
     run_test("/var/run/anabot/final-recipe.xml", appname=app_name, children_required=min_children)
+    run_postexechooks()
     if reporter.test_end() == teres.PASS:
         return 0
     return 1

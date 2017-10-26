@@ -12,6 +12,7 @@ _hooks = {
     'preexec': [],
     'pre': [],
     'post': [],
+    'postexec': [],
 }
 
 def _is_hook_registered(hook, hook_list):
@@ -50,6 +51,9 @@ def register_pre_hook(priority=None, func=None):
 
 def register_post_hook(priority=None, func=None):
     return register_hook('post', priority, func)
+
+def register_postexec_hook(priority=None, func=None):
+    return register_hook('postexec', priority, func)
 
 def _register_hook_executable(exe_path=None):
     logger.debug('Registering executable hook %s', exe_path)
@@ -143,6 +147,9 @@ def run_prehooks():
 
 def run_posthooks():
     _run_hooks('post')
+
+def run_postexechooks():
+    _run_hooks('postexec')
 
 def _merge_hook_data(datafile, set_func):
     '''
