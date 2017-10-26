@@ -29,7 +29,7 @@ _SCREENSHOT_PROGRESS_SUM = None
 
 def is_alive(node):
     timeout, interval = _DEFAULT_TIMEOUT, 0.1
-    while node.dead or timeout > 0:
+    while node.dead and timeout > 0:
         time.sleep(interval)
         timeout -= interval
     # just 'not node.dead' is not sufficient because of the way dogtail behaves
