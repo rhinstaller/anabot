@@ -151,8 +151,9 @@ parse datafile for key=value lines and call set_func(key, value)
     if not os.path.exists(datafile):
         return False
     with open(datafile, 'r') as data:
-        for l in data.lines():
+        for l in data:
             try:
+                l = l.rstrip('\n')
                 name, value = l.split('=', 1)
                 set_func(name, value)
             except ValueError:
