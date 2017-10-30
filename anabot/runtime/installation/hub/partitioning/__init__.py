@@ -3,8 +3,10 @@ logger = logging.getLogger('anabot')
 import teres
 reporter = teres.Reporter.get_reporter()
 
+import functools
 from fnmatch import fnmatchcase
 
+from anabot.conditions import is_distro_version, is_distro_version_ge
 from anabot.runtime.decorators import handle_action, handle_check, check_action_result
 from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.functions import get_attr, getnode, getnodes, getnode_scroll, scrollto, getparent
@@ -18,8 +20,11 @@ from anabot.runtime.actionresult import ActionResultPass as Pass, ActionResultFa
 from . import advanced, luks_dialog
 
 _local_path = '/installation/hub/partitioning'
-handle_act = lambda x: handle_action(_local_path + x)
-handle_chck = lambda x: handle_check(_local_path + x)
+def handle_act(path, *args, **kwargs):
+    return handle_action(_local_path + path, *args, **kwargs)
+
+def handle_chck(path, *args, **kwargs):
+    return handle_check(_local_path + path, *args, **kwargs)
 
 @handle_act('')
 def base_handler(element, app_node, local_node):
@@ -103,6 +108,7 @@ def disk_handler(element, app_node, local_node):
 def disk_check(element, app_node, local_node):
     return disk_manipulate(element, app_node, local_node, True)
 
+# RHEL-7
 def mode_manipulate(element, app_node, local_node, dryrun):
     mode = get_attr(element, "mode")
     if mode == "default":
@@ -117,13 +123,38 @@ def mode_manipulate(element, app_node, local_node, dryrun):
     if not radio.checked:
         radio.click()
 
-@handle_act('/mode')
+# RHEL-8
+def mode_manipulate2(element, app_node, local_node, dryrun):
+    mode = get_attr(element, "mode")
+    if mode == "default":
+        return
+    if mode == "automatic":
+        radio_text = tr("A_utomatic", context="GUI|Storage")
+    if mode == "manual":
+        radio_text = tr("_Custom", context="GUI|Storage")
+    if mode == "blivet":
+        radio_text = tr("A_dvanced Custom (Blivet-GUI)", context="GUI|Storage")
+    radio = getnode_scroll(local_node, "radio button", radio_text)
+    if dryrun:
+        return radio.checked
+    if not radio.checked:
+        radio.click()
+
+@handle_act('/mode', cond=is_distro_version('rhel', 7))
 def mode_handler(element, app_node, local_node):
     mode_manipulate(element, app_node, local_node, False)
 
-@handle_chck('/mode')
+@handle_chck('/mode', cond=is_distro_version('rhel', 7))
 def mode_check(element, app_node, local_node):
     return mode_manipulate(element, app_node, local_node, True)
+
+@handle_act('/mode', cond=is_distro_version_ge('rhel', 8))
+def mode_handler2(element, app_node, local_node):
+    mode_manipulate2(element, app_node, local_node, False)
+
+@handle_chck('/mode', cond=is_distro_version_ge('rhel', 8))
+def mode_check2(element, app_node, local_node):
+    return mode_manipulate2(element, app_node, local_node, True)
 
 def additional_space_manipulate(element, app_node, local_node, dry_run):
     action = get_attr(element, "action", "enable")
@@ -135,17 +166,47 @@ def additional_space_manipulate(element, app_node, local_node, dry_run):
     else:
         return (action == "enable") == additional_checkbox.checked
 
-@handle_act('/additional_space')
+def additional_space_manipulate2(element, app_node, local_node, dry_run):
+    action = get_attr(element, "action", "enable")
+    checkbox_text = tr(
+        "I would like to _make additional space available.",
+        context="GUI|Storage",
+    )
+    additional_checkbox = getnode_scroll(local_node, "check box", checkbox_text)
+    if not dry_run:
+        if (action == "enable") != additional_checkbox.checked:
+            additional_checkbox.click()
+    else:
+        return (action == "enable") == additional_checkbox.checked
+
+@handle_act('/additional_space', cond=is_distro_version('rhel', 7))
 def additional_space_handler(element, app_node, local_node):
     additional_space_manipulate(element, app_node, local_node, False)
 
-@handle_chck('/additional_space')
+@handle_chck('/additional_space', cond=is_distro_version('rhel', 7))
 def additional_space_check(element, app_node, local_node):
     return additional_space_manipulate(element, app_node, local_node, True)
 
-@handle_act('/done')
+@handle_act('/additional_space', cond=is_distro_version('rhel', 8))
+def additional_space_handler2(element, app_node, local_node):
+    additional_space_manipulate2(element, app_node, local_node, False)
+
+@handle_chck('/additional_space', cond=is_distro_version('rhel', 8))
+def additional_space_check2(element, app_node, local_node):
+    return additional_space_manipulate2(element, app_node, local_node, True)
+
+@handle_act('/done', cond=is_distro_version('rhel', 7))
 def done_handler(element, app_node, local_node):
     done_button = getnode(local_node, "push button", tr("_Done", False))
+    done_button.click()
+    return True
+
+@handle_act('/done', cond=is_distro_version('rhel', 8))
+def done_handler2(element, app_node, local_node):
+    done_button = getnode(
+        local_node, "push button",
+        tr("_Done", False, context="GUI|Spoke Navigation")
+    )
     done_button.click()
     return True
 
