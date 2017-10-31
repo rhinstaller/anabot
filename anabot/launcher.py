@@ -145,4 +145,7 @@ def main(*args):
 
     from anabot.runtime.run_test import run_test
 
-    return run_test("/var/run/anabot/final-recipe.xml", appname=app_name, children_required=min_children)
+    run_test("/var/run/anabot/final-recipe.xml", appname=app_name, children_required=min_children)
+    if reporter.test_end() == teres.PASS:
+        return 0
+    return 1
