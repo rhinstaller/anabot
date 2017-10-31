@@ -1,4 +1,6 @@
 #!/bin/bash
 
 mkdir -p /var/run/anabot
-mkdir -p /root/anabot
+mkdir -p /root/anabot # not sure if it is needed
+mkdir -p $(dirname $ANABOT_HOOK_UPDATE_ENV)
+mkdir -p $(dirname $ANABOT_HOOK_UPDATE_VARS)
