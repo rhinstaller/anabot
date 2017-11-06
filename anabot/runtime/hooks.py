@@ -30,6 +30,17 @@ def _is_hook_registered(hook, hook_list):
     else:
         return hook in hook_list
 
+def format_partial(f):
+    if not isinstance(f, functools.partial):
+        return f
+    fmt = '<functools.partial(%(func)s, args=%(args)s, kwargs=%(kwargs)s) object at 0x%(address)x>'
+    return fmt % {
+        'func' : f.func,
+        'args' : f.args,
+        'kwargs' : f.keywords,
+        'address' : id(f),
+    }
+
 def register_hook(hook_type, priority=None, func=None):
     '''registers hook function in internal list
     can be used as a decorator'''
@@ -134,7 +145,7 @@ def _run_hooks(hook_type, preexec_fn=None):
     while len(hook_list) > 0:
         prio, hook = hook_list.pop()
         try:
-            reporter.log_debug("Running hook: %s" % hook)
+            reporter.log_debug("Running hook: %s" % format_partial(hook))
             hook()
         except Exception as e:
             reporter.log_error("Hook raised exception: %s" % e)
