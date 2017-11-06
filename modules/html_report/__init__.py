@@ -4,10 +4,10 @@ from anabot.runtime.hooks import register_post_hook
 import teres
 import teres.bkr_handlers # we should get rid of this in future
 
-LINE_FORMAT='<li class="result_%(result_name)s">[ %(result_name)s ] %(msg)s</li>\n'
-IMG_FORMAT='<li><img src="./%(logname)s" /></li>\n'
-FILE_FORMAT='<li><a href="./%(logname)s">FILE: %(logname)s</a></li>\n'
-HEAD="""<html>
+LINE_FORMAT=u'<li class="result_%(result_name)s">[ %(result_name)s ] %(msg)s</li>\n'
+IMG_FORMAT=u'<li><img src="./%(logname)s" /></li>\n'
+FILE_FORMAT=u'<li><a href="./%(logname)s">FILE: %(logname)s</a></li>\n'
+HEAD=u"""<html>
   <head>
     <title>Anabot HTML report</title>
     <style>
@@ -26,7 +26,7 @@ HEAD="""<html>
   <body>
     <ul>
 """
-TAIL="""
+TAIL=u"""
     </ul>
   </body>
 </html>
