@@ -1,4 +1,4 @@
-import StringIO
+import io
 
 from anabot.runtime.hooks import register_post_hook
 import teres
@@ -45,7 +45,7 @@ def _rec2dict(record):
 class HTMLReportHandler(teres.Handler):
     def __init__(self):
         self._done = False
-        self._data = StringIO.StringIO()
+        self._data = io.StringIO()
         self._add_head()
         super(HTMLReportHandler, self).__init__()
 
