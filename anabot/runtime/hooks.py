@@ -134,6 +134,7 @@ def _run_hooks(hook_type, preexec_fn=None):
     while len(hook_list) > 0:
         prio, hook = hook_list.pop()
         try:
+            reporter.log_debug("Running hook: %s" % hook)
             hook()
         except Exception as e:
             reporter.log_error("Hook raised exception: %s" % e)
