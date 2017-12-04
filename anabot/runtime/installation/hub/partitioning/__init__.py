@@ -8,7 +8,7 @@ from fnmatch import fnmatchcase
 from anabot.runtime.decorators import handle_action, handle_check, check_action_result
 from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.functions import get_attr, getnode, getnodes, getnode_scroll, scrollto
-from anabot.runtime.errors import TimeoutError
+from anabot.runtime.errors import NonexistentError, TimeoutError
 from anabot.runtime.translate import tr
 from anabot.variables import get_variable
 from anabot.runtime.actionresult import NotFoundResult as NotFound
@@ -155,7 +155,7 @@ def done_check(element, app_node, local_node):
     try:
         warning_bar = getnode(local_node, 'info bar', tr('Warnings'))
         return (False, "Error occured")
-    except TimeoutError:
+    except NonexistentError:
         return True
 
 @handle_act('/reclaim')
