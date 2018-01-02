@@ -96,6 +96,7 @@ def disappeared(parent, node_type=None, node_name=None,
     except TimeoutError:
         return False
 
+@_check_existence
 def waiton(node, predicates, timeout=_DEFAULT_TIMEOUT, make_screenshot=False,
            visible=True, sensitive=True, recursive=True):
     "wait unless item shows on the screen"
@@ -114,6 +115,7 @@ def waiton(node, predicates, timeout=_DEFAULT_TIMEOUT, make_screenshot=False,
     log_screenshot(progress_only=True)
     raise TimeoutError("No predicate matches within timeout period", locals())
 
+@_check_existence
 def waiton_all(node, predicates, timeout=_DEFAULT_TIMEOUT,
                make_screenshot=False, visible=True, sensitive=True,
                recursive=True):
