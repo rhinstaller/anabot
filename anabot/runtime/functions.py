@@ -28,7 +28,7 @@ _SCREENSHOT_SUM = None
 _SCREENSHOT_PROGRESS_SUM = None
 
 def is_alive(node):
-    timeout, interval = _DEFAULT_TIMEOUT, 0.1
+    timeout, interval = _DEFAULT_TIMEOUT, 0.5
     while node.dead and timeout > 0:
         time.sleep(interval)
         timeout -= interval
