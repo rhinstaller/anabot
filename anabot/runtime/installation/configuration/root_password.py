@@ -4,7 +4,8 @@ logger = logging.getLogger('anabot')
 
 from anabot.runtime.decorators import handle_action, handle_check, check_action_result
 from anabot.runtime.default import default_handler, action_result
-from anabot.runtime.functions import get_attr, getnode, TimeoutError, getparent, getsibling, clear_text
+from anabot.runtime.functions import get_attr, getnode, getparent, getsibling, clear_text
+from anabot.runtime.errors import TimeoutError, NonexistentError
 from anabot.runtime.translate import tr, gtk_tr
 from anabot.runtime.hooks import run_posthooks
 from anabot.runtime.actionresult import NotFoundResult as NotFound
@@ -19,7 +20,7 @@ def check_rootpw_error(parent_node):
         warn_icon = getnode(warning_bar, "icon", gtk_tr("Warning"))
         warn_text = getsibling(warn_icon, 1, "label")
         return (False, warn_text.text)
-    except TimeoutError:
+    except NonexistentError:
         return True
 
 @handle_act('')
