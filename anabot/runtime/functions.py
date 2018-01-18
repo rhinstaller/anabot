@@ -72,7 +72,7 @@ def wait_until_disappear(node, predicates, timeout=_DEFAULT_TIMEOUT,
     while count < timeout:
         count += 1
         for predicate in predicates:
-            found = _alive(node).findChild(predicate, retry=False, requireResult=False, recursive=recursive)
+            found = node.findChild(predicate, retry=False, requireResult=False, recursive=recursive)
             if found is None or visibility(found, False):
                 if make_screenshot:
                     log_screenshot()
@@ -106,7 +106,7 @@ def waiton(node, predicates, timeout=_DEFAULT_TIMEOUT, make_screenshot=False,
     while count < timeout:
         count += 1
         for predicate in predicates:
-            found = _alive(node).findChild(predicate, retry=False, requireResult=False, recursive=recursive)
+            found = node.findChild(predicate, retry=False, requireResult=False, recursive=recursive)
             if found is not None and visibility(found, visible) and sensitivity(found, sensitive):
                 if make_screenshot:
                     log_screenshot()
@@ -126,7 +126,7 @@ def waiton_all(node, predicates, timeout=_DEFAULT_TIMEOUT,
     while count < timeout:
         count += 1
         for predicate in predicates:
-            found = [x for x in _alive(node).findChildren(predicate,
+            found = [x for x in node.findChildren(predicate,
                                                           recursive=recursive) if
                      visibility(x, visible) and sensitivity(x, sensitive)]
             if len(found):
@@ -180,7 +180,7 @@ def getparent(child, node_type=None, node_name=None, predicates=None):
         predicates['roleName'] = node_type
     if node_name is not None:
         predicates['name'] = node_name
-    return _alive(child).findAncestor(GenericPredicate(**predicates))
+    return child.findAncestor(GenericPredicate(**predicates))
 
 def getparents(child, node_type=None, node_name=None, predicates=None):
     parents = []
@@ -525,9 +525,9 @@ def combo_scroll(item, point=True, click=None, doubleclick=None):
         following = getsibling(item, 1, "menu item")
 
     while yborders(previous)[0] < miny:
-        _alive(menu).click(MOUSE_SCROLL_UP)
+        menu.click(MOUSE_SCROLL_UP)
     while yborders(following)[1] > maxy:
-        _alive(menu).click(MOUSE_SCROLL_DOWN)
+        menu.click(MOUSE_SCROLL_DOWN)
 
     do_actions()
 
@@ -536,7 +536,7 @@ def handle_checkbox(node, element):
     value = get_attr(element, 'checked')
     req_checked = (value == 'yes')
     if node.checked != req_checked:
-        _alive(node).click()
+        node.click()
 
 @_check_existence
 def check_checkbox(node, element, name, message="%(name)s is %(found)s, expected: %(expected)s", status_true='checked', status_false='unchecked'):
