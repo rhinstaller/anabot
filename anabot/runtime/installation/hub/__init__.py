@@ -27,7 +27,9 @@ def hub_check(element, app_node, local_node):
 def begin_installation_handler(element, app_node, local_node):
     try:
         begin_button = getnode(app_node, "push button",
-                               tr("_Begin Installation", context="GUI|Summary"))
+                               tr("_Begin Installation", context="GUI|Summary"),
+                               timeout=60
+        )
     except TimeoutError:
         return (False, 'Couln\'t find clickable "Begin installation" button.')
     begin_button.click()
