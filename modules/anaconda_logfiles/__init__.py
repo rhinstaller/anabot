@@ -6,6 +6,7 @@ desired files and sends them using via teres.
 """
 
 import os, time
+import glob
 import threading
 import teres
 from teres.bkr_handlers import QUIET_FILE
@@ -19,11 +20,20 @@ watched_files = [
     '/tmp/storage.log',
     '/tmp/syslog',
 ]
+globfiles = [
+    '/tmp/anaconda-tb-*',
+]
 
 def mainloop():
     time.sleep(5) # FIXME: should be enough time for beaker handler to show up
     changes = {k: None for k in watched_files}
     while True:
+        # add globfiles to changes (watched_files)
+        for globfile in globfiles:
+            for path in glob.glob(globfile):
+                if path not in changes:
+                    changes[path] = None
+
         for path, last_changed in changes.iteritems():
             if not os.path.exists(path):
                 continue
