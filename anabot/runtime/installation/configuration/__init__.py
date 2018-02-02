@@ -7,7 +7,8 @@ reporter = teres.Reporter.get_reporter()
 
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler
-from anabot.runtime.functions import get_attr, getnode, getnodes, TimeoutError, getparent, getsibling, log_screenshot, _DEFAULT_TIMEOUT
+from anabot.runtime.functions import get_attr, getnode, getnodes, getparent, getsibling, log_screenshot, _DEFAULT_TIMEOUT
+from anabot.runtime.errors import NonexistentError, TimeoutError
 from anabot.runtime.translate import tr, gtk_tr
 from anabot.runtime.hooks import run_posthooks
 from anabot.variables import get_variable
@@ -37,8 +38,8 @@ def base_handler(element, app_node, local_node):
 def wait_until_complete_handler(element, app_node, local_node):
     reporter.log_debug("Looking for installation progress bar.")
     try:
-        progress = getnode(local_node, "progress bar")
-    except:
+        progress = getnode(local_node, "progress bar", timeout=20)
+    except NonexistentError:
         return (False, "Couldn't find progress bar")
     reporter.log_debug("WAITING FOR REBOOT")
     stable_counter = 0
@@ -98,7 +99,7 @@ def reboot_handler(element, app_node, local_node):
         reboot_button = getnode(local_node, "push button",
                                 tr("_Reboot", context="GUI|Progress"),
                                 timeout=15)
-    except TimeoutError:
+    except NonexistentError:
         return REBOOT_BUTTON_NOT_FOUND
 
     run_posthooks()
