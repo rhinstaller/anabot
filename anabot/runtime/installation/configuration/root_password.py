@@ -49,7 +49,6 @@ def root_password_check(element, app_node, local_node):
         return True
 
 BLACK_CIRCLE = u'\u25cf'
-BLACK_CIRCLE_STR = '\xe2\x97\x8f'
 PASSWORD_TEXT_NOT_FOUND = NotFound("password text", "password_text_not_found")
 
 def root_password_text_manipulate(element, app_node, local_node, dry_run):
@@ -65,9 +64,9 @@ def root_password_text_manipulate(element, app_node, local_node, dry_run):
     else:
         # the password length is trippled in ATK
         try:
-            return len(value)*BLACK_CIRCLE == unicode(password_entry.text)
-        except UnicodeDecodeError:
-            return len(value)*BLACK_CIRCLE_STR == password_entry.text
+            return len(value)*BLACK_CIRCLE == password_entry.text.decode('utf8')
+        except (UnicodeDecodeError, AttributeError):
+            return len(value)*BLACK_CIRCLE == password_entry.text
 
 @handle_act('/password')
 def root_password_text_handler(element, app_node, local_node):
@@ -94,9 +93,9 @@ def root_password_confirm_manipulate(element, app_node, local_node, dry_run):
     else:
         # the password length is trippled in ATK
         try:
-            return len(value)*BLACK_CIRCLE == unicode(password_entry.text)
-        except UnicodeDecodeError:
-            return len(value)*BLACK_CIRCLE_STR == password_entry.text
+            return len(value)*BLACK_CIRCLE == password_entry.text.decode('utf8')
+        except (UnicodeDecodeError, AttributeError):
+            return len(value)*BLACK_CIRCLE == password_entry.text
 
 @handle_act('/confirm_password')
 def root_password_confirm_handler(element, app_node, local_node):
