@@ -34,7 +34,7 @@ def mainloop():
                 if path not in changes:
                     changes[path] = None
 
-        for path, last_changed in changes.iteritems():
+        for path, last_changed in changes.items():
             if not os.path.exists(path):
                 continue
             changed = os.stat(path).st_mtime
