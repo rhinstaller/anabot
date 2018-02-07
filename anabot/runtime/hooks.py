@@ -134,8 +134,10 @@ def _run_executable_hook(executable=None, chroot=None, preexec_fn=None):
 def _none_is_greater_cmp(x, y):
     # all hooks should be registered as python functions
     if x == y: return 0
-    if x is None or x > y: return 1
-    if y is None or x < y: return -1
+    if x is None: return 1
+    if y is None: return -1
+    if x > y: return 1
+    if x < y: return -1
     raise Exception('Comparison unexpected state')
 
 def _first_key_none_is_greater(x, y):
