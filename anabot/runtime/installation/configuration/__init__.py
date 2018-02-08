@@ -50,14 +50,25 @@ def wait_until_complete_handler(element, app_node, local_node):
     except NonexistentError:
         return (False, "Couldn't find progress bar")
     reporter.log_debug("WAITING FOR REBOOT")
-    stable_counter = 0
-    while stable_counter < 5:
-        time.sleep(1)
-        reporter.log_info("Progress value: %r" % progress.value)
-        if progress.value >= 1:
-            stable_counter += 1
-        else:
-            stable_counter = 0
+    while True:
+        stable_counter = 0
+        while stable_counter < 5:
+            time.sleep(1)
+            reporter.log_info("Progress value: %r" % progress.value)
+            if progress.value >= 1:
+                stable_counter += 1
+            else:
+                stable_counter = 0
+        try:
+            for x in range(5):
+                reporter.log_info('Looking for "Complete!" label.')
+                getnode(local_node, "label", tr("Complete!"))
+                reporter.log_info('Found "Complete!" label.')
+                time.sleep(1)
+            break
+        except NonexistentError:
+            reporter.log_error("Progress bar is at 100%, but there is no Complete label.")
+            reporter.log_error("See bug: https://bugzilla.redhat.com/show_bug.cgi?id=1543299")
     return True
 
 @handle_act('/eula_notice')
