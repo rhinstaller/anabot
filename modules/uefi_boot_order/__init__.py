@@ -36,7 +36,7 @@ if "ks=" in open('/proc/cmdline').read():
     raise UnrelatedException('Running in kickstart, UEFI boot order should be fixed by post script.')
 
 try:
-    efibootmgr_output = subprocess.check_output(['efibootmgr'])
+    efibootmgr_output = teres.make_text(subprocess.check_output(['efibootmgr']))
 except (subprocess.CalledProcessError, OSError):
     raise UnrelatedException('Efibootmgr call failed. The system is probably not running in UEFI mode.')
 
@@ -49,7 +49,7 @@ if old_boot_order is None:
 @register_post_hook(90)
 def fix_boot_order():
     reporter.log_info("Fixing UEFI boot order.")
-    changed_efibootmgr_output = subprocess.check_output(['efibootmgr'])
+    changed_efibootmgr_output = teres.make_text(subprocess.check_output(['efibootmgr']))
     changed_boot_order = boot_order(changed_efibootmgr_output)
     if set(changed_boot_order) == set(old_boot_order):
         next_boot = changed_boot_order[0]
