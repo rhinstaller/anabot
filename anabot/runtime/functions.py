@@ -5,6 +5,8 @@ import os, sys
 import libxml2
 import hashlib
 import functools
+import copy
+import datetime
 
 import dogtail # pylint: disable=import-error
 import dogtail.utils # pylint: disable=import-error
@@ -22,13 +24,80 @@ import teres
 reporter = teres.Reporter.get_reporter()
 
 _DEFAULT_TIMEOUT = 7
+_DEFAULT_INTERVAL = 0.5
 
 _SCREENSHOT_NUM = 0
 _SCREENSHOT_SUM = None
 _SCREENSHOT_PROGRESS_SUM = None
 
+class AnabotPredicate(GenericPredicate):
+    def __init__(self, node_type=None, name=None, **kwargs):
+        self.attrs = copy.deepcopy(kwargs)
+        if 'visible' in self.attrs:
+            reporter.log_info(
+                'Predicate deprecation warning: tranlating visible to showing'
+            )
+            self.attrs['showing'] = self.attrs['visible']
+            del self.attrs['visible']
+        super(AnabotPredicate, self).__init__(name, node_type)
+
+    def _genCompareFunc(self):
+        orig_satisfiedByNode = super(AnabotPredicate, self)._genCompareFunc()
+        def satisfiedByNode(node):
+            if not orig_satisfiedByNode(node):
+                return False
+            for attr, value in self.attrs.items():
+                if value is None:
+                    # don't care about this attr
+                    continue
+                if getattr(node, attr, False) != value:
+                    return False
+            return True
+        return satisfiedByNode
+
+    def __repr__(self):
+        return '<AnabotPredicate %r>' % self.__dict__
+
+FIND_FAIL_MSG = "Couldn't find result for: %(func)s with args: %(args)s kwargs: %(kwargs)s"
+def timed_retries(seconds, exception, func, *args, **kwargs):
+    start_time = datetime.datetime.now()
+    end_time = start_time + datetime.timedelta(seconds=seconds)
+    while datetime.datetime.now() < end_time:
+        try:
+            result = func(*args, **kwargs)
+            if result:
+                return result
+        except dogtail.tree.SearchError:
+            reporter.log_debug(
+                FIND_FAIL_MSG % {
+                    'func' : func,
+                    'args' : args,
+                    'kwargs' : kwargs,
+                }
+            )
+        time.sleep(_DEFAULT_INTERVAL)
+    raise exception
+
+def attempted_retries(attempts, exception, func, *args, **kwargs):
+    for i in range(attempts):
+        try:
+            result = func(*args, **kwargs)
+            if result:
+                return result
+        except dogtail.tree.SearchError:
+            log_screenshot(progress_only=True)
+            reporter.log_debug(
+                FIND_FAIL_MSG % {
+                    'func' : func,
+                    'args' : args,
+                    'kwargs' : kwargs,
+                }
+            )
+        time.sleep(_DEFAULT_INTERVAL)
+    raise exception
+
 def is_alive(node):
-    timeout, interval = _DEFAULT_TIMEOUT, 0.5
+    timeout, interval = _DEFAULT_TIMEOUT, _DEFAULT_INTERVAL
     while node.dead and timeout > 0:
         time.sleep(interval)
         timeout -= interval
@@ -56,110 +125,66 @@ def inrange(what, border1, border2):
         return border1 <= what and what < border2
     return border2 <= what and what < border1
 
-@_check_existence
 def visibility(node, value):
     return (value is None) or (bool(value) == node.showing)
 
-@_check_existence
 def sensitivity(node, value):
     return (value is None) or (bool(value) == node.sensitive)
 
-def wait_until_disappear(node, predicates, timeout=_DEFAULT_TIMEOUT,
+def wait_until_disappear(node, predicate, timeout=_DEFAULT_TIMEOUT,
                          make_screenshot=False, recursive=True):
     count = 0
-    if type(predicates) is not list:
-        predicates = [predicates]
     while count < timeout:
         count += 1
-        for predicate in predicates:
-            found = node.findChild(predicate, retry=False, requireResult=False, recursive=recursive)
-            if found is None or visibility(found, False):
-                if make_screenshot:
-                    log_screenshot()
-                return
+        found = node.findChild(predicate, retry=False, requireResult=False, recursive=recursive)
+        if found is None or visibility(found, False):
+            if make_screenshot:
+                log_screenshot()
+            return
         time.sleep(1)
     log_screenshot(progress_only=True)
     raise TimeoutError("Queried element still visible.", locals())
 
 def disappeared(parent, node_type=None, node_name=None,
-                timeout=_DEFAULT_TIMEOUT, predicates=None, recursive=True):
-    if predicates is None:
-        predicates = {}
-    if node_type is not None:
-        predicates['roleName'] = node_type
-    if node_name is not None:
-        predicates['name'] = node_name
+                timeout=_DEFAULT_TIMEOUT, recursive=True):
+    predicate = GenericPredicate(roleName=node_type, name=node_name)
     try:
-        wait_until_disappear(parent, GenericPredicate(**predicates), timeout,
-                             recursive=recursive)
+        wait_until_disappear(parent, predicate, timeout, recursive=recursive)
         return True
     except TimeoutError:
         return False
 
-@_check_existence
-def waiton(node, predicates, timeout=_DEFAULT_TIMEOUT, make_screenshot=False,
-           visible=True, sensitive=True, recursive=True):
-    "wait unless item shows on the screen"
-    count = 0
-    if type(predicates) is not list:
-        predicates = [predicates]
-    while count < timeout:
-        count += 1
-        for predicate in predicates:
-            found = node.findChild(predicate, retry=False, requireResult=False, recursive=recursive)
-            if found is not None and visibility(found, visible) and sensitivity(found, sensitive):
-                if make_screenshot:
-                    log_screenshot()
-                return found
-        time.sleep(1)
-    log_screenshot(progress_only=True)
-    raise TimeoutError("No predicate matches within timeout period", locals())
-
-@_check_existence
-def waiton_all(node, predicates, timeout=_DEFAULT_TIMEOUT,
-               make_screenshot=False, visible=True, sensitive=True,
-               recursive=True):
-    "wait unless items show on the screen"
-    count = 0
-    if type(predicates) is not list:
-        predicates = [predicates]
-    while count < timeout:
-        count += 1
-        for predicate in predicates:
-            found = [x for x in node.findChildren(predicate,
-                                                          recursive=recursive) if
-                     visibility(x, visible) and sensitivity(x, sensitive)]
-            if len(found):
-                if make_screenshot:
-                    log_screenshot()
-                return found
-        time.sleep(1)
-    log_screenshot(progress_only=True)
-    raise TimeoutError("No predicate matches within timeout period", locals())
-
 def getnodes(parent, node_type=None, node_name=None, timeout=_DEFAULT_TIMEOUT,
-             predicates=None, visible=True, sensitive=True, recursive=True):
-    if predicates is None:
-        predicates = {}
-    if node_type is not None:
-        predicates['roleName'] = node_type
-    if node_name is not None:
-        predicates['name'] = node_name
-    return waiton_all(parent, GenericPredicate(**predicates), timeout,
-                      visible=visible, sensitive=sensitive,
-                      recursive=recursive)
+             visible=True, sensitive=True, recursive=True, **kwargs):
+    predicate = AnabotPredicate(
+        node_type, node_name, showing=visible, sensitive=sensitive, **kwargs
+    )
+    log_screenshot()
+    exception = TimeoutError("No predicate matches within timeout period", locals())
+    return attempted_retries(
+        timeout, exception,
+        parent.findChildren, predicate, recursive
+    )
 
 def getnode(parent, node_type=None, node_name=None, timeout=_DEFAULT_TIMEOUT,
-            predicates=None, visible=True, sensitive=True, recursive=True):
-    return getnodes(parent, node_type, node_name, timeout, predicates, visible, sensitive, recursive)[0]
+            visible=True, sensitive=True, recursive=True, **kwargs):
+    predicate = AnabotPredicate(
+        node_type, node_name, showing=visible, sensitive=sensitive, **kwargs
+    )
+    log_screenshot()
+    exception = TimeoutError("No predicate matches within timeout period", locals())
+    return attempted_retries(
+        timeout, exception,
+        parent.findChild, predicate, recursive, retry=False
+    )
 
 def getnode_scroll(parent, node_type=None, node_name=None,
-                   timeout=_DEFAULT_TIMEOUT, predicates=None, sensitive=True,
+                   timeout=_DEFAULT_TIMEOUT, sensitive=True,
                    recursive=True):
     for x in range(timeout):
         try:
             nodes = getnodes(parent, node_type, node_name, _DEFAULT_TIMEOUT,
-                             predicates, None, sensitive, recursive)
+                             None, sensitive, recursive)
         except TimeoutError:
             continue
         try:
@@ -173,19 +198,14 @@ def getnode_scroll(parent, node_type=None, node_name=None,
     scrollto(node)
     return node
 
-def getparent(child, node_type=None, node_name=None, predicates=None):
-    if predicates is None:
-        predicates = {}
-    if node_type is not None:
-        predicates['roleName'] = node_type
-    if node_name is not None:
-        predicates['name'] = node_name
-    return child.findAncestor(GenericPredicate(**predicates))
+def getparent(child, node_type=None, node_name=None):
+    predicate = GenericPredicate(roleName=node_type, name=node_name)
+    return child.findAncestor(predicate)
 
-def getparents(child, node_type=None, node_name=None, predicates=None):
+def getparents(child, node_type=None, node_name=None):
     parents = []
     while True:
-        parent = getparent(child, node_type, node_name, predicates)
+        parent = getparent(child, node_type, node_name)
         if parent is None:
             return parents
         parents.append(parent)
@@ -240,7 +260,7 @@ def getsibling(node, vector, node_type=None, node_name=None, visible=True,
 
 
 def getselected(parent, visible=True):
-    return [child for child in getnodes(parent, visible=visible) if child.selected]
+    return getnodes(parent, visible=visible, selected=True)
 
 def log_screenshot(wait=None, progress_only=False):
     """Make screenshot. Check digest of new screenshot, if it's same as
