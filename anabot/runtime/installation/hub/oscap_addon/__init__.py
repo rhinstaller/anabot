@@ -338,8 +338,7 @@ def change_content_fetch_check(element, app_node, local_node):
             return ERROR_LABEL_NF
 
         try:
-            infobar = getnode(local_node, "info bar",
-                                predicates={"name": tr("Error")})
+            infobar = getnode(local_node, "info bar", tr("Error"))
         except TimeoutError:
             return INFO_BAR_NF
         try:

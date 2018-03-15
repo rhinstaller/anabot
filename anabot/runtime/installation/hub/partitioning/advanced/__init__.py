@@ -8,12 +8,10 @@ from fnmatch import fnmatchcase
 
 from anabot.runtime.decorators import handle_action, handle_check, check_action_result
 from anabot.runtime.default import default_handler, action_result
-from anabot.runtime.functions import get_attr, waiton, getnode, getnodes, getparent, getsibling, press_key, scrollto, dump
+from anabot.runtime.functions import get_attr, getnode, getnodes, getparent, getsibling, press_key, scrollto, dump
 from anabot.runtime.errors import TimeoutError
 from anabot.runtime.translate import tr, gtk_tr
 from anabot.runtime.installation.hub.partitioning.advanced.common import schema_name
-
-from dogtail.predicate import GenericPredicate # pylint: disable=import-error
 
 import anabot.runtime.installation.hub.partitioning.advanced.details
 
@@ -76,14 +74,14 @@ def schema_handler(element, app_node, local_node):
             shown = False
             group_node.actions['activate'].do()
         try:
-            schema_node = waiton(group_node,
-                                 [GenericPredicate(roleName="combo box",
-                                                   name=name)
-                                  for name in schema_name()])
+            schema_node = getnode(group_node, "combo box")
+            if schema_node.name in schema_name():
+                break
         except TimeoutError:
-            if not shown:
-                group_node.actions['activate'].do()
-    if schema_node is None:
+            pass
+        if not shown:
+            group_node.actions['activate'].do()
+    else:
         return (False, "Couldn't find combo box for partitioning schema")
     schema_node.click()
     getnode(schema_node, "menu item", schema_name(schema)).click()
