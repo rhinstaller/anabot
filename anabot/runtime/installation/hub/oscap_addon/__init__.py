@@ -46,7 +46,7 @@ def base_handler(element, app_node, local_node):
         return SPOKE_SELECTOR_NF
     try:
         oscap_addon_label = getnode(app_node, "label",
-                                    oscap_tr("SECURITY POLICY"))
+                                    oscap_tr_("SECURITY POLICY"))
     except TimeoutError:
         return SECURITY_POLICY_LABEL_NF
     try:
