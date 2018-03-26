@@ -7,7 +7,7 @@ from fnmatch import fnmatchcase
 
 from anabot.runtime.decorators import handle_action, handle_check, check_action_result
 from anabot.runtime.default import default_handler, action_result
-from anabot.runtime.functions import get_attr, getnode, getnodes, getnode_scroll, scrollto
+from anabot.runtime.functions import get_attr, getnode, getnodes, getnode_scroll, scrollto, getparent
 from anabot.runtime.errors import NonexistentError, TimeoutError
 from anabot.runtime.translate import tr
 from anabot.variables import get_variable
@@ -162,14 +162,13 @@ def done_check(element, app_node, local_node):
 def reclaim_handler(element, app_node, local_node):
     # TODO action=reclaim/cancel
     reclaim_dialog = None
-    for dialog in getnodes(app_node, "dialog"):
-        try:
-            getnode(dialog, "label", tr("RECLAIM DISK SPACE"))
-            reclaim_dialog = dialog
-        except TimeoutError:
-            pass
-    if reclaim_dialog is None:
-        return (False, "Reclaim dialog not found")
+    try:
+        reclaim_dialog_label = getnode(
+            app_node, "label", tr("RECLAIM DISK SPACE")
+        )
+    except TimeoutError:
+        return (False, "Reclaim dialog label not found")
+    reclaim_dialog = getparent(reclaim_dialog_label, "dialog")
     default_handler(element, app_node, reclaim_dialog)
     reclaim_button = getnode(reclaim_dialog, "push button",
                              tr("_Reclaim space", context="GUI|Reclaim Dialog"))
