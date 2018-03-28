@@ -1,5 +1,7 @@
 import logging
 logger = logging.getLogger('anabot')
+import teres
+reporter = teres.Reporter.get_reporter()
 
 from fnmatch import fnmatchcase
 from time import sleep
@@ -7,6 +9,7 @@ from time import sleep
 from anabot.runtime.decorators import handle_action, handle_check, check_action_result
 from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.functions import getnode, TimeoutError
+from anabot.runtime.workarounds import wait_for_line
 from anabot.runtime.translate import tr
 
 # submodules
@@ -15,6 +18,11 @@ from . import datetime, keyboard, partitioning, software_selection, oscap_addon,
 @handle_action('/installation/hub')
 def hub_handler(element, app_node, local_node):
     local_node = getnode(app_node, "panel", tr("INSTALLATION SUMMARY"))
+    reporter.log_info("Waiting for package depsolving. Timeout is 10 minutes")
+    if wait_for_line('/tmp/packaging.log', ".*DEBUG yum.verbose.YumBase: Depsolve time:.*", 600):
+        reporter.log_info("Depsolving finished, nothing should block anaconda main thread now (GTK/ATK) now")
+    else:
+        reporter.log_info("Depsolving _NOT_ finished, it may happen, that anaconda main thread (GTK/ATK) will be blocked in future and prevent anabot working properly.")
     default_handler(element, app_node, local_node)
 
 @handle_check('/installation/hub')
