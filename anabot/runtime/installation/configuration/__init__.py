@@ -8,6 +8,7 @@ reporter = teres.Reporter.get_reporter()
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler
 from anabot.runtime.functions import get_attr, getnode, getnodes, getparent, getsibling, log_screenshot, _DEFAULT_TIMEOUT
+from anabot.runtime.workarounds import wait_for_line
 from anabot.runtime.errors import NonexistentError, TimeoutError
 from anabot.runtime.translate import tr, gtk_tr
 from anabot.runtime.hooks import run_posthooks
@@ -26,6 +27,13 @@ CONFIGURATION_PANEL_NOT_FOUND = NotFound("\"CONFIGURATION\" panel",
 @handle_act('')
 def base_handler(element, app_node, local_node):
     timeout = _DEFAULT_TIMEOUT
+    if get_variable('profile') in ("anaconda", "anaconda_installer"):
+        reporter.log_info("Waiting for yum transaction. Timeout is 10 minutes")
+        wait_for_line(
+            '/tmp/packaging.log',
+            ".* INFO packaging:  running transaction",
+            600
+        )
     if get_variable('interactive_kickstart', False):
         timeout = 180
     try:
