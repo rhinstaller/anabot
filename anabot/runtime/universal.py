@@ -44,7 +44,7 @@ def script_handler(element, app_node, local_node):
         stdout = log_file
         stderr = subprocess.STDOUT
     content = element.content
-    with tempfile.NamedTemporaryFile(delete=True) as tmpfile:
+    with tempfile.NamedTemporaryFile(delete=True, mode='w+') as tmpfile:
         tmpfile.write(content)
         tmpfile.flush()
         filename = tmpfile.name
