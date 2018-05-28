@@ -5,6 +5,7 @@ logger = logging.getLogger('anabot')
 import teres
 reporter = teres.Reporter.get_reporter()
 
+from anabot.conditions import is_distro_version_ge
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler
 from anabot.runtime.functions import get_attr, getnode, getnodes, getparent, getsibling, log_screenshot, _DEFAULT_TIMEOUT
@@ -29,9 +30,12 @@ def base_handler(element, app_node, local_node):
     timeout = _DEFAULT_TIMEOUT
     if get_variable('profile') in ("anaconda", "anaconda_installer"):
         reporter.log_info("Waiting for yum transaction. Timeout is 10 minutes")
+        waitline = ".* INFO packaging:  running transaction"
+        if is_distro_version_ge('rhel', 8):
+            waitline = '.* INF dnf: Running transaction'
         wait_for_line(
             '/tmp/packaging.log',
-            ".* INFO packaging:  running transaction",
+            waitline,
             600
         )
     if get_variable('interactive_kickstart', False):
