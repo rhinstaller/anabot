@@ -30,7 +30,7 @@ def main(source=None):
         print 'You see shell, but dump is not loaded!'
         return None
     if os.path.exists(source):
-        source = file(source)
+        source = open(source)
     else:
         source = urllib2.urlopen(source)
     return pickle.load(source)

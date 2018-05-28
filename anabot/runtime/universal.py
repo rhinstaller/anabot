@@ -33,7 +33,7 @@ SCRIPT_FAIL = "Script ended with non-zero return code: %s"
 def script_handler(element, app_node, local_node):
     interpret = get_attr(element, "interpret", "/bin/bash")
     log_name = get_attr(element, "log_name")
-    stdin = file('/dev/null')
+    stdin = open('/dev/null')
     stdout = None
     stderr = None
     if log_name is not None:
