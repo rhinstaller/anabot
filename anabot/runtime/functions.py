@@ -223,7 +223,7 @@ def findsibling(items, item, distance, criteria=lambda x: True):
         distance *= -1
         items = items[::-1]
 
-    for i in xrange(items.index(item), len(items)):
+    for i in range(items.index(item), len(items)):
         if criteria(items[i]) and items[i] != item:
             distance -= 1
         if distance == 0:

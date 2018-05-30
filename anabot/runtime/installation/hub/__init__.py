@@ -61,7 +61,7 @@ def begin_installation_check(element, app_node, local_node):
         )
     except TimeoutError:
         return (False, 'Couln\'t find "Begin installation" button.')
-    for i in xrange(5):
+    for i in range(5):
         if begin_button.sensitive:
             return True
         sleep(1)

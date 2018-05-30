@@ -322,9 +322,9 @@ def time_hours_handler(element, app_node, local_node):
         hours_plus = getnode(local_node, "push button", tr("Hour Up"))
     except TimeoutError:
         return notfound("button", whose="increase hour")
-    for i in xrange(int(hours_label.text), value):
+    for i in range(int(hours_label.text), value):
         hours_plus.click()
-    for i in xrange(int(hours_label.text), value, -1):
+    for i in range(int(hours_label.text), value, -1):
         hours_minus.click()
 
 @handle_chck('/time/hours')
@@ -355,9 +355,9 @@ def time_minutes_handler(element, app_node, local_node):
         minutes_plus = getnode(local_node, "push button", tr("Minutes Up"))
     except TimeoutError:
         return notfound("button", whose="increase minute")
-    for i in xrange(int(minutes_label.text), value):
+    for i in range(int(minutes_label.text), value):
         minutes_plus.click()
-    for i in xrange(int(minutes_label.text), value, -1):
+    for i in range(int(minutes_label.text), value, -1):
         minutes_minus.click()
 
 @handle_chck('/time/minutes')

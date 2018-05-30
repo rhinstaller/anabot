@@ -156,7 +156,7 @@ def devices_deselect_handler(element, app_node, local_node):
     table_cells = getnodes(local_node, "table cell")
     # device is second cell in row consisting of 4 cells, so take only
     # those whose index matches rule: i modulo 4 == 1
-    devices = [table_cells[i] for i in xrange(len(table_cells)) if i % 4 == 1]
+    devices = [table_cells[i] for i in range(len(table_cells)) if i % 4 == 1]
     logger.info("found devices: %s", repr(devices))
     deselect = [device for device in devices if
                 fnmatchcase(unicode(device.name), name)]
@@ -174,7 +174,7 @@ def devices_select_handler(element, app_node, local_node):
     table_cells = getnodes(local_node, "table cell")
     # device is second cell in row consisting of 4 cells, so take only
     # those whose index matches rule: i modulo 4 == 1
-    devices = [table_cells[i] for i in xrange(len(table_cells)) if i % 4 == 1]
+    devices = [table_cells[i] for i in range(len(table_cells)) if i % 4 == 1]
     logger.info("found devices: %s", repr(devices))
     select = [device for device in devices if
                 fnmatchcase(unicode(device.name), name)]
