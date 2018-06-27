@@ -2,6 +2,7 @@
 import logging
 logger = logging.getLogger('anabot')
 
+from anabot.conditions import is_distro_version
 from anabot.runtime.decorators import handle_action, handle_check, check_action_result
 from anabot.runtime.default import default_handler
 from anabot.runtime.functions import get_attr, getnode, TimeoutError, getparent, getsibling, handle_checkbox, check_checkbox, clear_text
@@ -56,14 +57,20 @@ def user_full_name_check(element, app_node, local_node):
 
 @handle_act('/username')
 def user_username_handler(element, app_node, local_node):
-    entry = getnode(local_node, 'text', tr('User name'))
+    label_text = 'User name'
+    if is_distro_version('rhel', 8):
+        label_text = 'User Name'
+    entry = getnode(local_node, 'text', tr(label_text))
     value = get_attr(element, 'value')
     if not (value is None):
         entry.typeText(value)
 
 @handle_chck('/username')
 def user_username_check(element, app_node, local_node):
-    entry = getnode(local_node, 'text', tr('User name'))
+    label_text = 'User name'
+    if is_distro_version('rhel', 8):
+        label_text = 'User Name'
+    entry = getnode(local_node, 'text', tr(label_text))
     value = get_attr(element, 'value')
     if (value is None):
         value = ''
