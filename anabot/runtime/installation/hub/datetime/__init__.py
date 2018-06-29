@@ -5,6 +5,7 @@ logger = logging.getLogger('anabot')
 
 import fnmatch
 import random
+import six
 
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler, action_result
@@ -86,7 +87,7 @@ def region_check(element, app_node, local_node):
     except TimeoutError:
         return notfound("label", whose="Region combo box")
     region_combo = getsibling(region_label, 1, "combo box")
-    if unicode(region_combo.name) == unicode(region_name):
+    if six.u(region_combo.name) == six.u(region_name):
         return True
     return (False, "Expected region: '%s', saw: '%s'" % (region_name, region_combo.name))
 
@@ -126,7 +127,7 @@ def city_check(element, app_node, local_node):
     except TimeoutError:
         return notfound("label", whose="City combo box")
     city_combo = getsibling(city_label, 1, "combo box")
-    if unicode(city_combo.name) == unicode(city_name):
+    if six.u(city_combo.name) == six.u(city_name):
         return True
     return (False, "Expected city: '%s', saw: '%s'" % (city_name, city_combo.name))
 
@@ -211,13 +212,13 @@ def ntp_settings_add_handler(element, app_node, local_node):
 def ntp_settings_add_check(element, app_node, local_node):
     if action_result(element)[0] == False:
         return action_result(element)
-    hostname = unicode(get_attr(element, "hostname"))
+    hostname = six.u(get_attr(element, "hostname"))
     try:
         table = getnode(local_node, "table")
     except TimeoutError:
         return notfound("table with NTP servers", where="NTP dialog")
     for candidate in getnodes(table, "table cell")[::3]:
-        if fnmatch.fnmatchcase(unicode(candidate.name), hostname):
+        if fnmatch.fnmatchcase(six.u(candidate.name), hostname):
             return True
     return notfound("specified ntp server", where="NTP dialog")
 
@@ -261,7 +262,7 @@ def ntp_settings_enable_manipulate(element, app_node, local_node, enable, dry_ru
         return notfound("table with NTP servers", where="NTP dialog")
     ok = True
     for candidate in getnodes(table, "table cell")[::3]:
-        if fnmatch.fnmatchcase(unicode(candidate.name), hostname):
+        if fnmatch.fnmatchcase(six.u(candidate.name), hostname):
             checkbox_cell = getsibling(candidate, 2, "table cell")
             if enable != checkbox_cell.checked:
                 if not dry_run:
@@ -419,7 +420,7 @@ def time_ampm_handler(element, app_node, local_node):
     buttons = getnodes(local_node, "push button", tr("AM/PM Up"))
     buttons += getnodes(local_node, "push button", tr("AM/PM Down"))
     random_button = random.choice(buttons)
-    if unicode(value) != unicode(ampm_label.text):
+    if six.u(value) != six.u(ampm_label.text):
         random_button.click()
     return True
 

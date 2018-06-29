@@ -2,6 +2,7 @@
 
 import logging
 logger = logging.getLogger('anabot')
+import six
 
 from functools import wraps
 from fnmatch import fnmatchcase
@@ -176,13 +177,12 @@ def remove_handler(element, app_node, local_node):
         return (False, "Undefined state")
     dialog_text = tr("Are you sure you want to delete all of the data on %s?")
     dialog_text %= "*"
-    dialog_text = unicode(dialog_text)
     try:
         remove_dialog = getnode(app_node, "dialog")
     except:
         return (False, "No dialog appeared after pressing remove button")
     if len([ x for x in getnodes(remove_dialog, "label")
-             if fnmatchcase(unicode(x.name), dialog_text)]) != 1:
+             if fnmatchcase(six.u(x.name), dialog_text)]) != 1:
         return (False, "Different dialog appeared after pressing remove button")
     default_handler(element, app_node, remove_dialog)
     getnode(remove_dialog, "push button", button_text).click()
@@ -204,9 +204,8 @@ def remove_related_handler_manipulate(element, app_node, local_node, dry_run):
     checkbox_text = tr("Delete _all file systems which are only used by %s.",
                        context="GUI|Custom Partitioning|Confirm Delete Dialog")
     checkbox_text %= "*"
-    checkbox_text = unicode(checkbox_text)
     checkboxes = [x for x in getnodes(local_node, "check box")
-                  if fnmatchcase(unicode(x.name), checkbox_text)]
+                  if fnmatchcase(six.u(x.name), checkbox_text)]
     logger.warn("Found checkboxes: %s", repr(checkboxes))
     if len(checkboxes) != 1:
         return (False, "No or more checkboxes for removing related partitions found. Check screenshot")

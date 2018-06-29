@@ -3,6 +3,7 @@
 import logging
 logger = logging.getLogger('anabot')
 import fnmatch
+import six
 
 from anabot.runtime.decorators import handle_action, handle_check, check_action_result
 from anabot.runtime.default import default_handler, action_result
@@ -276,7 +277,7 @@ def remove_handler(element, app_node, local_node):
         for layout in getnodes(table, "table cell", visible=None):
             if not layout.selected:
                 continue
-            __removed_layout = layout_id(unicode(layout.name, "utf-8"))
+            __removed_layout = layout_id(six.u(layout.name))
             break
     if __removed_layout is not None:
         __removed_layouts.append(__removed_layout)

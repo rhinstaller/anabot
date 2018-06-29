@@ -1,6 +1,7 @@
 import teres
 import re
 import logging
+import six
 
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.functions import get_attr, getnode, getnodes
@@ -63,7 +64,7 @@ def storage_error_dialog_handler(element, app_node, local_node):
 
         translated = translate(STORAGE_ERR_LABEL)
         translated_re = translated % {"errortxt": "(.*)"}
-        mo = re.match(translated_re, unicode(label.text))
+        mo = re.match(translated_re, six.u(label.text))
 
         # Workaround for bug 1420226
         original_re = STORAGE_ERR_LABEL % {"errortxt": "(.*)"}

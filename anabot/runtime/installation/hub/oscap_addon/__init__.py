@@ -2,6 +2,7 @@ import logging
 logger = logging.getLogger('anabot')
 
 import random
+import six
 
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.decorators import check_action_result
@@ -355,7 +356,7 @@ def change_content_fetch_check(element, app_node, local_node):
             "inconsistent_messages")
 
         for msg, fail_type in FAIL_MSG.iteritems():
-            if re.match(msg, unicode(error)):
+            if re.match(msg, six.u(error)):
                 break
         else:
             return Fail("Unhandled error message: %s" % error,

@@ -2,6 +2,7 @@ import logging
 logger = logging.getLogger('anabot')
 import teres
 reporter = teres.Reporter.get_reporter()
+import six
 
 from anabot.runtime.decorators import handle_action, handle_check, check_action_result
 from anabot.runtime.default import default_handler, action_result
@@ -70,7 +71,7 @@ def luks_password_manipulate(element, app_node, local_node, dry_run):
         pw_entry.typeText(value)
         _entered_luks_password = value
     else:
-        if len(value)*BLACK_CIRCLE == unicode(pw_entry.text):
+        if len(value)*BLACK_CIRCLE == six.u(pw_entry.text):
             return Pass()
         else:
             return Fail("LUKS password doesn't have expected length.")
@@ -104,7 +105,7 @@ def luks_confirm_password_manipulate(element, app_node, local_node, dry_run):
         pw_confirm_entry.typeText(value)
         _entered_luks_confirm_password = value
     else:
-        if len(value)*BLACK_CIRCLE == unicode(pw_confirm_entry.text):
+        if len(value)*BLACK_CIRCLE == six.u(pw_confirm_entry.text):
             return Pass()
         else:
             return Fail("LUKS confirmation password doesn't have expected length.")

@@ -6,6 +6,7 @@ from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.functions import get_attr, getnode, getparents
 from anabot.runtime.translate import tr
 from anabot.runtime.errors import TimeoutError
+import six
 
 
 _local_path = '/initial_setup/subscription_manager/account_panel'
@@ -48,7 +49,7 @@ def password_check(element, app_node, local_node):
     password = get_attr(element, 'value')
     password_input = getnode(local_node, 'password text', 'account_password')
     BLACK_CIRCLE = u'\u25cf'
-    return len(password)*BLACK_CIRCLE == unicode(password_input.text, 'utf-8')
+    return len(password)*BLACK_CIRCLE == six.u(password_input.text)
 
 @handle_act('/system_name')
 def system_name_handler(element, app_node, local_node):

@@ -2,6 +2,7 @@
 
 import logging
 logger = logging.getLogger('anabot')
+import six
 
 from fnmatch import fnmatchcase
 
@@ -152,14 +153,14 @@ def devices_handler(element, app_node, local_node):
 
 @handle_act('/devices/deselect')
 def devices_deselect_handler(element, app_node, local_node):
-    name = unicode(get_attr(element, "device"))
+    name = six.u(get_attr(element, "device"))
     table_cells = getnodes(local_node, "table cell")
     # device is second cell in row consisting of 4 cells, so take only
     # those whose index matches rule: i modulo 4 == 1
     devices = [table_cells[i] for i in range(len(table_cells)) if i % 4 == 1]
     logger.info("found devices: %s", repr(devices))
     deselect = [device for device in devices if
-                fnmatchcase(unicode(device.name), name)]
+                fnmatchcase(six.u(device.name), name)]
     logger.info("Deselecting devices: %s", repr(deselect))
     hold_key('control')
     for device in deselect:
@@ -170,14 +171,14 @@ def devices_deselect_handler(element, app_node, local_node):
 
 @handle_act('/devices/select')
 def devices_select_handler(element, app_node, local_node):
-    name = unicode(get_attr(element, "device"))
+    name = six.u(get_attr(element, "device"))
     table_cells = getnodes(local_node, "table cell")
     # device is second cell in row consisting of 4 cells, so take only
     # those whose index matches rule: i modulo 4 == 1
     devices = [table_cells[i] for i in range(len(table_cells)) if i % 4 == 1]
     logger.info("found devices: %s", repr(devices))
     select = [device for device in devices if
-                fnmatchcase(unicode(device.name), name)]
+                fnmatchcase(six.u(device.name), name)]
     hold_key('control')
     for device in select:
         logger.debug("Selecting %s", device.name)
