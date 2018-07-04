@@ -154,6 +154,7 @@ def disappeared(parent, node_type=None, node_name=None,
     except TimeoutError:
         return False
 
+@_check_existence
 def getnodes(parent, node_type=None, node_name=None, timeout=_DEFAULT_TIMEOUT,
              visible=True, sensitive=True, recursive=True, **kwargs):
     predicate = AnabotPredicate(
@@ -166,6 +167,7 @@ def getnodes(parent, node_type=None, node_name=None, timeout=_DEFAULT_TIMEOUT,
         parent.findChildren, predicate, recursive
     )
 
+@_check_existence
 def getnode(parent, node_type=None, node_name=None, timeout=_DEFAULT_TIMEOUT,
             visible=True, sensitive=True, recursive=True, **kwargs):
     predicate = AnabotPredicate(
