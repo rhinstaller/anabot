@@ -2,6 +2,7 @@
 import logging
 logger = logging.getLogger('anabot')
 
+from anabot.conditions import is_distro_version
 from anabot.runtime.decorators import handle_action, handle_check, check_action_result
 from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.functions import get_attr, getnode, getparent, getsibling, clear_text
@@ -23,11 +24,15 @@ def check_rootpw_error(parent_node):
     except NonexistentError:
         return True
 
+SPOKE_SELECTOR="Root Password"
+if is_distro_version('rhel', 7):
+    SPOKE_SELECTOR="_ROOT PASSWORD"
+
 @handle_act('')
 def root_password_handler(element, app_node, local_node):
     try:
         root_password_spoke = getnode(app_node, "spoke selector",
-                                      tr("_ROOT PASSWORD", context="GUI|Spoke"))
+                                      tr(SPOKE_SELECTOR, context="GUI|Spoke"))
     except:
         return (False, "Root password spoke selector not found or not clickable.")
     root_password_spoke.click()
