@@ -26,9 +26,13 @@ def handle_act(path, *args, **kwargs):
 def handle_chck(path, *args, **kwargs):
     return handle_check(_local_path + path, *args, **kwargs)
 
+SPOKE_SELECTOR="Installation Destination"
+if is_distro_version('rhel', 7):
+    SPOKE_SELECTOR="INSTALLATION _DESTINATION"
+
 @handle_act('')
 def base_handler(element, app_node, local_node):
-    partitioning_label = tr("INSTALLATION _DESTINATION", context="GUI|Spoke")
+    partitioning_label = tr(SPOKE_SELECTOR, context="GUI|Spoke")
     partitioning = getnode_scroll(app_node, "spoke selector",
                                   partitioning_label)
     partitioning.click()
@@ -43,7 +47,7 @@ def base_check(element, app_node, local_node):
         return (False, "Installation destination panel is still visible.")
     except TimeoutError:
         pass
-    partitioning_label = tr("INSTALLATION _DESTINATION", context="GUI|Spoke")
+    partitioning_label = tr(SPOKE_SELECTOR, context="GUI|Spoke")
     partitioning = getnode(app_node, "spoke selector", partitioning_label,
                            visible=None)
     try:
