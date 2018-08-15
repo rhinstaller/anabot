@@ -19,8 +19,10 @@ def debug_stop_handler(element, app_node, local_node):
     import os
     RESUME_FILEPATH = '/var/run/anabot/resume'
     sleep(5)
-    dump(app_node, '/tmp/dogtail.dump')
-    dump(local_node, '/tmp/dogtail-local.dump')
+    if app_node is not None:
+        dump(app_node, '/tmp/dogtail.dump')
+    if local_node is not None:
+        dump(local_node, '/tmp/dogtail-local.dump')
     logger.debug('DEBUG STOP at %s, touch %s to resume',
                  element.nodePath(), RESUME_FILEPATH)
     while not os.path.exists(RESUME_FILEPATH):
