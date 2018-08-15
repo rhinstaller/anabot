@@ -119,6 +119,7 @@ def _run_executable_hook(executable=None, chroot=None, preexec_fn=None):
         logger.debug("Running hook: %s", exec_path)
     p = subprocess.Popen([exec_path], preexec_fn=preexec)
     p.wait()
+    logger.debug("Hook exited with conde: %d", p.returncode)
     if chroot is not None:
         logger.debug("Removing hook from chroot: %s", new_path)
         os.unlink(new_path)
