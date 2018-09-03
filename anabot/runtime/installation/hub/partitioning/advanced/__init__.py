@@ -7,6 +7,7 @@ import six
 from functools import wraps
 from fnmatch import fnmatchcase
 
+from anabot.conditions import is_distro_version
 from anabot.runtime.decorators import handle_action, handle_check, check_action_result
 from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.functions import get_attr, getnode, getnodes, getparent, getsibling, press_key, scrollto, dump
@@ -17,8 +18,11 @@ from anabot.runtime.installation.hub.partitioning.advanced.common import schema_
 import anabot.runtime.installation.hub.partitioning.advanced.details
 
 _local_path = '/installation/hub/partitioning/advanced'
-handle_act = lambda x: handle_action(_local_path + x)
-handle_chck = lambda x: handle_check(_local_path + x)
+def handle_act(path, *args, **kwargs):
+    return handle_action(_local_path + path, *args, **kwargs)
+
+def handle_chck(path, *args, **kwargs):
+    return handle_check(_local_path + path, *args, **kwargs)
 
 _current_selection = None
 
@@ -179,6 +183,11 @@ def remove_handler(element, app_node, local_node):
     dialog_text = tr("Are you sure you want to delete all of the data on %s?")
     dialog_text %= "*"
     dialog_texts.append(dialog_text)
+    if is_distro_version('rhel', 8):
+        # There's different text for boot related partitions, accept is as well
+        dialog_text = tr("%s may be a system boot partition! Deleting it may break other operating systems. Are you sure you want to delete it?")
+        dialog_text %= "*"
+        dialog_texts.append(dialog_text)
     def correct_dialog_text(node):
         return any([
             fnmatchcase(six.u(node.name), dialog_text)
