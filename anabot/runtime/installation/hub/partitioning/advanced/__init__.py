@@ -175,14 +175,21 @@ def remove_handler(element, app_node, local_node):
         button_text = tr("_Cancel", context=remove_dialog_context)
     else:
         return (False, "Undefined state")
+    dialog_texts = []
     dialog_text = tr("Are you sure you want to delete all of the data on %s?")
     dialog_text %= "*"
+    dialog_texts.append(dialog_text)
+    def correct_dialog_text(node):
+        return any([
+            fnmatchcase(six.u(node.name), dialog_text)
+            for dialog_text in dialog_texts
+        ])
     try:
         remove_dialog = getnode(app_node, "dialog")
     except:
         return (False, "No dialog appeared after pressing remove button")
     if len([ x for x in getnodes(remove_dialog, "label")
-             if fnmatchcase(six.u(x.name), dialog_text)]) != 1:
+             if correct_dialog_text(x)]) != 1:
         return (False, "Different dialog appeared after pressing remove button")
     default_handler(element, app_node, remove_dialog)
     getnode(remove_dialog, "push button", button_text).click()
