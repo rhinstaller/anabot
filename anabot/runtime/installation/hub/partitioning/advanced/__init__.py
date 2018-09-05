@@ -303,7 +303,14 @@ def add_mountpoint_handler_manipulate(element, app_node, local_node, dryrun):
     textfield = getnode(combo, "text")
     if not dryrun:
         textfield.typeText(mountpoint)
-        press_key('enter')
+        if is_distro_version('rhel', 8):
+            # Pressing enter accepts whole dialog, see:
+            # https://bugzilla.redhat.com/show_bug.cgi?id=1625603
+            # press tab which should be harmless in any situation
+            # and should cancel the combobox offering
+            press_key('\t')
+        else:
+            press_key('enter')
     else:
         return textfield.text == mountpoint
 
