@@ -212,20 +212,33 @@ def volume_group_dialog(element, app_node, local_node):
 
 @handle_act('/raid_type')
 def raid_type(element, app_node, local_node):
-    raid_level = raid_name(get_attr(element, "select"))
-    raid_label = getnode(local_node, "label", tr("RAID Level:"))
+    raid_type = get_attr(element, "select")
+    raid_level = raid_name(raid_type)
+    try:
+        raid_label = getnode(local_node, "label", tr("RAID Level:"))
+    except TimeoutError:
+        return Fail("Couldn't find 'Raid Level:' label next to raid selection.")
     raid_combo = getsibling(raid_label, 1, "combo box")
     raid_combo.click()
     combo_selection = getnode(app_node, "window")
-    combo_target = getnode(combo_selection, "menu item", raid_level)
+    try:
+        combo_target = getnode(combo_selection, "menu item", raid_level)
+    except TimeoutError:
+        return Fail("Requested raid level '%s' not found. Was looking for string: '%s'" % (raid_type, raid_level))
     combo_target.click()
 
 @handle_chck('/raid_type')
 def raid_type_check(element, app_node, local_node):
     raid_level = raid_name(get_attr(element, "select"), drop_span=False)
-    raid_label = getnode(local_node, "label", tr("RAID Level:"))
+    try:
+        raid_label = getnode(local_node, "label", tr("RAID Level:"))
+    except TimeoutError:
+        return Fail("Couldn't find 'Raid Level:' label next to raid selection.")
     raid_combo = getsibling(raid_label, 1, "combo box")
-    return raid_level == raid_combo.name
+    if raid_level == raid_combo.name:
+        return Pass
+    else:
+        return Fail("Current raid level is: '%s', expected: '%s'" % (raid_combo.name, raid_level))
 
 @handle_act('/new_volume_group')
 def new_volume_group(element, app_node, local_node):
