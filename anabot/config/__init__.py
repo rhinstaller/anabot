@@ -1,6 +1,7 @@
 import os
 from ConfigParser import RawConfigParser
 from anabot.paths  import defauls_path, profiles_path
+from anabot.variables import set_variable
 
 _profile_name = None
 _config = None
@@ -28,6 +29,13 @@ def init_config(profile_name):
         raise Exception("Cannot load '%s'" % ini_path)
     _profile_name = profile_name
     replacements['profile_name'] = profile_name
+    # Set variables defined by the config file
+    for option in _config.options(profile_name):
+        if not option.startswith("var_"):
+            continue
+        # remove starting "var_"
+        env_name = option.split('_', 1)[1]
+        set_variable(env_name, get_option(option))
 
 def get_option(option):
     value = _config.get(_profile_name, option) % replacements
