@@ -24,6 +24,15 @@ def init_config(profile_name):
     _config = RawConfigParser(allow_no_value=True)
     defaults = open(defauls_path, 'r')
     _config.readfp(defaults)
+    try:
+        local_conf_path = os.environ.get(
+            'ANABOT_CONF', os.path.join(os.getcwd(), 'anabot.ini')
+        )
+        with open(local_conf_path) as local_conf:
+            _config.readfp(local_conf)
+    except OSError:
+        # couldn't find or read 'anabot.ini'
+        pass
     loaded = _config.read(ini_path)
     if not ini_path in loaded:
         raise Exception("Cannot load '%s'" % ini_path)
