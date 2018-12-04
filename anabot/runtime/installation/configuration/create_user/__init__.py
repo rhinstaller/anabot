@@ -16,6 +16,10 @@ _local_path = '/installation/configuration/create_user'
 handle_act = lambda x: handle_action(_local_path + x)
 handle_chck = lambda x: handle_check(_local_path + x)
 
+SPOKE_SELECTOR="_User Creation"
+if is_distro_version('rhel', 7):
+    SPOKE_SELECTOR="_USER CREATION"
+
 @handle_act('')
 def user_spoke_handler(element, app_node, local_node):
     try:

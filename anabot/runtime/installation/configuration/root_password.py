@@ -27,7 +27,7 @@ def check_rootpw_error(parent_node):
     except NonexistentError:
         return True
 
-SPOKE_SELECTOR="Root Password"
+SPOKE_SELECTOR="_Root Password"
 if is_distro_version('rhel', 7):
     SPOKE_SELECTOR="_ROOT PASSWORD"
 

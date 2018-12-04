@@ -26,7 +26,7 @@ def handle_act(path, *args, **kwargs):
 def handle_chck(path, *args, **kwargs):
     return handle_check(_local_path + path, *args, **kwargs)
 
-SPOKE_SELECTOR="Installation Destination"
+SPOKE_SELECTOR="Installation _Destination"
 if is_distro_version('rhel', 7):
     SPOKE_SELECTOR="INSTALLATION _DESTINATION"
 
