@@ -1,0 +1,13 @@
+<ez:installation xmlns:ez="http://example.com/path/anabot/easy">
+  <ez:hub>
+    <syspurpose>
+      <!-- do not modify role - it should be set to "Not Specified" by default -->
+      <role value="Not Specified" policy="just_check" />
+      <!-- set SLA to Standard -->
+      <sla value="Standard" />
+      <usage value="Development/Test" />
+      <!-- if you want to ignore any part (role, sla, usage) just ommit it -->
+    </syspurpose>
+  </ez:hub>
+</ez:installation>
+

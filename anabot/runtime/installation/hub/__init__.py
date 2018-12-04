@@ -14,7 +14,7 @@ from anabot.runtime.workarounds import wait_for_line
 from anabot.runtime.translate import tr
 
 # submodules
-from . import datetime, keyboard, partitioning, software_selection, oscap_addon, language
+from . import datetime, keyboard, partitioning, software_selection, oscap_addon, language, system_purpose
 
 @handle_action('/installation/hub')
 def hub_handler(element, app_node, local_node):
