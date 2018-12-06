@@ -12,6 +12,7 @@ from anabot.runtime.default import default_handler
 from anabot.runtime.functions import get_attr, getnode, getsibling, disappeared, getnode_scroll
 from anabot.runtime.translate import tr
 from anabot.runtime.actionresult import NotFoundResult
+from anabot.runtime.errors import TimeoutError
 
 _local_path = '/installation/hub/syspurpose'
 handle_act = lambda x: handle_action(_local_path + x)
