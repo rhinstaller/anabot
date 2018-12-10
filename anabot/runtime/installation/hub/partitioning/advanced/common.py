@@ -1,5 +1,6 @@
 import re
 from anabot.runtime.translate import tr
+from anabot.conditions import is_distro_version
 
 def schema_name(schema=None):
     SCHEMAS = {
@@ -14,15 +15,26 @@ def schema_name(schema=None):
     return SCHEMAS.values()
 
 def raid_name(raid_level=None, drop_span=True):
-    LEVELS = {
-        "none"   : tr("None"),
-        "RAID0"  : tr("RAID0 <span foreground=\"grey\">(Performance)</span>"),
-        "RAID1"  : tr("RAID1 <span foreground=\"grey\">(Redundancy)</span>"),
-        "RAID4"  : tr("RAID4 <span foreground=\"grey\">(Error Checking)</span>"),
-        "RAID5"  : tr("RAID5 <span foreground=\"grey\">(Distributed Error Checking)</span>"),
-        "RAID6"  : tr("RAID6 <span foreground=\"grey\">(Redundant Error Checking)</span>"),
-        "RAID10" : tr("RAID10 <span foreground=\"grey\">(Performance, Redundancy)</span>"),
-    }
+    if is_distro_version('rhel', 7):
+        LEVELS = {
+            "none"   : tr("None"),
+            "RAID0"  : tr("RAID0 <span foreground=\"grey\">(Performance)</span>"),
+            "RAID1"  : tr("RAID1 <span foreground=\"grey\">(Redundancy)</span>"),
+            "RAID4"  : tr("RAID4 <span foreground=\"grey\">(Error Checking)</span>"),
+            "RAID5"  : tr("RAID5 <span foreground=\"grey\">(Distributed Error Checking)</span>"),
+            "RAID6"  : tr("RAID6 <span foreground=\"grey\">(Redundant Error Checking)</span>"),
+            "RAID10" : tr("RAID10 <span foreground=\"grey\">(Performance, Redundancy)</span>"),
+        }
+    else:
+        LEVELS = {
+            "none"   : tr("None"),
+            "RAID0"  : tr("RAID0"),
+            "RAID1"  : tr("RAID1"),
+            "RAID4"  : tr("RAID4"),
+            "RAID5"  : tr("RAID5"),
+            "RAID6"  : tr("RAID6"),
+            "RAID10" : tr("RAID10"),
+        }
     if drop_span:
         exp = re.compile(r'(.*)<span foreground=\"grey\">(.*)</span>')
         for level in LEVELS:
