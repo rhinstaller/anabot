@@ -15,8 +15,8 @@ awk -v "KEY_FILE=$keyfile" '{$3=KEY_FILE; print $0}' /etc/crypttab > crypttab_mo
 mv -Z crypttab_mod /etc/crypttab
 chmod 0600 /etc/crypttab
 kernel_file=`grubby --default-kernel`
-initrd_file=`grubby --info=$kernel_file | grep ^initrd= | sed 's/"//g' | sed 's/^initrd=//' | head -n1`
 kernel_version=`rpm -qf $kernel_file --qf '%{VERSION}-%{RELEASE}.%{ARCH}'`
+initrd_file="/boot/initramfs-${kernel_version}.img"
 dracut -f -I $keyfile $initrd_file $kernel_version
 if [ -x /sbin/zipl ]; then
    /sbin/zipl
