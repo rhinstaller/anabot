@@ -24,7 +24,7 @@ if is_distro_version('rhel', 7):
 def user_spoke_handler(element, app_node, local_node):
     try:
         user_spoke = getnode(app_node, "spoke selector",
-                             tr("_USER CREATION", context="GUI|Spoke"))
+                             tr(SPOKE_SELECTOR, context="GUI|Spoke"))
     except:
         return (False, "User spoke selector not found or not clickable")
     user_spoke.click()
