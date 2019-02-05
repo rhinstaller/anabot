@@ -10,7 +10,7 @@ from anabot.runtime.functions import get_attr, getnode, getnodes, getsibling
 from anabot.runtime.functions import getnode_scroll, scrollto
 from anabot.runtime.functions import getparents, TimeoutError
 from anabot.runtime.translate import tr
-from anabot.runtime.translate import oscap_tr as oscap_tr_
+from anabot.runtime.translate import oscap_tr
 from anabot.runtime.actionresult import ActionResultPass as Pass
 from anabot.runtime.actionresult import ActionResultFail as Fail
 from anabot.runtime.actionresult import NotFoundResult as NotFound
@@ -22,8 +22,11 @@ handle_chck = lambda x: handle_check(_local_path + x)
 _chosen_profile = None
 _selected_profile = None
 
-# temporary workaround for broken translation
-def oscap_tr(intext, drop_underscore=True):
+# Temporary workaround for broken translation of the Security Policy
+# spoke selector (historically there were many untranslated strings
+# in OSCAP addon). The dummy function must be replaced
+# with oscap_tr once the translation is fixed. Also see BZ1602043.
+def dummy_oscap_tr(intext, drop_underscore=True):
     if drop_underscore:
         return intext.replace("_", "")
     else:
@@ -40,13 +43,13 @@ OSCAP_SPOKE_NF = NotFound("OSCAP addon panel", "spoke_not_found")
 def base_handler(element, app_node, local_node):
     try:
         oscap_addon = getnode_scroll(app_node, "spoke selector",
-                                     oscap_tr("SECURITY POLICY"))
+                                     dummy_oscap_tr("SECURITY POLICY"))
         oscap_addon.click()
     except TimeoutError:
         return SPOKE_SELECTOR_NF
     try:
         oscap_addon_label = getnode(app_node, "label",
-                                    oscap_tr_("SECURITY POLICY"))
+                                    oscap_tr("SECURITY POLICY"))
     except TimeoutError:
         return SECURITY_POLICY_LABEL_NF
     try:
@@ -66,19 +69,19 @@ WRONG_SELECTOR_MESSAGE = Fail("OSCAP addon selector contained wrong message: "
 def base_check(element, app_node, local_node):
     expected_message = get_attr(element, "expected_message")
     if expected_message is not None:
-	expected_message = oscap_tr_(expected_message)
-    OK_STATUS = {oscap_tr_("Everything okay"),
-                 oscap_tr_("No profile selected"),
-                 oscap_tr_("No content found")}
+        expected_message = oscap_tr(expected_message)
+    OK_STATUS = {oscap_tr("Everything okay"),
+                 oscap_tr("No profile selected"),
+                 oscap_tr("No content found")}
     FAIL_STATUS = {
-        oscap_tr_("Not ready"): 'not_ready',
-        oscap_tr_("Misconfiguration detected"): 'misconfiguration_detected',
-        oscap_tr_("Warnings appeared"): 'warnings_appeared',
-        oscap_tr_("Error fetching and loading content"): 'content_fetch_load_error'}
+        oscap_tr("Not ready"): 'not_ready',
+        oscap_tr("Misconfiguration detected"): 'misconfiguration_detected',
+        oscap_tr("Warnings appeared"): 'warnings_appeared',
+        oscap_tr("Error fetching and loading content"): 'content_fetch_load_error'}
 
     try:
         oscap_addon_selector = getnode_scroll(app_node, "spoke selector",
-                                              oscap_tr("SECURITY POLICY"))
+                                              dummy_oscap_tr("SECURITY POLICY"))
     except TimeoutError:
         return SPOKE_SELECTOR_NF
     try:
@@ -228,7 +231,7 @@ def change_content_manipulate(element, app_node, local_node, dryrun):
     except TimeoutError:
         if dryrun:
             try:
-                getnode_scroll(app_node, "spoke selector", oscap_tr("SECURITY POLICY"))
+                getnode_scroll(app_node, "spoke selector", dummy_oscap_tr("SECURITY POLICY"))
                 logger.info("Detected that hub is active.")
                 return Pass()
             except TimeoutError:
@@ -305,16 +308,16 @@ ERROR_LABEL_NF = NotFound("content fetch error label", "label_not_found")
 @check_action_result
 def change_content_fetch_check(element, app_node, local_node):
     global _selected_profile
-    FAIL_MSG = {oscap_tr_("Invalid or unsupported URL"): 'invalid_url',
-                oscap_tr_("No content found. Please enter data stream content "
+    FAIL_MSG = {oscap_tr("Invalid or unsupported URL"): 'invalid_url',
+                oscap_tr("No content found. Please enter data stream content "
                          "or archive URL below:"): 'no_content_found',
-                oscap_tr_("Failed to extract content (%s). Enter a different "
+                oscap_tr("Failed to extract content (%s). Enter a different "
                          "URL, please.") % ".*": 'extraction_failed',
-                oscap_tr_("Failed to fetch content. Enter a different URL, "
+                oscap_tr("Failed to fetch content. Enter a different URL, "
                           "please."): 'fetch_failed',
-                oscap_tr_("Invalid content provided. Enter a different URL, "
+                oscap_tr("Invalid content provided. Enter a different URL, "
                           "please."): 'invalid_content',
-                oscap_tr_("Network error encountered when fetching data."
+                oscap_tr("Network error encountered when fetching data."
                           " Please check that network is setup and "
                           "working."): 'network_error'}
     try:
@@ -583,7 +586,7 @@ def changes_line_check(element, app_node, local_node):
     # ugly workaround for broken translations:
     if raw_text in ("No rules for the pre-installation phase",
                     "make sure to create password with minimal length of %d characters"):
-        translated_text = oscap_tr_(raw_text)
+        translated_text = oscap_tr(raw_text)
     else:
         translated_text = raw_text
 
@@ -627,7 +630,7 @@ def done_handler(element, app_node, local_node):
 @check_action_result
 def done_check(element, app_node, local_node):
     try:
-        getnode_scroll(app_node, "spoke selector", oscap_tr("SECURITY POLICY"))
+        getnode_scroll(app_node, "spoke selector", dummy_oscap_tr("SECURITY POLICY"))
     except TimeoutError:
         return SPOKE_SELECTOR_NF
     return Pass()
