@@ -13,6 +13,7 @@ from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.functions import get_attr, getnode, getnodes, getparent, getsibling, press_key, scrollto, dump
 from anabot.runtime.errors import TimeoutError
 from anabot.runtime.translate import tr, gtk_tr
+from anabot.runtime.installation.common import done_handler
 from anabot.runtime.installation.hub.partitioning.advanced.common import schema_name
 
 import anabot.runtime.installation.hub.partitioning.advanced.details
@@ -341,11 +342,9 @@ def add_size_check(element, app_node, local_node):
     return add_size_handler_manipulate(element, app_node, local_node, True)
 
 @handle_act('/done')
-def done_handler(element, app_node, local_node):
+def done_handler_wrap(element, app_node, local_node):
     try:
-        done_button = getnode(local_node.parent, "push button", tr("_Done", False))
-        done_button.click()
-        return True
+        return done_handler(element, app_node, local_node.parent)
     except TimeoutError:
         return (False, "Didn't find visible and clickable Done button")
 

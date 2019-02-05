@@ -15,6 +15,7 @@ from anabot.runtime.comps import reload_comps, get_comps
 from anabot.runtime.hooks import register_post_hook
 from anabot.runtime.errors import TimeoutError
 from anabot.runtime.translate import tr, comps_tr_env, comps_tr_group, comps_tr_env_desc, comps_tr_group_rev, comps_tr_group_desc, comps_tr_env_rev
+from anabot.runtime.installation.common import done_handler
 
 _local_path = '/installation/hub/software_selection'
 handle_act = lambda x: handle_action(_local_path + x)
@@ -65,16 +66,15 @@ def base_handler(element, app_node, local_node):
         __selected_environment = current_env(local_node)
         __selected_addons = current_addons(local_node)
     try:
-        done_button = getnode(local_node, "push button", tr("_Done", False))
-        done_button.click()
+        return done_handler(element, app_node, local_node)
     except TimeoutError:
         return (False, 'Couldn\'t find "Done" button.')
-    return True
 
 @handle_chck('')
 def base_check(element, app_node, local_node):
     if action_result(element)[0] == False:
         return action_result(element)
+    # TODO: Fix detection of Done button/reason of the check
     if disappeared(app_node, "push button", tr("_Done", False)):
         return True
     else:

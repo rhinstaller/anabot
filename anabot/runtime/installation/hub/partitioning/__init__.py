@@ -15,6 +15,7 @@ from anabot.runtime.translate import tr
 from anabot.variables import get_variable
 from anabot.runtime.actionresult import NotFoundResult as NotFound
 from anabot.runtime.actionresult import ActionResultPass as Pass, ActionResultFail as Fail
+from anabot.runtime.installation.common import done_handler
 
 # submodules
 from . import advanced, luks_dialog
@@ -199,20 +200,7 @@ def additional_space_handler2(element, app_node, local_node):
 def additional_space_check2(element, app_node, local_node):
     return additional_space_manipulate2(element, app_node, local_node, True)
 
-@handle_act('/done', cond=is_distro_version('rhel', 7))
-def done_handler(element, app_node, local_node):
-    done_button = getnode(local_node, "push button", tr("_Done", False))
-    done_button.click()
-    return True
-
-@handle_act('/done', cond=is_distro_version('rhel', 8))
-def done_handler2(element, app_node, local_node):
-    done_button = getnode(
-        local_node, "push button",
-        tr("_Done", False, context="GUI|Spoke Navigation")
-    )
-    done_button.click()
-    return True
+handle_act('/done')(done_handler)
 
 @handle_chck('/done')
 @check_action_result

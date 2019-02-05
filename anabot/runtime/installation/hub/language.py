@@ -13,6 +13,7 @@ from anabot.runtime.translate import tr
 from anabot.runtime.actionresult import ActionResultPass as Pass
 from anabot.runtime.actionresult import ActionResultFail as Fail
 from anabot.runtime.actionresult import NotFoundResult as NotFound
+from anabot.runtime.installation.common import done_handler
 
 reporter = teres.Reporter.get_reporter()
 
@@ -67,13 +68,10 @@ def base_handler(element, app_node, local_node):
 
     # Click the Done button.
     try:
-        done_button = getnode(local_node, "push button", tr("_Done", False))
-        done_button.click()
+        done_handler(element, app_node, local_node)
+        return PASS
     except TimeoutError:
         return DONE_NOT_FOUND
-
-    return PASS
-
 
 @handle_chck('')
 @check_action_result

@@ -13,6 +13,7 @@ from anabot.runtime.functions import get_attr, getnode, getsibling, disappeared,
 from anabot.runtime.translate import tr
 from anabot.runtime.actionresult import NotFoundResult
 from anabot.runtime.errors import TimeoutError
+from anabot.runtime.installation.common import done_handler
 
 _local_path = '/installation/hub/syspurpose'
 handle_act = lambda x: handle_action(_local_path + x)
@@ -33,14 +34,9 @@ def syspurpose_handler(element, app_node, local_node):
         return NotFoundResult(tr("SYSTEM PURPOSE") + " SYSTEM PURPOSE spoke")
     default_handler(element, app_node, syspurpose_panel)
     try:
-        done_button = getnode(syspurpose_panel, "push button",
-                tr("_Done", drop_underscore=False,
-                context="GUI|Spoke Navigation"))
+        return done_handler(element, app_node, local_node)
     except TimeoutError:
         return NotFoundResult("Done button", where="System Purpose spoke")
-    done_button.click()
-    return True
-
 
 @handle_chck('')
 @check_action_result

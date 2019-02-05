@@ -10,6 +10,7 @@ from anabot.runtime.errors import TimeoutError, NonexistentError
 from anabot.runtime.translate import tr, gtk_tr
 from anabot.runtime.hooks import run_posthooks
 from anabot.runtime.actionresult import NotFoundResult as NotFound
+from anabot.runtime.installation.common import done_handler
 
 _local_path = '/installation/configuration/root_password'
 def handle_act(path, *args, **kwargs):
@@ -113,29 +114,7 @@ def root_password_confirm_handler(element, app_node, local_node):
 def root_password_confirm_check(element, app_node, local_node):
     return root_password_confirm_manipulate(element, app_node, local_node, True)
 
-@handle_act('/done', cond=is_distro_version('rhel', 7))
-def root_password_done_handler(element, app_node, local_node):
-    try:
-        root_password_done = getnode(local_node, "push button",
-                                     tr("_Done", False))
-    except TimeoutError:
-        return (False, "Done button not found or not clickable")
-
-    root_password_done.click()
-    return True # done for password found and was clicked
-
-@handle_act('/done', cond=is_distro_version('rhel', 8))
-def root_password_done_handler8(element, app_node, local_node):
-    try:
-        root_password_done = getnode(
-            local_node, "push button",
-            tr("_Done", False,context="GUI|Spoke Navigation")
-        )
-    except TimeoutError:
-        return (False, "Done button not found or not clickable")
-
-    root_password_done.click()
-    return True # done for password found and was clicked
+handle_act('/done')(done_handler)
 
 @handle_chck('/done')
 @check_action_result

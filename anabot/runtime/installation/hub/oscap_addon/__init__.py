@@ -15,6 +15,7 @@ from anabot.runtime.translate import oscap_tr
 from anabot.runtime.actionresult import ActionResultPass as Pass
 from anabot.runtime.actionresult import ActionResultFail as Fail
 from anabot.runtime.actionresult import NotFoundResult as NotFound
+from anabot.runtime.installation.common import done_handler
 import re
 
 _local_path = '/installation/hub/oscap_addon'
@@ -619,12 +620,11 @@ def changes_line_check(element, app_node, local_node):
 DONE_BUTTON_NF = NotFound("\"Done\" button", "button_not_found")
 @handle_act('/done')
 @handle_act('/change_content/done')
-def done_handler(element, app_node, local_node):
+def done_handler_wrap(element, app_node, local_node):
     try:
-        done_button = getnode(local_node, "push button", tr("_Done", False))
+        return done_handler(element, app_node, local_node)
     except TimeoutError:
         return DONE_BUTTON_NF
-    done_button.click()
 
 @handle_chck('/done')
 @handle_chck('/change_content/done')

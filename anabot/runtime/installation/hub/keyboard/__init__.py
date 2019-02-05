@@ -12,6 +12,7 @@ from anabot.runtime.actionresult import ActionResultFail as Fail
 from anabot.runtime.actionresult import NotFoundResult as NotFound
 from anabot.runtime.functions import get_attr, getnode, getnodes, getnode_scroll, getsibling, TimeoutError
 from anabot.runtime.translate import tr, keyboard_tr
+from anabot.runtime.installation.common import done_handler
 from .layouts import layout_name, layout_id, Layouts
 
 _local_path = '/installation/hub/keyboard'
@@ -59,11 +60,10 @@ def base_handler(element, app_node, local_node):
         return SPOKE_NOT_FOUND
     default_handler(element, app_node, local_node)
     try:
-        done_button = getnode(local_node, "push button", tr("_Done", False))
+        done_handler(element, app_node, local_node)
+        return PASS
     except TimeoutError:
         return DONE_NOT_FOUND
-    done_button.click()
-    return PASS
 
 @handle_chck('')
 @check_action_result

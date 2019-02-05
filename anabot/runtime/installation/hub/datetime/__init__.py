@@ -13,6 +13,7 @@ from anabot.runtime.functions import get_attr, getnode, getnode_scroll, getnodes
 from anabot.runtime.errors import TimeoutError
 from anabot.runtime.translate import tr, datetime_tr
 from anabot.runtime.actionresult import notfound as notfound_new
+from anabot.runtime.installation.common import done_handler
 
 def notfound(*args, **kwargs):
     return (False, notfound_new(*args, **kwargs))
@@ -34,12 +35,7 @@ def base_handler(element, app_node, local_node):
     except TimeoutError:
         return notfound("DATE & TIME spoke")
     default_handler(element, app_node, datetime_panel)
-    try:
-        done_button = getnode(datetime_panel, "push button", tr("_Done", False))
-    except TimeoutError:
-        return notfound("Done button", where="Date & Time spoke")
-    done_button.click()
-    return True
+    return done_handler(element, app_node, datetime_panel)
 
 @handle_chck('')
 def base_check(element, app_node, local_node):
