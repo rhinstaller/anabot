@@ -17,6 +17,7 @@ from anabot.runtime.actionresult import ActionResultFail as Fail
 from anabot.runtime.actionresult import NotFoundResult as NotFound
 from anabot.runtime.installation.common import done_handler
 import re
+from teres import make_text
 
 _local_path = '/installation/hub/oscap_addon'
 handle_act = lambda x: handle_action(_local_path + x)
@@ -87,7 +88,7 @@ def base_check(element, app_node, local_node):
     except TimeoutError:
         return SPOKE_SELECTOR_NF
     try:
-        oscap_addon_status = getnode(oscap_addon_selector, "label").text.decode("utf-8")
+        oscap_addon_status = make_text(getnode(oscap_addon_selector, "label").text)
     except TimeoutError:
         return SPOKE_SELECTOR_STATUS_NF
 
