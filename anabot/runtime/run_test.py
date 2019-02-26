@@ -19,9 +19,8 @@ def run_test(file_path, appname="anaconda", children_required=0):
     that this file is already processed by anabot preprocessor.
     See anabot.preprocessor package.
     """
-    import dogtail.utils # pylint: disable=import-error
-    dogtail.utils.enableA11y()
     import dogtail.config # pylint: disable=import-error
+    dogtail.config.config.checkForA11y = False
     dogtail.config.config.typingDelay = 0.2
     dogtail.config.config.childrenLimit = 10000
     from dogtail.predicate import GenericPredicate # pylint: disable=import-error

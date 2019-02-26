@@ -29,9 +29,8 @@ except IndexError:
     app_name = "anaconda"
 
 import dogtail
-import dogtail.utils
-dogtail.utils.enableA11y()
 import dogtail.config
+dogtail.config.config.checkForA11y = False
 dogtail.config.config.childrenLimit = 10000
 from dogtail.predicate import GenericPredicate
 import dogtail.tree

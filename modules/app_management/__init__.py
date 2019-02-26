@@ -5,8 +5,8 @@ from anabot.variables import get_variable
 from anabot import config
 
 def find_tested_app(atk_appname, atk_min_children=1, search_attempts=1, wait_between_attempts=1):
-    import dogtail.utils
-    dogtail.utils.enableA11y()
+    import dogtail.config
+    dogtail.config.config.checkForA11y = False
     import dogtail.tree
     from dogtail.predicate import GenericPredicate
     from dogtail.utils import sleep
