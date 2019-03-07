@@ -1,0 +1,126 @@
+#!/usr/bin/env bash
+
+main() {
+    # Initialize variables with resources needed to prepare testing environment.
+    # Be aware that this counts on *recipeid* and *(inst\.)?repo* provided on
+    # the kernel cmdline. Especially, without *recipeid* the scripts exits
+    # without doing anything.
+
+    local -r recipeid="${BEAKER_RECIPE_ID}"
+    local -r taskid="${BEAKER_TASK_ID}"
+    local -r baseurl="$(awk 'BEGIN {RS=" |\n" ; FS="="} $1 ~ /^(inst\.)?repo$/ {print $2}' /proc/cmdline)"
+    local -r additional_repos="$(awk 'BEGIN {RS=" |\n" ; FS="="} $1 ~ /^(inst\.)?addrepo$/ {print $2}' /proc/cmdline)"
+    local -r hostname="$(hostname)"
+    local labcontroller=$BEAKER_LAB_CONTROLLER
+    local beaker_hub_hostname=${ANABOT_VAR_BEAKER_HUB_HOSTNAME}
+    local beaker_hub_url="https://${beaker_hub_hostname}/"
+    local beaker_tasks_repo="http://${beaker_hub_hostname}/repos/${recipeid}"
+    local harness_baseurl family major_version
+
+    . /etc/os-release
+    case $ID in
+        "rhel")
+            family="RedHatEnterpriseLinux"
+            ;;
+        "fedora")
+            family="Fedora"
+            ;;
+        *)
+            echo "Unknown OS"
+    esac
+    major_version=${VERSION_ID%%.*}
+    harness_baseurl="http://${beaker_hub_hostname}/harness/${family}${major_version}/"
+
+    # Bail out if there is no recipe id.
+    [[ -z "$recipeid" ]] && exit 0
+    echo "$recipeid" > /root/RECIPE.TXT
+
+    # Prepare the environment for restraint harness.
+    cat <<- EOF > /etc/yum.repos.d/beaker-harness.repo
+		[beaker-harness]
+		name=beaker-harness
+		baseurl=$harness_baseurl
+		enabled=1
+		gpgcheck=0
+EOF
+
+    cat <<- EOF > /etc/profile.d/beaker-harness-env.sh
+		export BEAKER_LAB_CONTROLLER_URL="http://${labcontroller}:8000/"
+		export BEAKER_LAB_CONTROLLER="${labcontroller}"
+		export BEAKER_RECIPE_ID="$recipeid"
+		export BEAKER_HUB_URL="${beaker_hub_url}"
+EOF
+
+    cat <<- EOF > /etc/profile.d/beaker-harness-env.csh
+		export BEAKER_LAB_CONTROLLER_URL="http://${labcontroller}:8000/"
+		export BEAKER_LAB_CONTROLLER="${labcontroller}"
+		export BEAKER_RECIPE_ID="$recipeid"
+		export BEAKER_HUB_URL="${beaker_hub_url}"
+EOF
+
+    # Add task repo.
+    cat <<- EOF > /etc/yum.repos.d/beaker-tasks.repo
+		[beaker-tasks]
+		name=beaker-tasks
+		baseurl=${beaker_tasks_repo}
+		enabled=1
+		gpgcheck=0
+EOF
+
+    # Add base repo for the installed system.
+    cat <<- EOF > /etc/yum.repos.d/base.repo
+		[beaker-base]
+		name=beaker-base
+		baseurl=$baseurl
+		enabled=1
+		gpgcheck=0
+EOF
+    # Add additional repos defined by inst.addrepo
+    for additional_repo in $additional_repos; do
+        # first item of repo is name and second is URL
+        repo=(${additional_repo/,/ })
+        cat <<- EOF > /etc/yum.repos.d/${repo[0]}.repo
+		[beaker-${repo[0]}]
+		name=beaker-${repo[0]}
+		baseurl=${repo[1]}
+		enabled=1
+		gpgcheck=0
+EOF
+    done
+    if [[ ${family}${major_version} == "RedHatEnterpriseLinux8" ]]; then
+        # If there's no AppStream repo definec on RHEL-8 system,
+        # try to guess it's location from baseurl.
+        if [[ ! -e /etc/yum.repos.d/AppStream.repo ]]; then
+            cat <<- EOF > /etc/yum.repos.d/AppStream.repo
+		[beaker-AppStream]
+		name=beaker-AppStream
+		baseurl=${baseurl/BaseOS/AppStream}
+		enabled=1
+		gpgcheck=0
+EOF
+        fi
+    fi
+
+    # install restraint harness
+    yum install -y restraint-rhts
+
+    # create restraint config with task logs offsets
+    mkdir -p /var/lib/restraint
+    cat <<-EOF > /var/lib/restraint/config.conf
+[restraint]
+recipe_url=http://${labcontroller}:8000/recipes/${recipeid}/
+
+[offsets_${taskid}]
+logs/harness.log=$(curl http://${labcontroller}:8000/recipes/${recipeid}/tasks/${taskid}/logs/harness.log 2>/dev/null | wc -c)
+logs/taskout.log=$(curl http://${labcontroller}:8000/recipes/${recipeid}/tasks/${taskid}/logs/taskout.log 2>/dev/null | wc -c)
+
+[${taskid}]
+started=false
+reboots=1
+remaining_time=3600
+EOF
+}
+
+if [ "$INSTALL_HARNESS" != "0" ]; then
+    main
+fi
