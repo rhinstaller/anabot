@@ -58,7 +58,10 @@ def eula_chck(element, app_node, local_node):
     license_panel = license_label.parent.parent
     license_text = getnode(license_panel, 'text', '')
     displayed_eula = license_text.text
-    return displayed_eula == reformat_eula(license_file)
+    try:
+        return displayed_eula == reformat_eula(license_file)
+    except IOError:
+        return (False, "Couldn't read '%s' file." % license_file)
 
 @handle_act('/accept_license')
 def accept_license_handler(element, app_node, local_node):
