@@ -35,7 +35,7 @@ def empty_handler(element, app_node, local_node):
 @handle_chck('/eula')
 def eula_chck(element, app_node, local_node):
     def reformat_eula(file_name):
-        eula_file = file(file_name)
+        eula_file = open(file_name)
         # reformat stored eula according to initial setup
         fobj_lines = eula_file.xreadlines()
         stored_eula = ""
