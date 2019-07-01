@@ -5,17 +5,24 @@ from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.functions import get_attr, getnode, handle_checkbox, check_checkbox
 from anabot.runtime.translate import tr
+from anabot.conditions import is_distro_version
 
 
 
 _local_path = '/initial_setup/license'
-handle_act = lambda x: handle_action(_local_path + x)
-handle_chck = lambda x: handle_check(_local_path + x)
+def handle_act(path, *args, **kwargs):
+    return handle_action(_local_path + path, *args, **kwargs)
 
+def handle_chck(path, *args, **kwargs):
+    return handle_check(_local_path + path, *args, **kwargs)
+
+SPOKE_SELECTOR = "License Information"
+if is_distro_version('rhel', 7):
+    SPOKE_SELECTOR = "LICENSE INFORMATION"
 
 @handle_act('')
 def base_handler(element, app_node, local_node):
-    license = getnode(app_node, "spoke selector", tr("LICENSE INFORMATION"))
+    license = getnode(app_node, "spoke selector", tr(SPOKE_SELECTOR))
     license.click()
     license_label = getnode(app_node, "label", tr("License Agreement:"))
     license_panel = license_label.parent.parent
@@ -80,8 +87,7 @@ def done_handler(element, app_node, local_node):
 @handle_chck('/done')
 def done_check(element, app_node, local_node):
     # we should be back in hub
-    license = getnode(app_node, "spoke selector", tr("LICENSE INFORMATION"))
+    license = getnode(app_node, "spoke selector", tr(SPOKE_SELECTOR))
     if (license != None):
         return (True,"Hub is showing")
     return (False, "Cannot find license spoke selector")
-
