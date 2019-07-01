@@ -37,10 +37,9 @@ def eula_chck(element, app_node, local_node):
     def reformat_eula(file_name):
         eula_file = open(file_name)
         # reformat stored eula according to initial setup
-        fobj_lines = eula_file.xreadlines()
         stored_eula = ""
         firstline = True
-        for line in fobj_lines:
+        for line in eula_file:
             stripped_line = line.strip()
             if stripped_line:
                 if firstline:
