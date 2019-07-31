@@ -1,11 +1,11 @@
 import logging
 logger = logging.getLogger('anabot')
 
-from functools import wraps
+from functools import wraps, partial
 from .handlers import ACTIONS, CHECKS
 from .results import action_result
 
-def handle_action(element_path, func=None, cond=True):
+def handle_action(element_path, func=None, cond=True, prefix=None):
     """Decorator for handler function.
 
     As a decorator this function is used to register handler functuon for XML
@@ -24,10 +24,18 @@ def handle_action(element_path, func=None, cond=True):
         @handle_action("/installation/welcome")
         def welcome_handler(element, app_node, local_node):
 
+    Creating decorator shortcut::
+
+        handle_act = functools.partial(handle_action, prefix="/installation")
+        @handle_act("/welcome")
+        def welcome_handler(element, app_node, local_node):
+
     As function::
 
         handle_action("/installation/welcome", welcome_handler)
     """
+    if prefix is not None:
+        element_path = prefix + element_path
     def decorator(func):
         if cond:
             logger.debug("Registering handler for path: %s", element_path)
@@ -42,12 +50,17 @@ def handle_action(element_path, func=None, cond=True):
         return decorator(func)
     return decorator
 
-def handle_check(element_path, func=None, cond=True):
+def make_prefixed_handle_action(prefix):
+    return partial(handle_action, prefix=prefix)
+
+def handle_check(element_path, func=None, cond=True, prefix=None):
     """Decorator for checker function.
 
     This function is used to register check function *func* for XML element
     *element_path* in the same way as :py:func:`handle_action`.
     """
+    if prefix is not None:
+        element_path = prefix + element_path
     def decorator(func):
         if cond:
             logger.debug("Registering check for path: %s", element_path)
@@ -61,6 +74,9 @@ def handle_check(element_path, func=None, cond=True):
     if func is not None:
         return decorator(func)
     return decorator
+
+def make_prefixed_handle_check(prefix):
+    return partial(handle_check, prefix=prefix)
 
 def check_action_result(func):
     @wraps(func)
