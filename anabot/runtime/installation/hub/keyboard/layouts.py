@@ -98,7 +98,7 @@ class Layouts(object):
 
     def __iter__(self):
         self.reload()
-        return self.__layouts.iteritems()
+        return self.__layouts.items().__iter__()
 
 def layout_name(intext, default=None):
     return Layouts.get_instance().get(intext, default)

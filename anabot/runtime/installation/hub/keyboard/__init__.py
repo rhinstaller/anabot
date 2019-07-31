@@ -6,6 +6,7 @@ import fnmatch
 import six
 
 from anabot.runtime.decorators import handle_action, handle_check, check_action_result
+from anabot.conditions import is_distro_version
 from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.actionresult import ActionResultPass as Pass
 from anabot.runtime.actionresult import ActionResultFail as Fail
@@ -46,9 +47,13 @@ DONE_NOT_FOUND = NotFound(
     '"Done" button', "done_not_found", where="Keyboard layout spoke"
 )
 
+SPOKE_SELECTOR="_Keyboard"
+if is_distro_version('rhel', 7):
+    SPOKE_SELECTOR="_KEYBOARD"
+
 @handle_act('')
 def base_handler(element, app_node, local_node):
-    keyboard_label = tr("_KEYBOARD", context="GUI|Spoke")
+    keyboard_label = tr(SPOKE_SELECTOR, context="GUI|Spoke")
     try:
         keyboard = getnode_scroll(app_node, "spoke selector", keyboard_label)
     except TimeoutError:
@@ -129,6 +134,7 @@ def add_layout_handler(element, app_node, local_node, in_dialog=False):
         return ADD_TABLE_NOT_FOUND
 
     try:
+        logger.error("Layout name: %s", layout_name(name))
         layout = getnode_scroll(layouts, "table cell", layout_name(name))
         layout.click()
     except TimeoutError:
