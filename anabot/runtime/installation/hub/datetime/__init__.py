@@ -7,7 +7,8 @@ import fnmatch
 import random
 import six
 
-from anabot.runtime.decorators import handle_action, handle_check
+from anabot.runtime.decorators import make_prefixed_handle_action, make_prefixed_handle_check
+from anabot.conditions import is_distro_version, is_distro_version_ge
 from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.functions import get_attr, getnode, getnode_scroll, getnodes, getsibling, combo_scroll, type_text, press_key
 from anabot.runtime.errors import TimeoutError
@@ -19,11 +20,11 @@ def notfound(*args, **kwargs):
     return (False, notfound_new(*args, **kwargs))
 
 _local_path = '/installation/hub/datetime'
-handle_act = lambda x: handle_action(_local_path + x)
-handle_chck = lambda x: handle_check(_local_path + x)
+handle_act = make_prefixed_handle_action(_local_path)
+handle_chck = make_prefixed_handle_check(_local_path)
 
-@handle_act('')
-def base_handler(element, app_node, local_node):
+@handle_act('', cond=is_distro_version('rhel', 7))
+def base_handler_7(element, app_node, local_node):
     datetime_label = tr("DATE & TIME")
     try:
         datetime = getnode_scroll(app_node, "spoke selector", datetime_label)
@@ -37,12 +38,37 @@ def base_handler(element, app_node, local_node):
     default_handler(element, app_node, datetime_panel)
     return done_handler(element, app_node, datetime_panel)
 
-@handle_chck('')
-def base_check(element, app_node, local_node):
+@handle_chck('', cond=is_distro_version('rhel', 7))
+def base_check_7(element, app_node, local_node):
     if action_result(element)[0] != False:
         return action_result(element)
     try:
         getnode(app_node, "panel", tr("DATE & TIME"), visible=False)
+        return True
+    except TimeoutError:
+        return (False, "Datetime spoke is still visible.")
+
+@handle_act('', cond=is_distro_version_ge('rhel', 8))
+def base_handler_8(element, app_node, local_node):
+    datetime_label = tr("_Time & Date", context="GUI|Spoke")
+    try:
+        datetime = getnode_scroll(app_node, "spoke selector", datetime_label)
+    except TimeoutError:
+        return notfound('"DATE & TIME"', where="main hub")
+    datetime.click()
+    try:
+        datetime_panel = getnode(app_node, "panel", tr("TIME & DATE"))
+    except TimeoutError:
+        return notfound("DATE & TIME spoke")
+    default_handler(element, app_node, datetime_panel)
+    return done_handler(element, app_node, datetime_panel)
+
+@handle_chck('', cond=is_distro_version_ge('rhel', 8))
+def base_check_8(element, app_node, local_node):
+    if action_result(element)[0] != False:
+        return action_result(element)
+    try:
+        getnode(app_node, "panel", tr("_Time & Date", context="GUI|Spoke"), visible=False)
         return True
     except TimeoutError:
         return (False, "Datetime spoke is still visible.")
