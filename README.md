@@ -2,21 +2,23 @@ Anabot
 ======
 Framework for (not only) anaconda GUI testing.
 
-Full Anabot documentation is available here: https://gitlab.example.com/user/anabot-doc
-
 Manual howto
 -----
 
+Make sure all the submodules are cloned and updated
+
+    $ git submodule update --init
+
 Prepare updates.img containing anabot:
 
-    $ ./make_updates.sh ~/public_html/dogtail.img
+    $ ./make_updates.sh ~/public_html/anabot.tar.gz
 
 Prepare anabot recipe (xml) and make it available on http/ftp. There are some
 examples in git.
 
 Manual test: start anaconda with prepared anabot.img. Append on kernel cmdline:
 
-    updates=http://myhost.example.com/~myuser/anabot.img anabot=http://myhost.example.com/~myuser/recipe.xml graphical console=ttyS0
+    updates=http://myhost.example.com/~myuser/anabot.tar.gz anabot=http://myhost.example.com/~myuser/recipe.xml graphical console=ttyS0
 
 Anabot is started automatically via systemd. You can observe output of anabot using journalctl:
 
