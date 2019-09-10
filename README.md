@@ -31,12 +31,12 @@ Beaker job
 ----------
 For beaker job, all you need to do, is use /anaconda/interactive/anabot7 task.
 This task accepts following test params:
- * `UPDATES_URL` (optional)
+ * `BRANCH` (optional)
  * `ANABOT_RECIPE_URL` (mandatory)
  * `INSTALL_BEAKERLIB` (optional)
 
-`UPDATES_URL` lets you change URL to updates image with anabot to custom one
-(e.g. for testing).
+`BRANCH` lets you choose image built by automation from different branch then master.
+There's also `TARGET_BRANCH` for pull requests where `TARGET_BRANCH` specifies to which branch the pull request should be merged.
 
 `ANABOT_RECIPE_URL` is mandatory and points to desired anabot recipe, e.g. https://gitlab.example.com/user/path/default.xml
 
