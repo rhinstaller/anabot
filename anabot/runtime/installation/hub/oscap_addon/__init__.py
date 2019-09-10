@@ -4,6 +4,7 @@ logger = logging.getLogger('anabot')
 import random
 import six
 
+from anabot.conditions import is_distro_version
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.decorators import check_action_result
 from anabot.runtime.default import default_handler, action_result
@@ -35,6 +36,9 @@ def dummy_oscap_tr(intext, drop_underscore=True):
     else:
         return intext
 
+SPOKE_SELECTOR="Security Policy"
+if is_distro_version('rhel', 7):
+    SPOKE_SELECTOR="SECURITY POLICY"
 
 SPOKE_SELECTOR_NF = NotFound("active spoke selector",
                              "selector_not_found",
@@ -46,7 +50,7 @@ OSCAP_SPOKE_NF = NotFound("OSCAP addon panel", "spoke_not_found")
 def base_handler(element, app_node, local_node):
     try:
         oscap_addon = getnode_scroll(app_node, "spoke selector",
-                                     dummy_oscap_tr("SECURITY POLICY"))
+                                     dummy_oscap_tr(SPOKE_SELECTOR))
         oscap_addon.click()
     except TimeoutError:
         return SPOKE_SELECTOR_NF
@@ -84,7 +88,7 @@ def base_check(element, app_node, local_node):
 
     try:
         oscap_addon_selector = getnode_scroll(app_node, "spoke selector",
-                                              dummy_oscap_tr("SECURITY POLICY"))
+                                              dummy_oscap_tr(SPOKE_SELECTOR))
     except TimeoutError:
         return SPOKE_SELECTOR_NF
     try:
@@ -632,7 +636,7 @@ def done_handler_wrap(element, app_node, local_node):
 @check_action_result
 def done_check(element, app_node, local_node):
     try:
-        getnode_scroll(app_node, "spoke selector", dummy_oscap_tr("SECURITY POLICY"))
+        getnode_scroll(app_node, "spoke selector", dummy_oscap_tr(SPOKE_SELECTOR))
     except TimeoutError:
         return SPOKE_SELECTOR_NF
     return Pass()
