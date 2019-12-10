@@ -33,8 +33,8 @@ def _wait_for_depsolve():
 
 @handle_action('/installation/hub')
 def hub_handler(element, app_node, local_node):
-    local_node = getnode(app_node, "panel", tr("INSTALLATION SUMMARY"))
     _wait_for_depsolve()
+    local_node = getnode(app_node, "panel", tr("INSTALLATION SUMMARY"))
     default_handler(element, app_node, local_node)
 
 @handle_check('/installation/hub')
