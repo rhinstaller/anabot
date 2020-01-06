@@ -44,13 +44,31 @@ def base_check(element, app_node, local_node):
         return Fail("Ammount of subscriptions label (%s) is different then expected (%s)" % (subscriptions_label.name, expected_text))
     return PASS
 
+def find_subscription(local_node, name):
+    try:
+        subscriptions = getnodes(local_node, "list item")
+    except TimeoutError:
+        return None
+    for list_item in subscriptions:
+        if getnode(list_item, "label").name == name:
+            return list_item
+    return None
+
 @handle_act('/subscription')
 def subscription_handler(element, app_node, local_node):
-    pass
+    name = get_attr(element, "name")
+    list_item = find_subscription(local_node, name)
+    if list_item is None:
+        return Fail("Couln't find subscription: '%s'" % name)
+    return default_handler(element, app_node, list_item)
 
 @handle_chck('/subscription')
 def subscription_check(element, app_node, local_node):
-    pass
+    name = get_attr(element, "name")
+    list_item = find_subscription(local_node, name)
+    if list_item is None:
+        return Fail("Couln't find subscription: '%s'" % name)
+    return PASS
 
 handle_act('/subscription/service_level', default_handler)
 @handle_chck('/subscription/service_level')
