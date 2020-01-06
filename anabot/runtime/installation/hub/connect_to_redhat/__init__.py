@@ -1,7 +1,12 @@
+import time
+
+import teres
+reporter = teres.Reporter.get_reporter()
+
 from anabot.runtime.decorators import handle_action, handle_check, check_action_result
 from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.functions import getnode, getnodes, get_attr, getparents, getsibling, disappeared
-from anabot.runtime.functions import getnode_scroll, handle_checkbox, check_checkbox
+from anabot.runtime.functions import getnode_scroll, handle_checkbox, check_checkbox, is_alive
 from anabot.runtime.functions import TimeoutError
 from anabot.runtime.translate import tr
 from anabot.runtime.actionresult import ActionResultPass as Pass
@@ -270,10 +275,30 @@ def register_check(element, app_node, local_node):
         return PASS
     return Fail("Register button is clickable and visible")
 
+def unregister_button(local_node, visible=True, sensitive=True):
+    return getnode(local_node, "push button", tr("_Register", context="GUI|Subscription|Register"))
+
+not_registered = "Not registered."
+register_phases = [
+    "Registering...",
+    "Attaching subscription..."
+]
+registered = "Registered."
+
 @handle_act('/wait_until_registered')
 def wait_until_registered_handler(element, app_node, local_node):
-    import time
-    time.sleep(60)
+    register_button = getnode(local_node, "push button", tr("_Register", context="GUI|Subscription|Register"), sensitive=None, visible=None)
+    status_label = getsibling(register_button, -1, "label", sensitive=None)
+    tr_register_phases = [ tr(phase) for phase in register_phases ]
+    while status_label.name in tr_register_phases or not is_alive(status_label):
+        if not is_alive(status_label):
+            reporter.log_info("Registration status label is not alive!")
+            time.sleep(1)
+            continue
+        reporter.log_info("Registration status is: %s" % status_label.name)
+        time.sleep(1)
+    reporter.log_info("Registration status is: %s" % status_label.name)
+    return PASS
 
 @handle_act('/unregister')
 def unregister_handler(element, app_node, local_node):
