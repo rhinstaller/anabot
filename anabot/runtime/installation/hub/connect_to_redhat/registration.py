@@ -17,44 +17,74 @@ handle_chck = make_prefixed_handle_check(_local_path)
 
 PASS = Pass()
 
+def unregister_button(local_node):
+    return getnode(local_node, "push button", tr("_Unregister", context="GUI|subscription|Unregister"))
+
 @handle_act('')
 def base_handler(element, app_node, local_node):
     # don't do anything, only process sub elements
-    unregister_button = getnode(local_node, "push button", tr("_Unregister", context="GUI|subscription|Unregister"))
-    local_node = getparent(unregister_button, "page tab")
+    unreg_button = unregister_button(local_node)
+    local_node = getparent(unreg_button, "page tab")
     return default_handler(element, app_node, local_node)
 
 @handle_chck('')
 def base_check(element, app_node, local_node):
-    # proper checks go here
-    pass
+    return PASS
+
+def registration_info_panel(local_node):
+    unreg_button = unregister_button(local_node)
+    sibling_filler = getparent(unreg_button, 'filler')
+    return getsibling(sibling_filler, 1, "panel")
 
 handle_act('/method', default_handler)
 @handle_chck('/method')
 def method_check(element, app_node, local_node):
-    pass
+    account = get_attr(element, "account")
+    organization = get_attr(element, "organization")
+    panel = registration_info_panel(local_node)
+    # DIRTY HACK
+    label = getnodes(panel, "label")[5]
+    if account is not None:
+        return label.name == ("Registered with account %s" % account)
+    if organization is not None:
+        return label.name == ("Registered with organization %s" % organization)
+    return Fail("No method was checked!")
 
-handle_act('/system_purpose', default_handler)
+@handle_act('/system_purpose')
+def system_purpose_handler(element, app_node, local_node):
+    panel = registration_info_panel(local_node)
+    return default_handler(element, app_node, panel)
+
 @handle_chck('/system_purpose')
 def system_purpose_check(element, app_node, local_node):
-    pass
+    return PASS
 
 handle_act('/system_purpose/role', default_handler)
 @handle_chck('/system_purpose/role')
 def system_purpose_role_check(element, app_node, local_node):
-    pass
+    role = get_attr(element, "value")
+    return getnode(local_node, "label", "Role:.*").name == ("Role: %s" % role)
 
 handle_act('/system_purpose/sla', default_handler)
 @handle_chck('/system_purpose/sla')
 def system_purpose_sla_check(element, app_node, local_node):
-    pass
+    sla = get_attr(element, "value")
+    return getnode(local_node, "label", "SLA:.*").name == ("SLA: %s" % sla)
 
 handle_act('/system_purpose/usage', default_handler)
 @handle_chck('/system_purpose/usage')
 def system_purpose_usage_check(element, app_node, local_node):
-    pass
+    usage = get_attr(element, "value")
+    return getnode(local_node, "label", "Usage:.*").name == ("Usage: %s" % usage)
 
 handle_act('/insights', default_handler)
 @handle_chck('/insights')
 def insights_check(element, app_node, local_node):
-    pass
+    used = get_attr(element, "used", "yes") == "yes"
+    if used:
+        expected_text = tr("Connected to Red Hat Insights")
+    else:
+        expected_text = tr("Not connected to Red Hat Insights")
+    panel = registration_info_panel(local_node)
+    label = getnodes(panel, "label")[1]
+    return label.name == expected_text
