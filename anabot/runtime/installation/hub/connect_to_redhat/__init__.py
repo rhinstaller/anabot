@@ -276,7 +276,7 @@ def register_check(element, app_node, local_node):
     return Fail("Register button is clickable and visible")
 
 def unregister_button(local_node, visible=True, sensitive=True):
-    return getnode(local_node, "push button", tr("_Register", context="GUI|Subscription|Register"))
+    return getnode(local_node, "push button", tr("_Unregister", context="GUI|Subscription|Unregister"), visible=visible, sensitive=sensitive)
 
 not_registered = "Not registered."
 register_phases = [
