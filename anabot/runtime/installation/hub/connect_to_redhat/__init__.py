@@ -17,7 +17,7 @@ from anabot.conditions import is_distro_version
 
 from anabot.runtime.decorators import make_prefixed_handle_action, make_prefixed_handle_check
 
-from . import options, subscription
+from . import options, registration
 
 _local_path = '/installation/hub/connect_to_redhat'
 handle_act = make_prefixed_handle_action(_local_path)
