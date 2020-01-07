@@ -17,10 +17,13 @@ from anabot.runtime.translate import tr
 # submodules
 from . import datetime, keyboard, partitioning, software_selection, oscap_addon, language, system_purpose
 
-def _wait_for_depsolve():
-    if is_distro_version_ge('rhel', 8) and get_variable('interactive_kickstart', '0') == '1':
+def _wait_for_depsolve(initial=True):
+    if initial and is_distro_version_ge('rhel', 8) and get_variable('interactive_kickstart', '0') == '1':
         # The depsolving doesn't seem to be happening during kickstart
         # installation on RHEL-8.
+        return
+    if initial and get_variable('interactive_kickstart', '0') == '0' and get_variable('repo_on_cmdline') == '0':
+        # Installation is not kickstart and repo is not configured on cmdline, initial depsolving shouldn't be happening.
         return
     reporter.log_info("Waiting for package depsolving. Timeout is 10 minutes")
     waitline = ".*DEBUG yum.verbose.YumBase: Depsolve time:.*"
