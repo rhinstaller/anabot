@@ -41,6 +41,7 @@ def base_handler(element, app_node, local_node):
     return default_handler(element, app_node, options)
 
 @handle_chck('')
+@check_action_result
 def base_check(element, app_node, local_node):
     visible = get_attr(element, 'visible')
     options = options_button(local_node)
@@ -61,6 +62,7 @@ def http_proxy_handler(element, app_node, local_node):
     return default_handler(element, app_node, panel)
 
 @handle_chck('/http_proxy')
+@check_action_result
 def http_proxy_check(element, app_node, local_node):
     enabled = get_attr(element, 'used', None)
     if enabled is not None:
@@ -81,6 +83,7 @@ def http_proxy_location_handler(element, app_node, local_node):
     location.typeText(value)
 
 @handle_chck('/http_proxy/location')
+@check_action_result
 def http_proxy_location_check(element, app_node, local_node):
     value = get_attr(element, "value")
     location = getnodes(local_node, "text")[1]
@@ -93,6 +96,7 @@ def http_proxy_username_handler(element, app_node, local_node):
     username.typeText(value)
 
 @handle_chck('/http_proxy/username')
+@check_action_result
 def http_proxy_username_check(element, app_node, local_node):
     value = get_attr(element, "value")
     username = getnodes(local_node, "text")[0]
@@ -105,6 +109,7 @@ def http_proxy_password_handler(element, app_node, local_node):
     password.typeText(value)
 
 @handle_chck('/http_proxy/password')
+@check_action_result
 def http_proxy_password_check(element, app_node, local_node):
     value = get_attr(element, "value")
     password = getnode(local_node, "password text")
@@ -116,6 +121,7 @@ def use_custom_server_url_handler(element, app_node, local_node):
     return handle_checkbox(checkbox, element)
 
 @handle_chck('/use_custom_server_url')
+@check_action_result
 def use_custom_server_url_check(element, app_node, local_node):
     checkbox = getnode(local_node, "check box", tr("Custom server URL"))
     return check_checkbox(checkbox, element, 'Custom server URL')
@@ -131,6 +137,7 @@ def custom_server_url_handler(element, app_node, local_node):
     return PASS
 
 @handle_chck('/custom_server_url')
+@check_action_result
 def custom_server_url_check(element, app_node, local_node):
     value = get_attr(element, 'value')
     # UGLY HACK
@@ -147,6 +154,7 @@ def use_custom_base_url_handler(element, app_node, local_node):
     return handle_checkbox(checkbox, element)
 
 @handle_chck('/use_custom_base_url')
+@check_action_result
 def use_custom_base_url_check(element, app_node, local_node):
     checkbox = getnode(local_node, "check box", tr("Custom base URL"))
     return check_checkbox(checkbox, element, 'Custom base URL')
@@ -162,6 +170,7 @@ def custom_base_url_handler(element, app_node, local_node):
     return PASS
 
 @handle_chck('/custom_base_url')
+@check_action_result
 def custom_base_url_check(element, app_node, local_node):
     value = get_attr(element, 'value')
     # UGLY HACK

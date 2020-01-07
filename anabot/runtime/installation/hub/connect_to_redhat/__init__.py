@@ -99,6 +99,7 @@ def auth_handler(element, app_node, local_node):
     return PASS
 
 @handle_chck('/authentication')
+@check_action_result
 def auth_check(element, app_node, local_node):
     auth_type = get_attr(element, 'type')
     try:
@@ -122,6 +123,7 @@ def username_handler(element, app_node, local_node):
     return PASS
 
 @handle_chck('/username')
+@check_action_result
 def username_check(element, app_node, local_node):
     local_node = rhsm_credentials_panel(local_node)
     value = get_attr(element, 'value')
@@ -139,6 +141,7 @@ def password_handler(element, app_node, local_node):
     return PASS
 
 @handle_chck('/password')
+@check_action_result
 def password_check(element, app_node, local_node):
     local_node = rhsm_credentials_panel(local_node)
     value = get_attr(element, 'value')
@@ -162,6 +165,7 @@ def organization_handler(element, app_node, local_node):
     return PASS
 
 @handle_chck('/organization')
+@check_action_result
 def organization_check(element, app_node, local_node):
     local_node = rhsm_activation_panel(local_node)
     value = get_attr(element, 'value')
@@ -179,6 +183,7 @@ def activation_key_handler(element, app_node, local_node):
     return PASS
 
 @handle_chck('/activation_key')
+@check_action_result
 def activation_key_check(element, app_node, local_node):
     local_node = rhsm_activation_panel(local_node)
     value = get_attr(element, 'value')
@@ -202,6 +207,7 @@ def system_purpose_handler(element, app_node, local_node):
     return PASS
 
 @handle_chck('/system_purpose')
+@check_action_result
 def system_purpose_check(element, app_node, local_node):
     set_purpose = get_attr(element, 'set')
     checkbox = system_purpose(local_node)
@@ -235,6 +241,7 @@ def system_purpose_role_handler(element, app_node, local_node):
     return purpose_combo_handler(element, app_node, local_node, 2, 'role')
 
 @handle_chck('/system_purpose/role')
+@check_action_result
 def system_purpose_role_check(element, app_node, local_node):
     return purpose_combo_check(element, app_node, local_node, 2, 'role')
 
@@ -243,6 +250,7 @@ def system_purpose_sla_handler(element, app_node, local_node):
     return purpose_combo_handler(element, app_node, local_node, 1, 'sla')
 
 @handle_chck('/system_purpose/sla')
+@check_action_result
 def system_purpose_sla_check(element, app_node, local_node):
     return purpose_combo_check(element, app_node, local_node, 1, 'sla')
 
@@ -251,6 +259,7 @@ def system_purpose_usage_handler(element, app_node, local_node):
     return purpose_combo_handler(element, app_node, local_node, 0, 'usage')
 
 @handle_chck('/system_purpose/usage')
+@check_action_result
 def system_purpose_usage_check(element, app_node, local_node):
     return purpose_combo_check(element, app_node, local_node, 0, 'usage')
 
@@ -260,6 +269,7 @@ def insights_handler(element, app_node, local_node):
     return handle_checkbox(checkbox, element)
 
 @handle_chck('/insights')
+@check_action_result
 def insights_check(element, app_node, local_node):
     checkbox = getnode(local_node, "check box", tr("Connect to Red Hat _Insights", context="GUI|Subscription|Red Hat Insights"))
     return check_checkbox(checkbox, element, 'Connect to Red Hat Insights')
@@ -271,6 +281,7 @@ def register_handler(element, app_node, local_node):
     return PASS
 
 @handle_chck('/register')
+@check_action_result
 def register_check(element, app_node, local_node):
     button = getnode(local_node, "push button", tr("_Register", context="GUI|Subscription|Register"), sensitive=None, visible=None)
     if not button.sensitive or not button.visible:
@@ -309,6 +320,7 @@ def unregister_handler(element, app_node, local_node):
     return PASS
 
 @handle_chck('/unregister')
+@check_action_result
 def unregister_check(element, app_node, local_node):
     if disappeared(local_node, "push button", tr("_Unregister", context="GUI|Subscription|Unregister")):
         return PASS

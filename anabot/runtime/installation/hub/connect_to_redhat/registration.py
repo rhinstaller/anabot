@@ -29,6 +29,7 @@ def base_handler(element, app_node, local_node):
     return default_handler(element, app_node, local_node)
 
 @handle_chck('')
+@check_action_result
 def base_check(element, app_node, local_node):
     return PASS
 
