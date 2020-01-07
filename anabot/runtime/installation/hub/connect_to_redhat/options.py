@@ -52,7 +52,7 @@ def base_check(element, app_node, local_node):
 def http_proxy_handler(element, app_node, local_node):
     enabled = get_attr(element, 'used', None)
     checkbox = getnode(local_node, "check box", tr("Use HTTP proxy"))
-    if enabled is not None and enabled != checkbox.checked:
+    if enabled is not None and (enabled == "yes") != checkbox.checked:
         checkbox.click()
     panel = getsibling(checkbox, -1, "panel", visible=None, sensitive=None)
     return default_handler(element, app_node, panel)
@@ -62,12 +62,12 @@ def http_proxy_check(element, app_node, local_node):
     enabled = get_attr(element, 'used', None)
     if enabled is not None:
         enabled = enabled == "yes"
-        result, msg = check_checkbox(local_node, enabled == "yes", tr("Use HTTP proxy"))
+        result, msg = check_checkbox(local_node, enabled, tr("Use HTTP proxy"))
         if not result:
             return result, msg
         checkbox = getnode(local_node, "check box", tr("Use HTTP proxy"))
         panel = getsibling(checkbox, -1, "panel", visible=None, sensitive=None)
-        if panel.visible != (enabled == "yes") or panel.sensitive != (enabled == "yes"):
+        if panel.visible != enabled or panel.sensitive != enabled:
             return Fail("Requested Use HTTP proxy status (%s) doesn't match widgets visibility (%s) or sensitivity (%s)." % (enabled, panel.visible, panel.sensitive))
     return PASS
 
