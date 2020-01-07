@@ -73,30 +73,48 @@ def subscription_check(element, app_node, local_node):
 handle_act('/subscription/service_level', default_handler)
 @handle_chck('/subscription/service_level')
 def service_level_check(element, app_node, local_node):
-    pass
+    value = get_attr(element, "value")
+    # UGLY HACK
+    label = getnodes(local_node, "label")[5]
+    return label.name == value
 
 handle_act('/subscription/sku', default_handler)
 @handle_chck('/subscription/sku')
 def sku_check(element, app_node, local_node):
-    pass
+    value = get_attr(element, "value")
+    # UGLY HACK
+    label = getnodes(local_node, "label")[3]
+    return label.name == value
 
 handle_act('/subscription/contract', default_handler)
 @handle_chck('/subscription/contract')
 def contract_check(element, app_node, local_node):
-    pass
+    value = get_attr(element, "value")
+    # UGLY HACK
+    label = getnodes(local_node, "label")[1]
+    return label.name == value
 
 handle_act('/subscription/start_date', default_handler)
 @handle_chck('/subscription/start_date')
 def start_date_check(element, app_node, local_node):
-    pass
+    value = get_attr(element, "value")
+    # UGLY HACK
+    label = getnodes(local_node, "label")[11]
+    return label.name == value
 
 handle_act('/subscription/end_date', default_handler)
 @handle_chck('/subscription/end_date')
 def end_date_check(element, app_node, local_node):
-    pass
+    value = get_attr(element, "value")
+    # UGLY HACK
+    label = getnodes(local_node, "label")[9]
+    return label.name == value
 
 handle_act('/subscription/entitlements_consumed', default_handler)
 @handle_chck('/subscription/entitlements_consumed')
 def entitlements_consumed_check(element, app_node, local_node):
-    pass
+    value = get_attr(element, "value")
+    # UGLY HACK
+    label = getnodes(local_node, "label")[7]
+    return label.name == ("%s consumed" % value)
 
