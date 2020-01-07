@@ -10,6 +10,7 @@ from anabot.runtime.errors import TimeoutError, NonexistentError
 from anabot.runtime.translate import tr, gtk_tr
 from anabot.runtime.hooks import run_posthooks
 from anabot.runtime.actionresult import NotFoundResult as NotFound
+from anabot.runtime.asserts import assertPasswordTextInputEquals as aptie
 from anabot.runtime.installation.common import done_handler
 
 _local_path = '/installation/configuration/root_password'
@@ -57,7 +58,6 @@ def root_password_check(element, app_node, local_node):
     except TimeoutError:
         return True
 
-BLACK_CIRCLE = u'\u25cf'
 PASSWORD_TEXT_NOT_FOUND = NotFound("password text", "password_text_not_found")
 
 def root_password_text_manipulate(element, app_node, local_node, dry_run):
@@ -71,11 +71,7 @@ def root_password_text_manipulate(element, app_node, local_node, dry_run):
         clear_text(password_entry)
         password_entry.typeText(value)
     else:
-        # the password length is trippled in ATK
-        try:
-            return len(value)*BLACK_CIRCLE == password_entry.text.decode('utf8')
-        except (UnicodeDecodeError, AttributeError):
-            return len(value)*BLACK_CIRCLE == password_entry.text
+        return aptie(password_entry, value, 'Root')
 
 @handle_act('/password')
 def root_password_text_handler(element, app_node, local_node):
@@ -100,11 +96,7 @@ def root_password_confirm_manipulate(element, app_node, local_node, dry_run):
         clear_text(password_entry)
         password_entry.typeText(value)
     else:
-        # the password length is trippled in ATK
-        try:
-            return len(value)*BLACK_CIRCLE == password_entry.text.decode('utf8')
-        except (UnicodeDecodeError, AttributeError):
-            return len(value)*BLACK_CIRCLE == password_entry.text
+        return aptie(password_entry, value, 'Confirm root')
 
 @handle_act('/confirm_password')
 def root_password_confirm_handler(element, app_node, local_node):
