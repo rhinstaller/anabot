@@ -38,7 +38,7 @@ def handle_action(element_path, func=None, cond=True, prefix=None):
         element_path = prefix + element_path
     def decorator(func):
         if cond:
-            logger.debug("Registering handler for path: %s", element_path)
+            logger.debug("Registering handler for path: %s (%s)", element_path, func)
             ACTIONS[element_path] = func
         else:
             logger.debug(
@@ -63,7 +63,7 @@ def handle_check(element_path, func=None, cond=True, prefix=None):
         element_path = prefix + element_path
     def decorator(func):
         if cond:
-            logger.debug("Registering check for path: %s", element_path)
+            logger.debug("Registering check for path: %s (%s)", element_path, func)
             CHECKS[element_path] = func
         else:
             logger.debug(
