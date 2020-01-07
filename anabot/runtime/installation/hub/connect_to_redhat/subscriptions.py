@@ -5,6 +5,8 @@ from anabot.runtime.translate import tr
 from anabot.runtime.actionresult import ActionResultPass as Pass
 from anabot.runtime.actionresult import ActionResultFail as Fail
 from anabot.runtime.actionresult import NotFoundResult as NotFound
+from anabot.runtime.asserts import assertLabelEquals as ale
+from anabot.runtime.installation.common import done_handler
 
 from anabot.runtime.decorators import make_prefixed_handle_action, make_prefixed_handle_check
 
@@ -40,9 +42,7 @@ def base_check(element, app_node, local_node):
         expected_text = "1 subscription attached to the system"
     else:
         expected_text = "%d subscriptions attached to the system" % ammount
-    if subscriptions_label.name != expected_text:
-        return Fail("Ammount of subscriptions label (%s) is different then expected (%s)" % (subscriptions_label.name, expected_text))
-    return PASS
+    return ale(subscriptions_label, expected_text, "Ammount of subscriptions")
 
 def find_subscription(local_node, name):
     try:
@@ -59,7 +59,7 @@ def subscription_handler(element, app_node, local_node):
     name = get_attr(element, "name")
     list_item = find_subscription(local_node, name)
     if list_item is None:
-        return Fail("Couln't find subscription: '%s'" % name)
+        return NotFound(name, where="subscriptions list")
     return default_handler(element, app_node, list_item)
 
 @handle_chck('/subscription')
@@ -67,7 +67,7 @@ def subscription_check(element, app_node, local_node):
     name = get_attr(element, "name")
     list_item = find_subscription(local_node, name)
     if list_item is None:
-        return Fail("Couln't find subscription: '%s'" % name)
+        return NotFound(name, where="subscriptions list")
     return PASS
 
 handle_act('/subscription/service_level', default_handler)
@@ -76,7 +76,7 @@ def service_level_check(element, app_node, local_node):
     value = get_attr(element, "value")
     # UGLY HACK
     label = getnodes(local_node, "label")[5]
-    return label.name == value
+    return ale(label, value, "Service level")
 
 handle_act('/subscription/sku', default_handler)
 @handle_chck('/subscription/sku')
@@ -84,7 +84,7 @@ def sku_check(element, app_node, local_node):
     value = get_attr(element, "value")
     # UGLY HACK
     label = getnodes(local_node, "label")[3]
-    return label.name == value
+    return ale(label, value, "SKU")
 
 handle_act('/subscription/contract', default_handler)
 @handle_chck('/subscription/contract')
@@ -92,7 +92,7 @@ def contract_check(element, app_node, local_node):
     value = get_attr(element, "value")
     # UGLY HACK
     label = getnodes(local_node, "label")[1]
-    return label.name == value
+    return ale(label, value, "Contract")
 
 handle_act('/subscription/start_date', default_handler)
 @handle_chck('/subscription/start_date')
@@ -100,7 +100,7 @@ def start_date_check(element, app_node, local_node):
     value = get_attr(element, "value")
     # UGLY HACK
     label = getnodes(local_node, "label")[11]
-    return label.name == value
+    return ale(label, value, "Start date")
 
 handle_act('/subscription/end_date', default_handler)
 @handle_chck('/subscription/end_date')
@@ -108,7 +108,7 @@ def end_date_check(element, app_node, local_node):
     value = get_attr(element, "value")
     # UGLY HACK
     label = getnodes(local_node, "label")[9]
-    return label.name == value
+    return ale(label, value, "End date")
 
 handle_act('/subscription/entitlements_consumed', default_handler)
 @handle_chck('/subscription/entitlements_consumed')
@@ -116,5 +116,5 @@ def entitlements_consumed_check(element, app_node, local_node):
     value = get_attr(element, "value")
     # UGLY HACK
     label = getnodes(local_node, "label")[7]
-    return label.name == ("%s consumed" % value)
+    return ale(label, ("%s consumed" % value), "Entitlements consumed")
 

@@ -7,6 +7,9 @@ from anabot.runtime.translate import tr
 from anabot.runtime.actionresult import ActionResultPass as Pass
 from anabot.runtime.actionresult import ActionResultFail as Fail
 from anabot.runtime.actionresult import NotFoundResult as NotFound
+from anabot.runtime.asserts import assertPasswordTextInputEquals as aptie
+from anabot.runtime.asserts import assertTextInputEquals as atie
+from anabot.runtime.installation.common import done_handler
 
 from anabot.runtime.decorators import make_prefixed_handle_action, make_prefixed_handle_check
 
@@ -81,7 +84,7 @@ def http_proxy_location_handler(element, app_node, local_node):
 def http_proxy_location_check(element, app_node, local_node):
     value = get_attr(element, "value")
     location = getnodes(local_node, "text")[1]
-    return location.text == value
+    return atie(location, value, "Proxy location")
 
 @handle_act('/http_proxy/username')
 def http_proxy_username_handler(element, app_node, local_node):
@@ -93,7 +96,7 @@ def http_proxy_username_handler(element, app_node, local_node):
 def http_proxy_username_check(element, app_node, local_node):
     value = get_attr(element, "value")
     username = getnodes(local_node, "text")[0]
-    return username.text == value
+    return atie(username, value, "Proxy username")
 
 @handle_act('/http_proxy/password')
 def http_proxy_password_handler(element, app_node, local_node):
@@ -105,7 +108,7 @@ def http_proxy_password_handler(element, app_node, local_node):
 def http_proxy_password_check(element, app_node, local_node):
     value = get_attr(element, "value")
     password = getnode(local_node, "password text")
-    return password.text == value
+    return aptie(password, value, 'Proxy')
 
 @handle_act('/use_custom_server_url')
 def use_custom_server_url_handler(element, app_node, local_node):

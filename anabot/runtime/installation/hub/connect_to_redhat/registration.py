@@ -6,6 +6,7 @@ from anabot.runtime.translate import tr
 from anabot.runtime.actionresult import ActionResultPass as Pass
 from anabot.runtime.actionresult import ActionResultFail as Fail
 from anabot.runtime.actionresult import NotFoundResult as NotFound
+from anabot.runtime.asserts import assertLabelEquals as ale
 
 from anabot.runtime.decorators import make_prefixed_handle_action, make_prefixed_handle_check
 
@@ -45,9 +46,9 @@ def method_check(element, app_node, local_node):
     # DIRTY HACK
     label = getnodes(panel, "label")[5]
     if account is not None:
-        return label.name == ("Registered with account %s" % account)
+        return ale(label, ("Registered with account %s" % account), "Account information")
     if organization is not None:
-        return label.name == ("Registered with organization %s" % organization)
+        return ale(label, ("Registered with organization %s" % organization), "Organization information")
     return Fail("No method was checked!")
 
 @handle_act('/system_purpose')
@@ -63,19 +64,19 @@ handle_act('/system_purpose/role', default_handler)
 @handle_chck('/system_purpose/role')
 def system_purpose_role_check(element, app_node, local_node):
     role = get_attr(element, "value")
-    return getnode(local_node, "label", "Role:.*").name == ("Role: %s" % role)
+    return ale(getnode(local_node, "label", "Role:.*"), ("Role: %s" % role), "System purpose role")
 
 handle_act('/system_purpose/sla', default_handler)
 @handle_chck('/system_purpose/sla')
 def system_purpose_sla_check(element, app_node, local_node):
     sla = get_attr(element, "value")
-    return getnode(local_node, "label", "SLA:.*").name == ("SLA: %s" % sla)
+    return ale(getnode(local_node, "label", "SLA:.*"), ("SLA: %s" % sla), "System purpose SLA")
 
 handle_act('/system_purpose/usage', default_handler)
 @handle_chck('/system_purpose/usage')
 def system_purpose_usage_check(element, app_node, local_node):
     usage = get_attr(element, "value")
-    return getnode(local_node, "label", "Usage:.*").name == ("Usage: %s" % usage)
+    return ale(getnode(local_node, "label", "Usage:.*"), ("Usage: %s" % usage), "System purpose usage")
 
 handle_act('/insights', default_handler)
 @handle_chck('/insights')
@@ -87,4 +88,4 @@ def insights_check(element, app_node, local_node):
         expected_text = tr("Not connected to Red Hat Insights")
     panel = registration_info_panel(local_node)
     label = getnodes(panel, "label")[1]
-    return label.name == expected_text
+    return ale(label, expected_text, "Insights enabled")

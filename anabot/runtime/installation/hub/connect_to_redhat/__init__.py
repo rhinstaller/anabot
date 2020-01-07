@@ -12,6 +12,8 @@ from anabot.runtime.translate import tr
 from anabot.runtime.actionresult import ActionResultPass as Pass
 from anabot.runtime.actionresult import ActionResultFail as Fail
 from anabot.runtime.actionresult import NotFoundResult as NotFound
+from anabot.runtime.asserts import assertTextInputEquals as atie
+from anabot.runtime.asserts import assertPasswordTextInputEquals as aptie
 from anabot.runtime.installation.common import done_handler
 from anabot.conditions import is_distro_version
 
@@ -125,7 +127,7 @@ def username_check(element, app_node, local_node):
     value = get_attr(element, 'value')
     # DIRTY HACK
     # Username input is the first text in the credentials panel
-    return getnode(local_node, 'text').text == value
+    return atie(getnode(local_node, 'text'), value, "Username")
 
 @handle_act('/password')
 def password_handler(element, app_node, local_node):
@@ -142,7 +144,7 @@ def password_check(element, app_node, local_node):
     value = get_attr(element, 'value')
     # DIRTY HACK
     # Password input is the first password in the credentials panel
-    return getnode(local_node, 'password text').text == value
+    return aptie(getnode(local_node, 'password text'), value, 'Account')
 
 def rhsm_activation_panel(local_node):
     # DIRTY HACK
@@ -165,7 +167,7 @@ def organization_check(element, app_node, local_node):
     value = get_attr(element, 'value')
     # DIRTY HACK
     # Organization is second text in activation panel
-    return getnodes(local_node, 'text')[1].text == value
+    return atie(getnodes(local_node, 'text')[1], value, "Organization")
 
 @handle_act('/activation_key')
 def activation_key_handler(element, app_node, local_node):
@@ -182,7 +184,7 @@ def activation_key_check(element, app_node, local_node):
     value = get_attr(element, 'value')
     # DIRTY HACK
     # Activation key is first text in activation panel
-    return getnodes(local_node, 'text')[0].text == value
+    return atie(getnodes(local_node, 'text')[0], value, "Activation key")
 
 def system_purpose(local_node):
     return getnode(local_node, 'check box', tr('Set System Purpose', context='GUI|Subscription|Set System Purpose'))
