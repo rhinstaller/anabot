@@ -10,7 +10,7 @@ from anabot.conditions import is_distro_version_ge
 from anabot.variables import get_variable
 from anabot.runtime.decorators import handle_action, handle_check, check_action_result
 from anabot.runtime.default import default_handler, action_result
-from anabot.runtime.functions import getnode, TimeoutError
+from anabot.runtime.functions import getnode, is_alive, TimeoutError
 from anabot.runtime.workarounds import wait_for_line
 from anabot.runtime.translate import tr
 
@@ -38,7 +38,16 @@ def _wait_for_depsolve(initial=True):
 def hub_handler(element, app_node, local_node):
     _wait_for_depsolve()
     local_node = getnode(app_node, "panel", tr("INSTALLATION SUMMARY"))
-    default_handler(element, app_node, local_node)
+    def wait_for_animation_end():
+        # wait for animation end
+        for i in range(50):
+            if is_alive(local_node) and local_node.position[1] == 0:
+                # animation ended
+                break
+            sleep(0.1)
+        else:
+            reporter.log_error("It seems that (re)entering hub animation is still in progress.")
+    default_handler(element, app_node, local_node, waitfunc=wait_for_animation_end)
 
 @handle_check('/installation/hub')
 @check_action_result
