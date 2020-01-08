@@ -8,6 +8,7 @@ from anabot.runtime.actionresult import ActionResultPass as Pass
 from anabot.runtime.actionresult import ActionResultFail as Fail
 from anabot.runtime.actionresult import NotFoundResult as NotFound
 from anabot.runtime.installation.common import done_handler
+from anabot.conditions import is_distro_version
 
 from anabot.runtime.decorators import make_prefixed_handle_action, make_prefixed_handle_check
 
@@ -46,7 +47,14 @@ def base_handler(element, app_node, local_node):
     try:
         spoke_label = getnode(app_node, "label", tr("CONNECT TO RED HAT"))
     except TimeoutError:
-        return SPOKE_NOT_FOUND
+        if is_distro_version('rhel', 8, 2):
+            try:
+                spoke_label = getnode(app_node, "label", tr("CONNECT TO REDHAT"))
+                reporter.log_fail("Label containing 'REDHAT' found: https://bugzilla.redhat.com/show_bug.cgi?id=1787342")
+            except TimeoutError:
+                return SPOKE_NOT_FOUND
+        else:
+            return SPOKE_NOT_FOUND
 
     local_node = getparents(spoke_label, "panel")[2]
     default_handler(element, app_node, local_node)
