@@ -88,8 +88,10 @@ def handle_step(element, app_node, local_node):
         pass
     log_screenshot()
 
-def default_handler(element, app_node, local_node):
+def default_handler(element, app_node, local_node, waitfunc=None):
     for child in element.xpathEval("./*"):
+        if waitfunc is not None:
+            waitfunc()
         handle_step(child, app_node, local_node)
     return True
 
