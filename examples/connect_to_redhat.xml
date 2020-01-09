@@ -1,0 +1,87 @@
+<ez:installation xmlns:ez="http://example.com/path/anabot/easy">
+  <ez:hub>
+    <connect_to_redhat>
+      <authentication type="account" />
+      <username value="foouser" />
+      <password value="foopass" />
+      
+      <authentication type="activation key" />
+      <organization value="fooorg" />
+      <activation_key value="fookey" />
+      
+      <authentication type="account" />
+      <username value="foouser" policy="just_check" />
+      <password value="foopass" policy="just_check" />
+
+      <system_purpose set="yes">
+        <role value="Red Hat Enterprise Linux Server" />
+        <role />
+        <sla value="Standard" />
+        <sla />
+        <sla value="Premium" />
+        <usage value="Disaster Recovery" />
+      </system_purpose>
+      <system_purpose set="no" />
+      <system_purpose set="yes">
+        <role policy="just_check" />
+        <sla value="Premium" policy="just_check" />
+        <usage value="Disaster Recovery" policy="just_check" />
+      </system_purpose>
+      <system_purpose set="no" />
+
+      <insights checked="yes" policy="just_check" />
+      <insights checked="no" />
+
+      <options visible="yes" policy="just_check_fail" />
+      <options visible="yes" />
+      <options visible="no" policy="just_check_fail" />
+      <options visible="no" />
+
+      <options visible="yes">
+        <http_proxy used="yes">
+          <location value="my.proxy.server.example.com" />
+          <username value="John" />
+          <password value="Doe" />
+        </http_proxy>
+        
+        <http_proxy used="no" />
+        <http_proxy used="yes" />
+
+        <use_custom_server_url checked="yes" />
+        <custom_server_url value="subscription.example.com" />
+
+        <use_custom_base_url checked="yes" />
+        <custom_base_url value="https://cdn.example.com" />
+      </options>
+      <register />
+      <wait_until_registered />
+      <unregister />
+      <register />
+      <wait_until_registered />
+      <registration>
+        <method account="foouser" />
+        <method activation_key="fooorg:fookey" policy="should_fail" />
+        <system_purpose>
+          <role value="" />
+          <sla value="" />
+          <usage value="" />
+          <role value="foo" policy="should_fail" />
+          <sla value="foo" policy="should_fail" />
+          <usage value="foo" policy="should_fail" />
+        </system_purpose>
+        <insights used="yes" policy="should_fail"/>
+        <insights used="no" />
+        <subscriptions ammount="1">
+          <subscription name="Subscription name">
+            <service_level value="Self-Support" />
+            <sku value="EX007" />
+            <contract value="12345" />
+            <start_date value="1970-01-01T00:00:00+0000" />
+            <end_date value="2038-01-19T03:14:07+0000" />
+            <entitlements_consumed value="1" />
+          </subscription>
+        </subscriptions>
+      </registration>
+    </connect_to_redhat>
+  </ez:hub>
+</ez:installation>
