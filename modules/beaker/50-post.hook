@@ -67,14 +67,16 @@ EOF
 		gpgcheck=0
 EOF
 
-    # Add base repo for the installed system.
-    cat <<- EOF > /etc/yum.repos.d/base.repo
+    if [ -n "${baseurl}" ]; then
+        # Add base repo for the installed system if repo is known.
+        cat <<- EOF > /etc/yum.repos.d/base.repo
 		[beaker-base]
 		name=beaker-base
 		baseurl=$baseurl
 		enabled=1
 		gpgcheck=0
 EOF
+    fi
     # Add additional repos defined by inst.addrepo
     for additional_repo in $additional_repos; do
         # first item of repo is name and second is URL
@@ -91,13 +93,16 @@ EOF
         # If there's no AppStream repo definec on RHEL-8 system,
         # try to guess it's location from baseurl.
         if [[ ! -e /etc/yum.repos.d/AppStream.repo ]]; then
-            cat <<- EOF > /etc/yum.repos.d/AppStream.repo
+            if [[ -n "${baseurl}" ]]; then
+                # Guess only if baseurl is known
+                cat <<- EOF > /etc/yum.repos.d/AppStream.repo
 		[beaker-AppStream]
 		name=beaker-AppStream
 		baseurl=${baseurl/BaseOS/AppStream}
 		enabled=1
 		gpgcheck=0
 EOF
+            fi
         fi
     fi
 
