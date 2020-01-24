@@ -24,10 +24,14 @@ def options_button(local_node):
     # just looking for only one "toogle button" which should be hopefully "Options"
     return getnode(local_node, "toggle button")
 
-def options_visible(local_node):
+def options_visible(options):
     try:
-        getnodes(local_node)
-        return True
+        # hide/show and do it again to restore original state
+        # until this is done, the visibility accesibility hints are incorrect
+        options.actions['activate'].do()
+        options.actions['activate'].do()
+        # query for visible nodes
+        getnodes(options)
     except TimeoutError:
         return False
 
