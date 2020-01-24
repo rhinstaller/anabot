@@ -64,12 +64,13 @@ def base_handler(element, app_node, local_node):
         else:
             return SPOKE_NOT_FOUND
 
-    local_node = getparents(spoke_label, "panel")[2]
+    header_node = getparents(spoke_label, "panel")[1]
+    local_node = getsibling(header_node, 1, "panel")
     default_handler(element, app_node, local_node)
 
     # Click the Done button.
     try:
-        done_handler(element, app_node, local_node)
+        done_handler(element, app_node, header_node)
         return PASS
     except TimeoutError:
         return DONE_NOT_FOUND
