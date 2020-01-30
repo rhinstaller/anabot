@@ -32,6 +32,7 @@ def options_visible(options):
         options.actions['activate'].do()
         # query for visible nodes
         getnodes(options)
+        return True
     except TimeoutError:
         return False
 
