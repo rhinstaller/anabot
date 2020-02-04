@@ -1,3 +1,5 @@
+import fnmatch
+
 from anabot.runtime.default import default_handler
 from anabot.runtime.functions import getnode, getnodes, get_attr, getsibling
 from anabot.runtime.functions import TimeoutError
@@ -44,13 +46,13 @@ def base_check(element, app_node, local_node):
         expected_text = "%d subscriptions attached to the system" % ammount
     return ale(subscriptions_label, expected_text, "Ammount of subscriptions")
 
-def find_subscription(local_node, name):
+def find_subscription(local_node, pattern):
     try:
         subscriptions = getnodes(local_node, "list item")
     except TimeoutError:
         return None
     for list_item in subscriptions:
-        if getnode(list_item, "label").name == name:
+        if fnmatch.fnmatchcase(getnode(list_item, "label").name, pattern):
             return list_item
     return None
 
