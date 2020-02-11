@@ -1,4 +1,5 @@
 import fnmatch
+import math
 
 from anabot.runtime.default import default_handler
 from anabot.runtime.functions import getnode, getnodes, get_attr, getsibling
@@ -35,8 +36,9 @@ def base_check(element, app_node, local_node):
         subscription_items = getnodes(local_node, "list item")
     except TimeoutError:
         subscription_items = []
-    if len(subscription_items) != ammount:
-        return Fail("Number of subscriptions displayed (%d) doesn't match expectance (%d)" % (len(subscription_items), ammount))
+    subscription_count = math.ceil(len(subscription_items)/2)
+    if subscription_count != ammount:
+        return Fail("Number of subscriptions displayed (%d) doesn't match expectance (%d)" % (subscription_count, ammount))
     subscriptions_label = getsibling(local_node, -1, "label")
     if ammount == 0:
         expected_text = "No subscriptions are attached to the system"
