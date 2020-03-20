@@ -38,7 +38,15 @@ def is_kickstart():
     # Parse recipe id from kernel cmdline.
     return 'ks=' in cmdline
 
+def lab_controller_cmdline():
+    try:
+        return re.search(r'(?<=labcontroller=)([^\s]+)', cmdline).group(0)
+    except AtributeError:
+        return None
+
 def lab_controller(system_fqdn):
+    if lab_controller_cmdline() is not None:
+        return lab_controller_cmdline()
     system_data = http_get("%s/systems/%s/" % (BEAKER, system_fqdn))
     system_data = json.loads(system_data)
     lab_controller_id = system_data['lab_controller_id']
