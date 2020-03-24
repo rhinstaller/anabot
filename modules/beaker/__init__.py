@@ -41,7 +41,7 @@ def is_kickstart():
 def lab_controller_cmdline():
     try:
         return re.search(r'(?<=labcontroller=)([^\s]+)', cmdline).group(0)
-    except AtributeError:
+    except AttributeError:
         return None
 
 def lab_controller(system_fqdn):
