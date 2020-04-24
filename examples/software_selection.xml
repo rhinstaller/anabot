@@ -1,10 +1,10 @@
 <ez:installation xmlns:ez="http://example.com/path/anabot/easy">
-  <hub>
-    <package_selection>
+  <ez:hub>
+    <software_selection>
       <environment id="compute-node-environment" />
       <addon id="directory-client" action="select" />
       <addon id="N/A" action="select" />
       <addon id="*" action="select" />
-    </package_selection>
+    </software_selection>
   </ez:hub>
 </ez:installation>
