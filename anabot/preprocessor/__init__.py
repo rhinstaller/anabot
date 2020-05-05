@@ -9,6 +9,7 @@ logger.addHandler(logging.NullHandler()) # pylint: disable=no-member
 
 EASY_NS_URIS = [
     'http://example.com/path/anabot/easy',
+    'http://fedoraproject.org/anaconda/anabot/recipe/tiny/1'
 ]
 
 from .decorators import replace

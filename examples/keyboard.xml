@@ -1,5 +1,5 @@
-<ez:installation xmlns:ez="http://example.com/path/anabot/easy">
-  <hub>
+<ez:installation xmlns:ez="http://fedoraproject.org/anaconda/anabot/recipe/tiny/1">
+  <ez:hub>
     <keyboard>
       <add_layout name="de (deadgraveacute)" dialog="reject" />
       <add_layout name="us" />

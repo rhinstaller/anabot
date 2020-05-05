@@ -1,7 +1,7 @@
 <!--
      Example OSCAP addon-specific XML
  -->
-<ez:installation xmlns:ez="http://example.com/path/anabot/easy">
+<ez:installation xmlns:ez="http://fedoraproject.org/anaconda/anabot/recipe/tiny/1">
     <welcome fail_type="should_be_ignored">
         <language value="Čeština" />
         <locality value="Česká republika" />

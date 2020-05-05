@@ -1,4 +1,4 @@
-<ez:installation xmlns:ez="http://example.com/path/anabot/easy">
+<ez:installation xmlns:ez="http://fedoraproject.org/anaconda/anabot/recipe/tiny/1">
   <configuration>
     <ez:root password="fo0m4nchU" />
     <create_user>
@@ -6,7 +6,7 @@
         <username value="login" />
         <!-- make user administrator -->
         <is_admin checked="yes" />
-        <require_password checked="yes" /> 
+        <require_password checked="yes" />
         <!-- if require_password checked = "no" password and confirm_password does not make sense -->
         <password value="aaa" />
         <confirm_password value="aaa" />

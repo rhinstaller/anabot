@@ -1,4 +1,4 @@
-<installation xmlns:ez="http://example.com/path/anabot/easy">
+<ez:installation xmlns:ez="http://fedoraproject.org/anaconda/anabot/recipe/tiny/1">
   <welcome>
     <storage_error_dialog err_type="multiple LVM volume groups with the same name" action="exit" />
     <language value="English" />

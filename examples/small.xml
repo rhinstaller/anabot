@@ -1,4 +1,4 @@
-<installation xmlns:ez="http://example.com/path/anabot/easy">
+<installation xmlns:ez="http://fedoraproject.org/anaconda/anabot/recipe/tiny/1">
   <ez:welcome language="English (United Kingdom)" />
   <hub>
     <ez:autopart />
