@@ -5,8 +5,6 @@ logger = logging.getLogger('anabot.preprocessor')
 import libxml2
 import os
 
-from . import EASY_NS_URI
-
 def tag_elements(elem, value, name="_replacing"):
     tag_element(elem, value, name)
     for child in elem.xpathEval("./*"):

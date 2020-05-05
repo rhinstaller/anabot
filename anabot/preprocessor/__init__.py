@@ -7,7 +7,9 @@ import logging
 logger = logging.getLogger('anabot.preprocessor')
 logger.addHandler(logging.NullHandler()) # pylint: disable=no-member
 
-EASY_NS_URI = 'http://example.com/path/anabot/easy'
+EASY_NS_URIS = [
+    'http://example.com/path/anabot/easy',
+]
 
 from .decorators import replace
 from .internals import do_replace, remove_easy_namespace
@@ -23,9 +25,12 @@ def preprocess(input_path='-', output_path='-', application="installation"):
     else:
         indoc = libxml2.parseFile(input_path)
     outdoc = indoc.copyDoc(True)
-    xpath = outdoc.xpathNewContext()
-    xpath.xpathRegisterNs('ez', EASY_NS_URI)
-    easies = [(e, e.nodePath()) for e in xpath.xpathEval('//ez:*')]
+    for EASY_NS_URI in EASY_NS_URIS:
+        xpath = outdoc.xpathNewContext()
+        xpath.xpathRegisterNs('ez', EASY_NS_URI)
+        easies = [(e, e.nodePath()) for e in xpath.xpathEval('//ez:*')]
+        if easies:
+            break
     for element, node_path in sorted(easies, key=lambda x: x[1], reverse=True):
         do_replace(element)
     remove_easy_namespace(outdoc)

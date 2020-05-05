@@ -4,7 +4,7 @@ logger = logging.getLogger('anabot.preprocessor')
 
 import re
 
-from . import EASY_NS_URI
+from . import EASY_NS_URIS
 from .decorators import _REPLACES, _DEFAULTS
 from .functions import tag_elements
 
@@ -20,4 +20,5 @@ def do_replace(element):
 
 def remove_easy_namespace(document):
     for element in document.xpathEval('//*'):
-        element.removeNsDef(EASY_NS_URI)
+        for EASY_NS_URI in EASY_NS_URIS:
+            element.removeNsDef(EASY_NS_URI)
