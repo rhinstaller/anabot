@@ -14,11 +14,19 @@ from anabot.runtime.asserts import assertPasswordTextInputEquals as aptie
 from anabot.runtime.installation.common import done_handler
 
 _local_path = '/installation/configuration/root_password'
+_local_path_hub = '/installation/hub/root_password'
+
 def handle_act(path, *args, **kwargs):
     return handle_action(_local_path + path, *args, **kwargs)
 
 def handle_chck(path, *args, **kwargs):
     return handle_check(_local_path + path, *args, **kwargs)
+
+def handle_act_hub(path, *args, **kwargs):
+    return handle_action(_local_path_hub + path, *args, **kwargs)
+
+def handle_chck_hub(path, *args, **kwargs):
+    return handle_check(_local_path_hub + path, *args, **kwargs)
 
 def check_rootpw_error(parent_node):
     try:
@@ -33,6 +41,7 @@ SPOKE_SELECTOR="_Root Password"
 if is_distro_version('rhel', 7):
     SPOKE_SELECTOR="_ROOT PASSWORD"
 
+@handle_act_hub('')
 @handle_act('')
 def root_password_handler(element, app_node, local_node):
     try:
@@ -48,6 +57,7 @@ def root_password_handler(element, app_node, local_node):
     default_handler(element, app_node, root_password_panel)
     return True
 
+@handle_chck_hub('')
 @handle_chck('')
 def root_password_check(element, app_node, local_node):
     if action_result(element)[0] == False:
@@ -73,10 +83,12 @@ def root_password_text_manipulate(element, app_node, local_node, dry_run):
     else:
         return aptie(password_entry, value, 'Root')
 
+@handle_act_hub('/password')
 @handle_act('/password')
 def root_password_text_handler(element, app_node, local_node):
     root_password_text_manipulate(element, app_node, local_node, False)
 
+@handle_chck_hub('/password')
 @handle_chck('/password')
 def root_password_text_check(element, app_node, local_node):
     return root_password_text_manipulate(element, app_node, local_node, True)
@@ -98,16 +110,20 @@ def root_password_confirm_manipulate(element, app_node, local_node, dry_run):
     else:
         return aptie(password_entry, value, 'Confirm root')
 
+@handle_act_hub('/confirm_password')
 @handle_act('/confirm_password')
 def root_password_confirm_handler(element, app_node, local_node):
     root_password_confirm_manipulate(element, app_node, local_node, False)
 
+@handle_chck_hub('/confirm_password')
 @handle_chck('/confirm_password')
 def root_password_confirm_check(element, app_node, local_node):
     return root_password_confirm_manipulate(element, app_node, local_node, True)
 
 handle_act('/done')(done_handler)
+handle_act_hub('/done')(done_handler)
 
+@handle_chck_hub('/done')
 @handle_chck('/done')
 @check_action_result
 def root_password_done_check(element, app_node, local_node):

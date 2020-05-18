@@ -8,6 +8,7 @@ from .decorators import replace, default
 from .functions import load_snippet, has_property, pop_property, copy_content
 from .defaults import delete_element
 from anabot.variables import get_variable
+from anabot.conditions import has_feature_hub_config
 
 @replace("/installation")
 def replace_installation(element):
@@ -72,6 +73,9 @@ def replace_hub(element, default_for=None):
     if len(element.xpathEval('./partitioning')) == 0:
         new = load_snippet("/installation/hub/autopart", default_for, tag_name="_default_for")
         element.addChild(new)
+    if len(element.xpathEval("./root_password")) == 0 and has_feature_hub_config():
+        new = load_snippet("/installation/hub/root_password", default_for, tag_name="_default_for")
+        element.addChild(new)
     if len(element.xpathEval('./begin_installation')) == 0:
         new = load_snippet("/installation/hub/begin_installation", default_for, tag_name="_default_for")
         element.addChild(new)
@@ -81,11 +85,19 @@ def replace_autopart(element, default_for=None):
     new = load_snippet("/installation/hub/autopart", element)
     element.replaceNode(new)
 
+@replace("/installation/hub/root", cond=has_feature_hub_config())
+def replace_hub_rootpw(element):
+    new = load_snippet("/installation/hub/root", element)
+    element.replaceNode(new)
+    password = element.xpathEval("./@password")[0].content
+    new.xpathEval("./password")[0].setProp("value", password)
+    new.xpathEval("./confirm_password")[0].setProp("value", password)
+
 @replace("/installation/configuration")
 def replace_configuration(element, default_for=None):
     if default_for is None:
         default_for = element
-    if len(element.xpathEval("./root_password")) == 0:
+    if len(element.xpathEval("./root_password")) == 0 and not(has_feature_hub_config()):
         new = load_snippet("/installation/configuration/root_password", default_for, tag_name="_default_for")
         element.addChild(new)
         first_el = element.xpathEval("./*")[0]
@@ -98,7 +110,7 @@ def replace_configuration(element, default_for=None):
         new = load_snippet("/installation/configuration/reboot", default_for, tag_name="_default_for")
         element.addChild(new)
 
-@replace("/installation/configuration/root")
+@replace("/installation/configuration/root", cond=not(has_feature_hub_config()))
 def replace_rootpw(element):
     new = load_snippet("/installation/configuration/root", element)
     element.replaceNode(new)
@@ -106,6 +118,6 @@ def replace_rootpw(element):
     new.xpathEval("./password")[0].setProp("value", password)
     new.xpathEval("./confirm_password")[0].setProp("value", password)
 
-@replace("/installation/configuration/user")
+@replace("/installation/configuration/user", cond=not(has_feature_hub_config()))
 def replace_user(element):
     delete_element(element)

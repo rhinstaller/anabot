@@ -1,0 +1,6 @@
+<root_password>
+  <password value="from /@password" />
+  <confirm_password value="from /@password" />
+  <done policy="may_fail" />
+  <done />
+</root_password>

@@ -4,6 +4,11 @@ logger = logging.getLogger('anabot')
 import functools
 import operator
 import platform
+import re
+import os
+from subprocess import Popen, PIPE
+from time import sleep
+from distutils.version import StrictVersion
 
 _cache = {}
 
@@ -37,10 +42,44 @@ def _distro():
     }
     return d
 
+def _anaconda_version():
+    # Determine anaconda version, env ANACONDA_VERSION > anaconda.log > rpm
+    try:
+        return os.environ['ANACONDA_VERSION']
+    except KeyError:
+        logger.debug('Cannot get anaconda version from ANACONDA_VERSION variable')
+
+    for i in range(5):
+        try:
+            with open('/tmp/anaconda.log') as anaconda_log:
+                match = re.search(r'(anaconda) ([0-9]+\.[0-9]+(\.[0-9]+)?)', anaconda_log.read())
+                return match.group(2)
+        except (IOError, AttributeError):
+            logger.debug('Anaconda version not found in anaconda.log, Attempt %i/5' % i)
+            sleep(1)
+    logger.debug('Cannot determine anaconda version from log')
+
+    try:
+        output = Popen(['rpm', '-q', '--qf', '%{VERSION}', 'anaconda'], stdout=PIPE)
+        response = output.communicate()
+        if output.returncode == 0:
+            return response[0].decode('utf-8')
+        else:
+            raise RuntimeError(response)
+    except RuntimeError as e:
+        logger.debug('Cannot determine anaconda version from rpm')
+        logger.debug(e)
+
+    logger.error('Could not determine anaconda version')
+
 _cache['distro'] = _distro()
+_cache['anaconda_version'] = _anaconda_version()
 
 def distro():
     return _cache['distro']
+
+def anaconda_version():
+    return _cache['anaconda_version']
 
 def is_distro(name):
     return name == distro()['name']
@@ -58,3 +97,27 @@ def is_distro_version_gt(name, major, minor=None):
 
 def is_distro_version_ge(name, major, minor=None):
     return is_distro_version_op(operator.ge, name, major, minor)
+
+def is_anaconda_version_op(op, version):
+    if anaconda_version():
+        return op(StrictVersion(anaconda_version()), StrictVersion(version))
+    else:
+        return False
+
+def is_anaconda_version(version):
+     return is_anaconda_version_op(operator.eq, version)
+
+def is_anaconda_version_ge(version):
+    return is_anaconda_version_op(operator.ge, version)
+
+def is_anaconda_version_gt(version):
+    return is_anaconda_version_op(operator.gt, version)
+
+def has_feature_hub_config():
+    # Fedora https://github.com/rhinstaller/anaconda/commit/b2adda24ea8233cff6e0afd0a48c475a801fe3b4
+    if is_distro('fedora') and is_anaconda_version_ge('31.20.1'):
+        return True
+    # RHEL - information from rvykydal and first nightly compose with this feature
+    if is_distro('rhel') and is_anaconda_version_ge('33.16.3'):
+        return True
+    return False

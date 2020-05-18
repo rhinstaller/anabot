@@ -5,7 +5,7 @@ logger = logging.getLogger('anabot')
 import teres
 reporter = teres.Reporter.get_reporter()
 
-from anabot.conditions import is_distro_version_ge
+from anabot.conditions import is_distro_version_ge, has_feature_hub_config
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler
 from anabot.runtime.functions import get_attr, getnode, getnodes, getparent, getsibling, log_screenshot, _DEFAULT_TIMEOUT
@@ -25,6 +25,11 @@ from . import root_password, create_user
 
 CONFIGURATION_PANEL_NOT_FOUND = NotFound("\"CONFIGURATION\" panel",
                                          "panel_not_found")
+
+CONFIGURATION_PANEL_STRING = 'CONFIGURATION'
+if has_feature_hub_config():
+    CONFIGURATION_PANEL_STRING = 'INSTALLATION PROGRESS'
+
 @handle_act('')
 def base_handler(element, app_node, local_node):
     timeout = _DEFAULT_TIMEOUT
@@ -41,7 +46,7 @@ def base_handler(element, app_node, local_node):
     if get_variable('interactive_kickstart', False):
         timeout = 180
     try:
-        settings_panel = getnode(app_node, "panel", tr("CONFIGURATION"), timeout=timeout)
+        settings_panel = getnode(app_node, "panel", tr(CONFIGURATION_PANEL_STRING), timeout=timeout)
     except TimeoutError:
         return CONFIGURATION_PANEL_NOT_FOUND
     default_handler(element, app_node, settings_panel)
@@ -120,9 +125,12 @@ REBOOT_BUTTON_NOT_FOUND = NotFound("\"Reboot\" button", "button_not_found")
 @handle_act('/reboot')
 def reboot_handler(element, app_node, local_node):
     try:
-        reboot_button = getnode(local_node, "push button",
-                                tr("_Reboot", context="GUI|Progress"),
-                                timeout=15)
+        if has_feature_hub_config():
+            reboot_button = getnode(local_node, "push button", tr("_Continue", context="GUI|Standalone Navigation", drop_underscore=False), timeout=15)
+        else:
+            reboot_button = getnode(local_node, "push button",
+                                    tr("_Reboot", context="GUI|Progress"),
+                                    timeout=15)
     except NonexistentError:
         return REBOOT_BUTTON_NOT_FOUND
 
