@@ -4,7 +4,7 @@ logger = logging.getLogger('anabot.preprocessor')
 
 import re
 
-from .decorators import replace, default
+from .decorators import replace
 from .functions import load_snippet, has_property, pop_property, copy_content
 from .defaults import delete_element
 from anabot.variables import get_variable
@@ -117,7 +117,3 @@ def replace_rootpw(element):
     password = element.xpathEval("./@password")[0].content
     new.xpathEval("./password")[0].setProp("value", password)
     new.xpathEval("./confirm_password")[0].setProp("value", password)
-
-@replace("/installation/configuration/user", cond=not(has_feature_hub_config()))
-def replace_user(element):
-    delete_element(element)

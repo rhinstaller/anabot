@@ -5,7 +5,7 @@ logger = logging.getLogger('anabot.preprocessor')
 import re
 
 from . import EASY_NS_URIS
-from .decorators import _REPLACES, _DEFAULTS
+from .decorators import _REPLACES
 from .functions import tag_elements
 
 DROP_NS_RE = re.compile(r'/[^:/ ]+:')
