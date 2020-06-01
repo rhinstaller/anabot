@@ -49,14 +49,14 @@ def _anaconda_version():
     except KeyError:
         logger.debug('Cannot get anaconda version from ANACONDA_VERSION variable')
 
-    for i in range(5):
+    for i in range(1,11):
         try:
             with open('/tmp/anaconda.log') as anaconda_log:
                 match = re.search(r'(anaconda) ([0-9]+\.[0-9]+(\.[0-9]+)?)', anaconda_log.read())
                 return match.group(2)
         except (IOError, AttributeError):
-            logger.debug('Anaconda version not found in anaconda.log, Attempt %i/5' % i)
-            sleep(1)
+            logger.debug('Anaconda version not found in anaconda.log, Attempt %i/10' % i)
+            sleep(2)
     logger.debug('Cannot determine anaconda version from log')
 
     try:
