@@ -143,7 +143,8 @@ def select_handler(element, app_node, local_node):
     while not done:
         done = True
         for device in devs(devices_node, fndevice, mountpoint):
-            if device not in processed:
+            device_label = getnode(device, "label").name
+            if device_label not in processed:
                 group_node = None
                 switch_toggle(device)
                 switch_toggle(device)
@@ -153,7 +154,7 @@ def select_handler(element, app_node, local_node):
                 scrollto(device)
                 device.click()
                 default_handler(element, app_node, local_node)
-                processed.append(device)
+                processed.append(device_label)
                 done = False
                 break
     return True
