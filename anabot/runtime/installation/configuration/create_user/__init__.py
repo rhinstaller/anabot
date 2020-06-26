@@ -7,6 +7,7 @@ from anabot.runtime.decorators import handle_action, handle_check, check_action_
 from anabot.runtime.default import default_handler
 from anabot.runtime.functions import get_attr, getnode, TimeoutError, getparent, getsibling, handle_checkbox, check_checkbox, clear_text
 from anabot.runtime.translate import tr
+from anabot.runtime.functions import getnode_scroll, scrollto
 from anabot.runtime.hooks import run_posthooks
 from anabot.runtime.installation.common import done_handler
 
@@ -42,8 +43,8 @@ if has_feature_hub_config():
 @handle_act('')
 def user_spoke_handler(element, app_node, local_node):
     try:
-        user_spoke = getnode(app_node, "spoke selector",
-                             tr(SPOKE_SELECTOR, context="GUI|Spoke"))
+        user_spoke = getnode_scroll(app_node, "spoke selector",
+                                     tr(SPOKE_SELECTOR, context="GUI|Spoke"))
     except:
         return (False, "User spoke selector not found or not clickable")
     user_spoke.click()
@@ -155,4 +156,3 @@ def user_done_handler(element, app_node, local_node):
     except TimeoutError:
         return True
     return False
-
