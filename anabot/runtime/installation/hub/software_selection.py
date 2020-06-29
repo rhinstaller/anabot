@@ -58,7 +58,13 @@ def base_handler(element, app_node, local_node):
         )
     except TimeoutError:
         return (False, "Couldn't find software selection in hub.")
-    reload_comps()
+
+    # Workaround for RTT-2257
+    if is_distro_version('rhel', 7):
+        reload_comps()
+    else:
+        reporter.log_info('Software selection spoke only implemented for RHEL-7, skipping reloading of comps.')
+
     spoke_selector.click()
     try:
         spoke_label = getnode(app_node, "label", tr("SOFTWARE SELECTION"))
