@@ -2,5 +2,5 @@
   <password value="from /@password" />
   <confirm_password value="from /@password" />
   <done policy="may_fail" />
-  <done />
+  <done policy="may_fail" />
 </root_password>
