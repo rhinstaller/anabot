@@ -87,9 +87,15 @@ def replace_autopart(element, default_for=None):
 
 @replace("/installation/hub/root", cond=has_feature_hub_config())
 def replace_hub_rootpw(element):
+    try:
+        password = element.xpathEval("./@password")[0].content
+    except IndexError:
+        # no password specified, just use full preset
+        new = load_snippet("/installation/hub/root_password", element)
+        element.replaceNode(new)
+        return
     new = load_snippet("/installation/hub/root", element)
     element.replaceNode(new)
-    password = element.xpathEval("./@password")[0].content
     new.xpathEval("./password")[0].setProp("value", password)
     new.xpathEval("./confirm_password")[0].setProp("value", password)
 
