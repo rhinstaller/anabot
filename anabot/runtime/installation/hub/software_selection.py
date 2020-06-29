@@ -8,6 +8,7 @@ reporter = teres.Reporter.get_reporter()
 import random
 from fnmatch import fnmatchcase
 
+from anabot.conditions import is_distro_version
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.functions import get_attr, getnode, getnode_scroll, getnodes, getparent, getsibling, disappeared
@@ -20,6 +21,10 @@ from anabot.runtime.installation.common import done_handler
 _local_path = '/installation/hub/software_selection'
 handle_act = lambda x: handle_action(_local_path + x)
 handle_chck = lambda x: handle_check(_local_path + x)
+
+SPOKE_SELECTOR="_Software Selection"
+if is_distro_version('rhel', 7):
+    SPOKE_SELECTOR="_SOFTWARE SELECTION"
 
 __selected_environment = None
 __selected_addons = None
@@ -48,7 +53,7 @@ def base_handler(element, app_node, local_node):
     try:
         spoke_selector = getnode(
             local_node, "spoke selector",
-            tr("_SOFTWARE SELECTION", context="GUI|Spoke"),
+            tr(SPOKE_SELECTOR, context="GUI|Spoke"),
             timeout=300,
         )
     except TimeoutError:
