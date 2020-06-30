@@ -143,8 +143,13 @@ def select_handler(element, app_node, local_node):
     while not done:
         done = True
         for device in devs(devices_node, fndevice, mountpoint):
-            device_label = getnode(device, "label").name
-            if device_label not in processed:
+            # Get mountpoint name of selected device
+            device_label = getnodes(device, "label")[2].name
+            device_group = getparent(device, "toggle button").name
+            if len(device_label) == 0:
+                # In case of missing mountpoint get device description (vda1, rhel_kvm..._swap etc.)
+                device_label = getnode(device, "label").name
+            if (device_group, device_label) not in processed:
                 group_node = None
                 switch_toggle(device)
                 switch_toggle(device)
@@ -154,7 +159,7 @@ def select_handler(element, app_node, local_node):
                 scrollto(device)
                 device.click()
                 default_handler(element, app_node, local_node)
-                processed.append(device_label)
+                processed.append((device_group, device_label))
                 done = False
                 break
     return True
