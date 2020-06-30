@@ -9,7 +9,7 @@ import random
 from fnmatch import fnmatchcase
 
 from anabot.conditions import is_distro_version
-from anabot.runtime.decorators import handle_action, handle_check
+from anabot.runtime.decorators import make_prefixed_handle_action, make_prefixed_handle_check
 from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.functions import get_attr, getnode, getnode_scroll, getnodes, getparent, getsibling, disappeared
 from anabot.runtime.comps import reload_comps, get_comps
@@ -19,8 +19,8 @@ from anabot.runtime.translate import tr, comps_tr_env, comps_tr_group, comps_tr_
 from anabot.runtime.installation.common import done_handler
 
 _local_path = '/installation/hub/software_selection'
-handle_act = lambda x: handle_action(_local_path + x)
-handle_chck = lambda x: handle_check(_local_path + x)
+handle_act = make_prefixed_handle_action(_local_path)
+handle_chck = make_prefixed_handle_check(_local_path)
 
 SPOKE_SELECTOR="_Software Selection"
 if is_distro_version('rhel', 7):
@@ -149,11 +149,11 @@ def environment_manipulate(element, app_node, local_node, dry_run):
     else:
         return env_radio.checked
 
-@handle_act('/environment')
+@handle_act('/environment', cond=is_distro_version('rhel', 7))
 def environment_handler(element, app_node, local_node):
     return environment_manipulate(element, app_node, local_node, False)
 
-@handle_chck('/environment')
+@handle_chck('/environment', cond=is_distro_version('rhel', 7))
 def environment_check(element, app_node, local_node):
     if action_result(element)[0] == False:
         return action_result(element)
@@ -211,11 +211,11 @@ def addon_handler_manipulate(element, app_node, local_node, dry_run):
         return (False, "Not all desired groups were (de)selected.")
     return True
 
-@handle_act('/addon')
+@handle_act('/addon', cond=is_distro_version('rhel', 7))
 def addon_handler_check(element, app_node, local_node):
     return addon_handler_manipulate(element, app_node, local_node, False)
 
-@handle_chck('/addon')
+@handle_chck('/addon', cond=is_distro_version('rhel', 7))
 def addon_check(element, app_node, local_node):
     if action_result(element)[0] == False:
         return action_result(element)
