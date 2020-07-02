@@ -2,6 +2,8 @@
 
 import logging
 logger = logging.getLogger('anabot')
+import teres
+reporter = teres.Reporter.get_reporter()
 import six
 
 from fnmatch import fnmatchcase
@@ -43,6 +45,7 @@ def base_check(element, app_node, local_node):
 
 @handle_act('/mountpoint')
 def mountpoint_handler(element, app_node, local_node):
+    reporter.log_info("Changing mountpoint inside select (<select> <select />) may result in unexpected behavior!")
     value = get_attr(element, "value")
     mountpoint_label = getnode(local_node, "label", tr("Mount _Point:"))
     mountpoint = getsibling(mountpoint_label, 1, "text")
