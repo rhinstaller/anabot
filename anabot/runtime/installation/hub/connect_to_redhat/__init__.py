@@ -299,12 +299,22 @@ register_phases = [
     "Attaching subscription..."
 ]
 registered = "Registered."
+reg_loop_delay = 5
 
 @handle_act('/wait_until_registered')
 def wait_until_registered_handler(element, app_node, local_node):
     register_button = getnode(local_node, "push button", tr("_Register", context="GUI|Subscription|Register"), sensitive=None, visible=None)
     status_label = getsibling(register_button, -1, "label", sensitive=None)
     tr_register_phases = [ tr(phase) for phase in register_phases ]
+
+    for attempt in range(reg_loop_delay):
+        if status_label.name != tr(not_registered):
+            break
+        reporter.log_info("The status label reports unregistered status, delaying registration waiting loop (%d/%d)." % (attempt+1, reg_loop_delay))
+        time.sleep(1)
+    else:
+        return Fail("The registration hasn't started. Anaconda still reports the system as unregistered.")
+
     while status_label.name in tr_register_phases or not is_alive(status_label):
         if not is_alive(status_label):
             reporter.log_info("Registration status label is not alive!")
