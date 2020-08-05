@@ -58,12 +58,7 @@ def base_handler(element, app_node, local_node):
         )
     except TimeoutError:
         return (False, "Couldn't find software selection in hub.")
-
-    # Workaround for RTT-2257
-    if is_distro_version('rhel', 7):
-        reload_comps()
-    else:
-        reporter.log_info('Software selection spoke only implemented for RHEL-7, skipping reloading of comps.')
+    reload_comps()
 
     spoke_selector.click()
     try:
@@ -149,11 +144,11 @@ def environment_manipulate(element, app_node, local_node, dry_run):
     else:
         return env_radio.checked
 
-@handle_act('/environment', cond=is_distro_version('rhel', 7))
+@handle_act('/environment')
 def environment_handler(element, app_node, local_node):
     return environment_manipulate(element, app_node, local_node, False)
 
-@handle_chck('/environment', cond=is_distro_version('rhel', 7))
+@handle_chck('/environment')
 def environment_check(element, app_node, local_node):
     if action_result(element)[0] == False:
         return action_result(element)
@@ -211,11 +206,11 @@ def addon_handler_manipulate(element, app_node, local_node, dry_run):
         return (False, "Not all desired groups were (de)selected.")
     return True
 
-@handle_act('/addon', cond=is_distro_version('rhel', 7))
+@handle_act('/addon')
 def addon_handler_check(element, app_node, local_node):
     return addon_handler_manipulate(element, app_node, local_node, False)
 
-@handle_chck('/addon', cond=is_distro_version('rhel', 7))
+@handle_chck('/addon')
 def addon_check(element, app_node, local_node):
     if action_result(element)[0] == False:
         return action_result(element)

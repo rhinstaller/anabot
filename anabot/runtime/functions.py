@@ -581,3 +581,10 @@ def check_checkbox(node, element, name, message="%(name)s is %(found)s, expected
     msg = message % {'name': name, 'found': found, 'expected': expected }
     return (result, msg)
 
+def merge_lists(lists):
+    merged_list = []
+    for member in lists:
+        for item in member:
+            merged_list.append(item)
+
+    return merged_list
