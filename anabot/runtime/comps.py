@@ -7,7 +7,8 @@ from anabot.conditions import is_distro_version_ge
 
 DEFAULT_COMPS_SEARCH_PATHS = [
     "/tmp/yum.cache/anaconda/gen/comps.xml",
-    "/tmp/dnf.cache/*/repodata/gen/groups.xml"
+    "/tmp/dnf.cache/*/repodata/gen/groups.xml",
+    "/tmp/dnf.cache/*/repodata/*-comps.xml"
 ]
 _current_comps = None
 
