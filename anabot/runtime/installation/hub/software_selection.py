@@ -11,7 +11,7 @@ from fnmatch import fnmatchcase
 from anabot.conditions import is_distro_version
 from anabot.runtime.decorators import make_prefixed_handle_action, make_prefixed_handle_check
 from anabot.runtime.default import default_handler, action_result
-from anabot.runtime.functions import get_attr, getnode, getnode_scroll, getnodes, getparent, getsibling, disappeared
+from anabot.runtime.functions import get_attr, getnode, getnode_scroll, getnodes, getparent, getsibling, disappeared, scrollto
 from anabot.runtime.comps import reload_comps, get_comps
 from anabot.runtime.hooks import register_post_hook
 from anabot.runtime.errors import TimeoutError
@@ -192,9 +192,10 @@ def addon_handler_manipulate(element, app_node, local_node, dry_run):
             reporter.log_fail("Couldn't find label for group: %s" % group_id)
             result = not check
             continue
-        group_checkbox = getsibling(group_label, -1, "check box")
+        group_checkbox = getsibling(group_label, -1, "check box", visible=None, sensitive=None)
         if group_checkbox.checked != check:
             if not dry_run:
+                scrollto(group_checkbox)
                 group_checkbox.click()
             else:
                 result = not check
