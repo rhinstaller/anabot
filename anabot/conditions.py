@@ -49,15 +49,17 @@ def _anaconda_version():
     except KeyError:
         logger.debug('Cannot get anaconda version from ANACONDA_VERSION variable')
 
-    for i in range(1,11):
-        try:
-            with open('/tmp/anaconda.log') as anaconda_log:
-                match = re.search(r'(anaconda) ([0-9]+\.[0-9]+(\.[0-9]+)?)', anaconda_log.read())
-                return match.group(2)
-        except (IOError, AttributeError):
-            logger.debug('Anaconda version not found in anaconda.log, Attempt %i/10' % i)
-            sleep(2)
-    logger.debug('Cannot determine anaconda version from log')
+    try:
+        with open('/root/lorax-packages.log') as lorax_packages_log:
+            match = re.search(r'^(anaconda)-([0-9]+\.[0-9]+(\.[0-9]+)?)',
+                              lorax_packages_log.read(),
+                              re.MULTILINE)
+            version = match.group(2)
+            logger.debug('Determined anaconda version from lorax-packages.log: %s' % version)
+            return version
+    except (IOError, AttributeError):
+            logger.debug('Anaconda version not found in lorax-packages.log')
+    logger.debug('Cannot determine anaconda version from lorax-packages.log')
 
     try:
         output = Popen(['rpm', '-q', '--qf', '%{VERSION}', 'anaconda'], stdout=PIPE)
