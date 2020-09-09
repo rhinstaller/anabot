@@ -62,34 +62,6 @@ class Comps(object):
         defined = self.defined_groups()
         return [x for x in candidates if x in defined]
 
-    def _filter_visible_groups(self, candidates):
-        visible = self.visible_groups()
-        return [x for x in candidates if x in visible]
-
-    def _filter_non_conditional_groups(self, candidates):
-        non_conditional = self.non_conditional_groups()
-        return [x for x in candidates if x in non_conditional]
-
-    def _filter_non_optional_non_conditional_groups(self, candidates):
-        non_optional_non_conditional = self.non_optional_non_conditional_groups()
-        return [x for x in candidates if x in non_optional_non_conditional]
-
-    def groups_list(self, env):
-        xpath = '/comps/environment[id/text() = "%s"]/optionlist/groupid/text()' % env
-        candidates = [x.content for x in self.root.xpathEval(xpath)]
-        # shown are also those that are visible
-        candidates += self.visible_groups()
-        # filter out those groups that are only referenced, but not defined
-        candidates = self._filter_defined_groups(candidates)
-        # filter out those groups that contain only optional and/or conditional
-        # packages (RHEL-7) or conditional packages (RHEL-8)
-        if is_distro_version_ge("rhel", 8):
-            candidates = self._filter_non_conditional_groups(candidates)
-        else:
-            candidates = self._filter_non_optional_non_conditional_groups(candidates)
-
-        return candidates
-
     def mandatory_groups_list(self, env):
         xpath = '/comps/environment[id/text() = "%s"]/grouplist/groupid/text()' % env
         candidates = [x.content for x in self.root.xpathEval(xpath)]
@@ -203,9 +175,39 @@ class CompsBundle(object):
         groups_lists = [comps.non_conditional_groups() for comps in self._comps_list]
         return merge_lists(groups_lists)
 
+    def _filter_defined_groups(self, candidates):
+        defined = self.defined_groups()
+        return [x for x in candidates if x in defined]
+
+    def _filter_visible_groups(self, candidates):
+        visible = self.visible_groups()
+        return [x for x in candidates if x in visible]
+
+    def _filter_non_conditional_groups(self, candidates):
+        non_conditional = self.non_conditional_groups()
+        return [x for x in candidates if x in non_conditional]
+
+    def _filter_non_optional_non_conditional_groups(self, candidates):
+        non_optional_non_conditional = self.non_optional_non_conditional_groups()
+        return [x for x in candidates if x in non_optional_non_conditional]
+
     def groups_list(self, env):
-        groups_lists = [comps.groups_list(env) for comps in self._comps_list]
-        return merge_lists(groups_lists)
+        candidates = []
+        for comps in self._comps_list:
+            xpath = '/comps/environment[id/text() = "%s"]/optionlist/groupid/text()' % env
+            candidates.append([x.content for x in comps.root.xpathEval(xpath)])
+        candidates = merge_lists(candidates)
+        # shown are also those that are visible
+        candidates += self.visible_groups()
+        # filter out those groups that are only referenced, but not defined
+        candidates = self._filter_defined_groups(candidates)
+        # filter out those groups that contain only optional and/or conditional
+        # packages (RHEL-7) or conditional packages (RHEL-8)
+        if is_distro_version_ge("rhel", 8):
+            candidates = self._filter_non_conditional_groups(candidates)
+        else:
+            candidates = self._filter_non_optional_non_conditional_groups(candidates)
+        return candidates
 
     def mandatory_groups_list(self, env):
         groups_lists = [comps.mandatory_groups_list(env) for comps in self._comps_list]
