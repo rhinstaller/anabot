@@ -263,7 +263,10 @@ def new_volume_group(element, app_node, local_node):
 
 @handle_act('/edit_volume_group')
 def edit_volume_group(element, app_node, local_node):
-    vg_label = getnode(local_node, "label", "Volume Group")
+    vg_label_text = "Volume Group"
+    if is_distro_version('rhel', 8):
+        vg_label_text = tr("_Volume Group:", context="GUI|Custom Partitioning|Configure")
+    vg_label = getnode(local_node, "label", vg_label_text)
     vg_section = getparents(vg_label, "filler")[2]
     vg_edit_text = tr("_Modify...", context="GUI|Custom Partitioning|Configure")
     vg_edit_button = getnode(vg_section, "push button", vg_edit_text)
@@ -351,6 +354,32 @@ def vg_encrypt(element, app_node, local_node):
     checkbox = getnode(local_node, "check box", tr("Encrypt"))
     if checkbox.checked != (value == "yes"):
         checkbox.click()
+
+@handle_vg_chck('/encrypt')
+def vg_encrypt_check(element, app_node, local_node):
+    value = get_attr(element, "value", "yes")
+    checkbox = getnode(local_node, "check box", tr("Encrypt"))
+    if (value == "yes") ==  checkbox.checked:
+        return True
+    return Fail("Unexpected state of VG encryption!")
+
+@handle_vg_act('/luks_version')
+def vg_luks_version(element, app_node, local_node):
+    version = get_attr(element, "value")
+    version_label = getnode(local_node, "label", tr("LUKS Version:"))
+    version_combo = getsibling(version_label, 1, "combo box")
+    version_combo.click()
+    version_menu = getnode(version_combo, "menu item", version)
+    version_menu.click()
+
+@handle_vg_chck('/luks_version')
+def vg_luks_version_check(element, app_node, local_node):
+    version = get_attr(element, "value")
+    version_label = getnode(local_node, "label", tr("LUKS Version:"))
+    version_combo = getsibling(version_label, 1, "combo box")
+    if version_combo.name == version:
+        return True
+    return Fail("Current LUKS version does not match the requested version: '%s'" % version)
 
 def size_label(app_node, local_node):
     context = "GUI|Custom Partitioning|Container Dialog"
