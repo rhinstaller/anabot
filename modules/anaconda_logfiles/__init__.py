@@ -40,7 +40,7 @@ def mainloop():
             changed = os.stat(path).st_mtime
             if last_changed is not None and last_changed >= changed:
                 continue
-            # modify time is greater then last registered, send the file
+            # modify time is greater than last registered, send the file
             reporter.send_file(path, flags={QUIET_FILE:True})
             reporter.log_debug("Sending updated file: %s" % path)
             changes[path] = changed

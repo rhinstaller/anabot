@@ -197,7 +197,7 @@ def replace_layouts_handler(element, app_node, local_node):
         return do_result
     return add_layout_handler(element, app_node, local_node, in_dialog=True)
 
-MORE_LAYOUTS_FOUND = Fail("More then one layout was found.")
+MORE_LAYOUTS_FOUND = Fail("More than one layout was found.")
 @handle_chck('/replace_layouts')
 @check_action_result
 def replace_layouts_check(element, app_node, local_node):
