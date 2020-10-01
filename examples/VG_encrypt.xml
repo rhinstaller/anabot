@@ -1,0 +1,39 @@
+<ez:installation xmlns:ez="http://fedoraproject.org/anaconda/anabot/recipe/tiny/1">
+  <ez:hub>
+    <partitioning>
+      <disk name="*" action="select" />
+      <mode mode="manual" />
+      <done />
+      <advanced>
+	<select device="*">
+	  <remove dialog="accept">
+            <!-- temporarily disable due to https://bugzilla.redhat.com/show_bug.cgi?id=1624805
+            <also_related value="yes" />
+            -->
+	  </remove>
+	</select>
+	<autopart />
+	<details>
+	  <edit_volume_group>
+        <encrypt />
+        <luks_version value="luks1" />
+	  </edit_volume_group>
+	  <edit_volume_group>
+        <encrypt value="no" />
+	  </edit_volume_group>
+	  <edit_volume_group>
+        <encrypt />
+        <luks_version value="luks2" />
+	  </edit_volume_group>
+	</details>
+	<done />
+    <luks_dialog>
+      <password value="fo0m4nchU1" />
+      <confirm_password value="fo0m4nchU1" />
+      <save />
+    </luks_dialog>
+	<summary />
+      </advanced>
+    </partitioning>
+  </ez:hub>
+</ez:installation>
