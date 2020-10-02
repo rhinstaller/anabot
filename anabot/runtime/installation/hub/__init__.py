@@ -27,7 +27,8 @@ def _wait_for_depsolve(initial=True):
         return
     reporter.log_info("Waiting for package depsolving. Timeout is 10 minutes")
     waitline = ".*DEBUG yum.verbose.YumBase: Depsolve time:.*"
-    if is_distro_version_ge('rhel', 8):
+    # Temporary change to also support Fedora 34.
+    if is_distro_version_ge('rhel', 8) or is_distro_version_ge('fedora', 34):
         waitline = '.* INF packaging: checking dependencies: success'
     if wait_for_line('/tmp/packaging.log', waitline, 600):
         reporter.log_info("Depsolving finished, nothing should block anaconda main thread now (GTK/ATK) now")
