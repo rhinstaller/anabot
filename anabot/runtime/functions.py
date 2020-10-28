@@ -316,6 +316,17 @@ def get_attr(element, name, default=None):
     except IndexError:
         return default
 
+def get_attr_bool(element, name, default=None):
+    value = str(get_attr(element, name, default)).lower()
+    allowed_false = ("0", "off", "false")
+    allowed_true = ("1", "on", "true")
+    allowed = allowed_false + allowed_true
+
+    if not value in allowed:
+        raise ValueError("Attribute '%s' contains an invalid value '%s'. Allowed values are: %s" %
+            (name, value, ", ".join(allowed)))
+    return value in allowed_true
+
 def hold_key(keyName):
     return key_action(keyName, "press")
 
