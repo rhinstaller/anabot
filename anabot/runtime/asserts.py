@@ -26,3 +26,19 @@ def assertPasswordTextInputEquals(node, expected_text, input_name, message_forma
         if expected_text != password_text:
             return Fail(message_format % (input_name, password_text, expected_text))
     return Pass()
+
+def assertCheckboxEquals(node, expected_checked, checkbox_name, message_format="%s checkbox state (%s) is different than expected (%s)."):
+    checked = node.checked
+    if checked == expected_checked:
+        return Pass()
+    else:
+        checked_status = "checked" if checked else "unchecked"
+        expected_checked_status = "checked" if expected_checked else "unchecked"
+        return Fail(message_format % (checkbox_name, checked_status, expected_checked_status))
+
+def assertComboBoxEquals(node, expected_text, combo_name, message_format="%s combo box text (%s) is different than expected (%s)."):
+    combo_text = node.name
+    if combo_text == expected_text:
+        return Pass()
+    else:
+        return Fail(message_format % (combo_name, combo_text, expected_text))
