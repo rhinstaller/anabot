@@ -135,6 +135,7 @@ def select_handler(element, app_node, local_node):
     fndevice = get_attr(element, "device", None)
     mountpoint = get_attr(element, "mountpoint", None)
     devices_node = getnodes(local_node, "scroll pane")[1]
+    device_required = get_attr(element, "required", "no") == "yes"
     processed = [] # remember ATK nodes instead of device names
     done = False
     _current_selection = None
@@ -162,6 +163,10 @@ def select_handler(element, app_node, local_node):
                 processed.append((device_group, device_label))
                 done = False
                 break
+    # Fail if device was required and no device was processed
+    if device_required and not processed:
+        logger.debug("Could not find device defined by: %s or %s", fndevice, mountpoint)
+        return False
     return True
 
 @handle_chck('/select')
