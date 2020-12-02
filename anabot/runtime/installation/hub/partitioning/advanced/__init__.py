@@ -7,7 +7,7 @@ import six
 from functools import wraps
 from fnmatch import fnmatchcase
 
-from anabot.conditions import is_distro_version
+from anabot.conditions import is_distro_version, is_distro_version_ge
 from anabot.runtime.decorators import handle_action, handle_check, check_action_result
 from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.functions import get_attr, getnode, getnodes, getparent, getsibling, press_key, scrollto, dump
@@ -187,13 +187,21 @@ def remove_handler(element, app_node, local_node):
     else:
         return (False, "Undefined state")
     dialog_texts = []
-    dialog_text = tr("Are you sure you want to delete all of the data on %s?")
-    dialog_text %= "*"
+    if is_distro_version_ge('rhel', 8, 4):
+        dialog_text = tr("Are you sure you want to delete all of the data on {}?")
+        dialog_text = dialog_text.format("*")
+    else:
+        dialog_text = tr("Are you sure you want to delete all of the data on %s?")
+        dialog_text %= "*"
     dialog_texts.append(dialog_text)
     if is_distro_version('rhel', 8):
         # There's different text for boot related partitions, accept is as well
-        dialog_text = tr("%s may be a system boot partition! Deleting it may break other operating systems. Are you sure you want to delete it?")
-        dialog_text %= "*"
+        if is_distro_version_ge('rhel', 8, 4):
+            dialog_text = tr("{} may be a system boot partition! Deleting it may break other operating systems. Are you sure you want to delete it?")
+            dialog_text = dialog_text.format("*")
+        else:
+            dialog_text = tr("%s may be a system boot partition! Deleting it may break other operating systems. Are you sure you want to delete it?")
+            dialog_text %= "*"
         dialog_texts.append(dialog_text)
     def correct_dialog_text(node):
         return any([
@@ -224,9 +232,14 @@ def remove_check(element, app_node, local_node):
 
 def remove_related_handler_manipulate(element, app_node, local_node, dry_run):
     check = get_attr(element, "value", "yes") == "yes"
-    checkbox_text = tr("Delete _all file systems which are only used by %s.",
-                       context="GUI|Custom Partitioning|Confirm Delete Dialog")
-    checkbox_text %= "*"
+    if is_distro_version_ge('rhel', 8, 4):
+        checkbox_text = tr("Delete _all file systems which are only used by {}.",
+                        context="GUI|Custom Partitioning|Confirm Delete Dialog")
+        checkbox_text = checkbox_text.format("*")
+    else:
+        checkbox_text = tr("Delete _all file systems which are only used by %s.",
+                        context="GUI|Custom Partitioning|Confirm Delete Dialog")
+        checkbox_text %= "*"
     checkboxes = [x for x in getnodes(local_node, "check box")
                   if fnmatchcase(six.u(x.name), checkbox_text)]
     logger.warn("Found checkboxes: %s", repr(checkboxes))
@@ -279,7 +292,10 @@ def rescan_push_rescan_check(element, app_node, local_node):
 
 @handle_act('/autopart')
 def autopart_handler(element, app_node, local_node):
-    autopart = getnode(local_node, "push button", tr("_Click here to create them automatically."))
+    if is_distro_version_ge('rhel', 8, 4):
+        autopart = getnode(local_node, "push button", tr("_Click here to create them automatically.", context="GUI|Custom Partitioning|Autopart Page"))
+    else:
+        autopart = getnode(local_node, "push button", tr("_Click here to create them automatically."))
     autopart.click()
 
 @handle_act('/add')
