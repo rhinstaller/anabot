@@ -6,6 +6,7 @@ Reporter instance."""
 import os
 import re
 import subprocess
+import socket
 try:
     # python3
     from urllib.request import urlopen
@@ -64,6 +65,15 @@ def get_hostname(localhost="localhost", retries=10):
         if hostname != localhost:
             break
         time.sleep(1)
+    else:
+        # The hostname is still localhost which is a bug, try some other
+        # approach to workaround the bug.
+        # solution copied from https://stackoverflow.com/a/28950776
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(('10.255.255.255', 1))
+        ip = s.getsockname()[0]
+        s.close()
+        hostname = socket.gethostbyaddr(ip)[0]
     return hostname
 
 def get_recipe_id():
