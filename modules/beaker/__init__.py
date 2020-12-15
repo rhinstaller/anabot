@@ -57,12 +57,12 @@ def lab_controller(system_fqdn):
     # fallback, just try to use first one if none matches
     return system_data['possible_lab_controllers'][0]['fqdn']
 
-def get_hostname(localhost="localhost", retries=10):
+def get_hostname(localhosts=("localhost", "localhost.localdomain"), retries=10):
     for i in range(retries):
         hostname = teres.make_text(
             subprocess.check_output(["hostname"])
         ).strip()
-        if hostname != localhost:
+        if hostname not in localhosts:
             break
         time.sleep(1)
     else:
