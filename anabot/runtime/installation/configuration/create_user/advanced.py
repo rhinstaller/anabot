@@ -68,6 +68,13 @@ def user_adv_uid_handler(element, app_node, local_node):
     value = get_attr(element, 'value')
     spin_button.typeText(value)
 
+@handle_chck_hub('/uid')
+@handle_chck('/uid')
+def user_adv_uid_check(element, app_node, local_node):
+    checkbox = getnode(local_node, "check box", tr('Specify a _user ID manually:', context="GUI|Advanced User"))
+    spin_button = getsibling(checkbox, -1, node_type="spin button", sensitive=None)
+    return spin_button.text == get_attr(element, 'value')
+
 @handle_act_hub('/manual_gid')
 @handle_act('/manual_gid')
 def user_adv_manual_gid_handler(element, app_node, local_node):
@@ -87,6 +94,13 @@ def user_adv_gid_handler(element, app_node, local_node):
     spin_button = getsibling(checkbox, -2, node_type="spin button", sensitive=None)
     value = get_attr(element, 'value')
     spin_button.typeText(value)
+
+@handle_chck_hub('/gid')
+@handle_chck('/gid')
+def user_adv_gid_check(element, app_node, local_node):
+    checkbox = getnode(local_node, "check box", tr('Specify a _group ID manually:', context="GUI|Advanced User"))
+    spin_button = getsibling(checkbox, -2, node_type="spin button", sensitive=None)
+    return spin_button.text == get_attr(element, 'value')
 
 @handle_act_hub('/groups')
 @handle_act('/groups')
