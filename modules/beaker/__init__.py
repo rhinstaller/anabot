@@ -57,6 +57,16 @@ def lab_controller(system_fqdn):
     # fallback, just try to use first one if none matches
     return system_data['possible_lab_controllers'][0]['fqdn']
 
+def wait_for_resolving(try_domain="example.com", retries=10, interval=1):
+    for i in range(retries):
+        try:
+            socket.gethostbyname(try_domain)
+            break
+        except socket.gaierror:
+            time.sleep(interval)
+    else:
+        print("It's not possible to resolve hostnames even after %d seconds!" % retries*interval)
+
 def get_hostname(localhosts=("localhost", "localhost.localdomain"), retries=10):
     for i in range(retries):
         hostname = teres.make_text(
@@ -99,6 +109,7 @@ def get_task_id(beaker_recipe):
 beaker_recipe_id = get_recipe_id()
 os.environ['BEAKER_RECIPE_ID'] = beaker_recipe_id
 
+wait_for_resolving()
 # Get lab controller of the system.
 hostname = get_hostname()
 beaker_lab_controller = lab_controller(hostname)
