@@ -18,7 +18,7 @@ examples in git.
 
 Manual test: start anaconda with prepared anabot.img. Append on kernel cmdline:
 
-    updates=http://myhost.example.com/~myuser/anabot.tar.gz anabot=http://myhost.example.com/~myuser/recipe.xml graphical console=ttyS0
+    inst.updates=http://myhost.example.com/~myuser/anabot.tar.gz anabot=http://myhost.example.com/~myuser/recipe.xml inst.graphical console=ttyS0
 
 Anabot is started automatically via systemd. You can observe output of anabot using journalctl:
 
