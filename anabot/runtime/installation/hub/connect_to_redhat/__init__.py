@@ -45,7 +45,7 @@ def base_handler(element, app_node, local_node):
 
     try:
         spoke_selector = getnode_scroll(
-            app_node, "spoke selector", spoke_selector_text
+            app_node, "spoke selector", spoke_selector_text, timeout=30
         )
     except TimeoutError:
         return SPOKE_SELECTOR_NOT_FOUND
