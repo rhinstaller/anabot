@@ -1,0 +1,16 @@
+<ez:installation xmlns:ez="http://fedoraproject.org/anaconda/anabot/recipe/tiny/1">
+  <ez:hub>
+    <datetime>
+      <ntp action="enable" />
+      <ntp action="disable" />
+      <ntp action="enable" />
+      <ntp_settings>
+        <add hostname="some.ntp.org" />
+        <enable hostname="some.ntp.org" />
+        <disable hostname="some.ntp.org" />
+        <rename old="some.ntp.org" new="0.fedora.pool.ntp.org" />
+        <enable hostname="0.fedora.pool.ntp.org" />
+      </ntp_settings>
+    </datetime>
+  </ez:hub>
+</ez:installation>
