@@ -399,10 +399,12 @@ def time_minutes_check(element, app_node, local_node):
 def time_format_manipulate(element, app_node, local_node, dry_run):
     value = get_attr(element, "value")
     local_node = getsibling(local_node, 1, "panel")
-    if value == "12":
+    if value == "24":
         wanted_text = tr("24-_hour", context="GUI|Date and Time")
-    elif value == "24":
+    elif value == "12":
         wanted_text = tr("_AM/PM", context="GUI|Date and Time")
+    else:
+        return (False, "Format '%s' not recognized" % value)
     try:
         wanted_radio = getnode(local_node, "radio button", wanted_text)
     except TimeoutError:
@@ -442,7 +444,7 @@ def time_ampm_handler(element, app_node, local_node):
     buttons = getnodes(local_node, "push button", tr("AM/PM Up"))
     buttons += getnodes(local_node, "push button", tr("AM/PM Down"))
     random_button = random.choice(buttons)
-    if six.u(value) != six.u(ampm_label.text):
+    if value != six.u(ampm_label.text):
         random_button.click()
     return True
 
@@ -459,14 +461,13 @@ def time_ampm_check(element, app_node, local_node):
 
 @handle_act('/date')
 def date_handler(element, app_node, local_node):
-    def date_combo_cmp(x, y):
-        return cmp(len(getnodes(x, "menu item", visible=None)),
-                   len(getnodes(y, "menu item", visible=None)))
+    def get_menuitems_count(combo):
+        return len(getnodes(combo, "menu item", visible=None))
     try:
         datetime_node = getnode(local_node, "filler", tr("Set Date & Time"))
     except TimeoutError:
         return notfound("filler", whose="date and time settings")
-    combos = sorted(getnodes(datetime_node, "combo box"), date_combo_cmp)
+    combos = sorted(getnodes(datetime_node, "combo box"), key=get_menuitems_count)
     if len(combos) != 3:
         return notfound("all date, month and year combo boxes")
     default_handler(element, app_node, combos)
