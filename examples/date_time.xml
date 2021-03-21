@@ -1,0 +1,22 @@
+<ez:installation xmlns:ez="http://fedoraproject.org/anaconda/anabot/recipe/tiny/1">
+  <ez:hub>
+    <datetime>
+      <region value="America" />
+      <city value="Bahia" />
+      <ntp action="disable" />
+      <time>
+        <hours value="08" />
+        <minutes value="09" />
+        <format value="12" />
+        <ampm value="AM" />
+        <ampm value="PM" />
+        <ampm value="AM" />
+      </time>
+      <date>
+        <month value="11" />
+        <day value="18" />
+        <year value="2015" />
+      </date>
+    </datetime>
+  </ez:hub>
+</ez:installation>
