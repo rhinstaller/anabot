@@ -199,7 +199,7 @@ def remove_handler(element, app_node, local_node):
         dialog_text = tr("Are you sure you want to delete all of the data on %s?")
         dialog_text %= "*"
     dialog_texts.append(dialog_text)
-    if is_distro_version('rhel', 8):
+    if is_distro_version_ge('rhel', 8):
         # There's different text for boot related partitions, accept is as well
         if is_distro_version_ge('rhel', 8, 4):
             dialog_text = tr("{} may be a system boot partition! Deleting it may break other operating systems. Are you sure you want to delete it?")
@@ -331,7 +331,7 @@ def add_mountpoint_handler_manipulate(element, app_node, local_node, dryrun):
     textfield = getnode(combo, "text")
     if not dryrun:
         textfield.typeText(mountpoint)
-        if is_distro_version('rhel', 8):
+        if is_distro_version_ge('rhel', 8):
             # Pressing enter accepts whole dialog, see:
             # https://bugzilla.redhat.com/show_bug.cgi?id=1625603
             # press tab which should be harmless in any situation

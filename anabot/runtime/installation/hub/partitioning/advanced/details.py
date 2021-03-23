@@ -8,7 +8,7 @@ import six
 
 from fnmatch import fnmatchcase
 
-from anabot.conditions import is_distro_version
+from anabot.conditions import is_distro_version_ge
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler
 from anabot.runtime.functions import get_attr, getnode, getnodes, getparent, getparents, getsibling, hold_key, release_key, clear_text
@@ -247,7 +247,7 @@ def raid_type_check(element, app_node, local_node):
 def new_volume_group(element, app_node, local_node):
     # Volume Group is not translated, file bug!
     volgroup_label_text = "Volume Group"
-    if is_distro_version('rhel', 8):
+    if is_distro_version_ge('rhel', 8):
         volgroup_label_text = tr("_Volume Group:", context="GUI|Custom Partitioning|Configure")
     volume_group_label = getnode(local_node, "label", volgroup_label_text)
     volume_group_combo = getsibling(volume_group_label, 1, "combo box")
@@ -264,7 +264,7 @@ def new_volume_group(element, app_node, local_node):
 @handle_act('/edit_volume_group')
 def edit_volume_group(element, app_node, local_node):
     vg_label_text = "Volume Group"
-    if is_distro_version('rhel', 8):
+    if is_distro_version_ge('rhel', 8):
         vg_label_text = tr("_Volume Group:", context="GUI|Custom Partitioning|Configure")
     vg_label = getnode(local_node, "label", vg_label_text)
     vg_section = getparents(vg_label, "filler")[2]

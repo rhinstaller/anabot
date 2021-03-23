@@ -192,11 +192,11 @@ def additional_space_handler(element, app_node, local_node):
 def additional_space_check(element, app_node, local_node):
     return additional_space_manipulate(element, app_node, local_node, True)
 
-@handle_act('/additional_space', cond=is_distro_version('rhel', 8))
+@handle_act('/additional_space', cond=is_distro_version_ge('rhel', 8))
 def additional_space_handler2(element, app_node, local_node):
     additional_space_manipulate2(element, app_node, local_node, False)
 
-@handle_chck('/additional_space', cond=is_distro_version('rhel', 8))
+@handle_chck('/additional_space', cond=is_distro_version_ge('rhel', 8))
 def additional_space_check2(element, app_node, local_node):
     return additional_space_manipulate2(element, app_node, local_node, True)
 
