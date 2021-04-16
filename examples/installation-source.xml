@@ -1,0 +1,102 @@
+<ez:installation xmlns:ez="http://fedoraproject.org/anaconda/anabot/recipe/tiny/1">
+  <ez:hub>
+
+    <installation_source>
+      <!-- source_type can have the following values: media, cdn, iso, network;
+      iso source is not yet supported by anabot -->
+      <source type="iso" />
+      <source type="media" policy="should_fail" />
+      <verify_media policy="should_fail"/>
+      <proxy policy="should_fail" />
+      <source type="cdn" />
+      <source type="network" />
+      <verify_media policy="should_fail" />
+
+      <proxy>
+        <!-- enable can be either 1 or 0, on or off, true or false -->
+        <status enable="1" />
+        <host value="somehost:1234" />
+        <authentication enable="on" />
+        <username value="someuser" />
+        <password value="somepassword" />
+        <cancel />
+      </proxy>
+
+      <proxy>
+        <status enable="true" />
+        <host value="squid.example.com" />
+        <ok />
+      </proxy>
+
+      <source type="cdn" />
+      <source type="network" />
+      <main_repo_url value="repo.example.com/path/to/some/repo" />
+      <main_repo_url value="foo/bar" />
+      <main_repo_url_protocol value="ftp://" />
+      <main_repo_type value="mirrorlist" policy="should_fail"/>
+      <main_repo_url value="" />
+      <main_repo_url value="repo.example.com/path/to/some/repo" />
+      <main_repo_url_protocol value="http://" />
+      <main_repo_type value="repo" />
+
+      <additional_repo>
+        <!-- Repo can be added just by using plain "add" element and setup in following steps, or
+        it can be setup just by specifying related attributes within the "add" element.
+
+        The allowed attributes are:
+        name - repo name
+        url - repo URL, can also contain protocol specification (e. g. http://) if it's the first URL, according to UI behaviour
+        url_protocol - explicit protocol specification (http://, https://, ftp://, nfs)
+        url_type - URL type (repo, mirrorlist, metalink)
+        enabled - specifies whether the repo should be enabled or not
+        proxy_url
+        proxy_username
+        proxy_password
+        -->
+        <add />
+        <add name="test_repo2" url="someserver:/something" url_protocol="nfs" />
+        <add name="test_repo3" url_protocol="https://" />
+        <!-- infobar element checks the presence and optionally content of a warning message at the bottom
+          of the screen. If the message (specified by "message" attribute)contains an '%s' literal, it can be
+          substituted for a repo name supplied by "repo_name" attribute. If the repo_name attribute is not
+          present, the '%s' (if present) will match any string.
+        -->
+        <infobar />
+        <infobar message="%s" />
+        <infobar message="repository %s has empty url" />
+        <infobar message="repository %s has empty url" repo_name="New_repository" />
+
+        <add name="test_repo2" url="nonexistent_url" url_type="repo" url_protocol="https://" />
+        <infobar message="Duplicate repository names." />
+        <infobar message="nonexistent message" policy="should_fail" />
+
+        <!-- The "select" element performs arbitrary actions on all repositories that match a name specified
+            in "name" attribute. It's possible to use a wildcard match using *, e. g. "repo*". -->
+        <select name="test_repo2">
+          <url_protocol value="https://" />
+          <url_type value="mirrorlist" />
+          <status enabled="0" />
+          <proxy_url value="http://foo:3128/bar" />
+          <proxy_username value="someuser" />
+          <proxy_password value="somepassword" />
+        </select>
+
+        <select name="*">
+          <remove />
+        </select>
+
+        <add name="test_repo" url="foobarurl" url_type="repo" url_protocol="http://" enabled="0" />
+        <reset />
+
+        <select name="*">
+          <remove />
+        </select>
+        <add name="another_repo" url="repo.example.com/another/repo/x86_64/os" url_type="repo" url_protocol="http://" enabled="1" proxy_url="http://squid.example.com:3128" />
+      </additional_repo>
+    </installation_source>
+
+    <software_selection>
+      <environment id="minimal-environment" />
+    </software_selection>
+  </ez:hub>
+</ez:installation>
