@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from anabot.runtime.translate import lang_tr, keyboard_tr, active_languages
+from anabot.conditions import is_distro_version_lt
 
 import re
 
@@ -57,13 +58,13 @@ class Layouts(object):
         if subitem:
             target = u"%s (%s)" % (item.get_name(), subitem.get_name())
             text = u"%s (%s)" % (
-                lang_tr(lang).capitalize(),
+                lang_tr(lang).capitalize() if is_distro_version_lt('rhel', 9) else lang_tr(lang),
                 keyboard_tr(subitem.get_description())
             )
         else:
             target = u"%s" % item.get_name()
             text = u"%s (%s)" % (
-                lang_tr(lang).capitalize(),
+                lang_tr(lang).capitalize() if is_distro_version_lt('rhel', 9) else lang_tr(lang),
                 keyboard_tr(item.get_description())
             )
         self.__layouts[target] = normalize(text)
