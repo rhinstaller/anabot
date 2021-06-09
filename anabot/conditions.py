@@ -100,6 +100,12 @@ def is_distro_version_gt(name, major, minor=None):
 def is_distro_version_ge(name, major, minor=None):
     return is_distro_version_op(operator.ge, name, major, minor)
 
+def is_distro_version_lt(name, major, minor=None):
+    return is_distro_version_op(operator.lt, name, major, minor)
+
+def is_distro_version_le(name, major, minor=None):
+    return is_distro_version_op(operator.le, name, major, minor)
+
 def is_anaconda_version_op(op, version):
     if anaconda_version():
         return op(StrictVersion(anaconda_version()), StrictVersion(version))
@@ -114,6 +120,12 @@ def is_anaconda_version_ge(version):
 
 def is_anaconda_version_gt(version):
     return is_anaconda_version_op(operator.gt, version)
+
+def is_anaconda_version_le(version):
+    return is_anaconda_version_op(operator.le, version)
+
+def is_anaconda_version_lt(version):
+    return is_anaconda_version_op(operator.lt, version)
 
 def has_feature_hub_config():
     # Fedora https://github.com/rhinstaller/anaconda/commit/b2adda24ea8233cff6e0afd0a48c475a801fe3b4
