@@ -10,11 +10,12 @@ from fnmatch import fnmatchcase
 from anabot.conditions import is_distro_version, is_distro_version_ge
 from anabot.runtime.decorators import handle_action, handle_check, check_action_result
 from anabot.runtime.default import default_handler, action_result
-from anabot.runtime.functions import get_attr, getnode, getnodes, getparent, getsibling, press_key, scrollto, dump
+from anabot.runtime.functions import get_attr, getnode, getnode_scroll, getnodes, getparent, getsibling, press_key, scrollto, dump
 from anabot.runtime.errors import TimeoutError
 from anabot.runtime.translate import tr, gtk_tr
 from anabot.runtime.installation.common import done_handler
 from anabot.runtime.installation.hub.partitioning.advanced.common import schema_name
+from anabot.runtime.actionresult import NotFoundResult as NotFound, ActionResultPass as Pass, ActionResultFail as Fail
 
 import anabot.runtime.installation.hub.partitioning.advanced.details
 
@@ -414,3 +415,31 @@ def summary_check(element, app_node, local_node):
         return (False, "Summary dialog is still visible")
     except TimeoutError:
         return True
+
+ENCRYPT_CHECKBOX_NOT_FOUND = NotFound("'Encrypt my data' checkbox'")
+def encrypt_data_manipulate(element, app_node, local_node, dry_run):
+    action = get_attr(element, "action", "enable")
+    try:
+        checkbox_text = tr("Encrypt my data.")
+    except TimeoutError:
+        return ENCRYPT_CHECKBOX_NOT_FOUND
+    encrypt_checkbox = getnode_scroll(local_node, "check box", checkbox_text)
+    if not dry_run:
+        if ((action == "enable") != encrypt_checkbox.checked or
+                (action == "disable") == encrypt_checkbox.checked):
+            encrypt_checkbox.click()
+    else:
+        if ((action == "enable") == encrypt_checkbox.checked or
+                (action == "disable") != encrypt_checkbox.checked):
+            return Pass()
+        else:
+            return Fail("Data encryption checkbox state doesn't correspond "
+                        "with required state \"%s\"" % action)
+
+@handle_act('/encrypt_data')
+def encrypt_data_handler(element, app_node, local_node):
+    encrypt_data_manipulate(element, app_node, local_node, False)
+
+@handle_chck('/encrypt_data')
+def encrypt_data_check(element, app_node, local_node):
+    return encrypt_data_manipulate(element, app_node, local_node, True)

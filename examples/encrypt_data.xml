@@ -1,0 +1,28 @@
+<!-- Encrypt data using the "Encrypt my data" checkbox on the custom partitioning spoke -->
+<ez:installation xmlns:ez="http://fedoraproject.org/anaconda/anabot/recipe/tiny/1">
+  <ez:hub>
+    <partitioning>
+      <disk name="*" action="select" />
+      <mode mode="manual" />
+      <done />
+      <advanced>
+        <select device="*">
+          <remove dialog="accept">
+            <!-- temporarily disable due to https://bugzilla.redhat.com/show_bug.cgi?id=1624805
+            <also_related value="yes" />
+            -->
+          </remove>
+        </select>
+        <encrypt_data />
+        <autopart />
+        <done />
+        <luks_dialog>
+          <password value="fo0m4nchU1" />
+          <confirm_password value="fo0m4nchU1" />
+          <save />
+        </luks_dialog>
+        <summary />
+      </advanced>
+    </partitioning>
+  </ez:hub>
+</ez:installation>
