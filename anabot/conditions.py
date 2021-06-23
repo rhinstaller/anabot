@@ -8,7 +8,7 @@ import re
 import os
 from subprocess import Popen, PIPE
 from time import sleep
-from distutils.version import StrictVersion
+from distutils.version import LooseVersion
 
 _cache = {}
 
@@ -108,7 +108,7 @@ def is_distro_version_le(name, major, minor=None):
 
 def is_anaconda_version_op(op, version):
     if anaconda_version():
-        return op(StrictVersion(anaconda_version()), StrictVersion(version))
+        return op(LooseVersion(anaconda_version()), LooseVersion(version))
     else:
         return False
 
