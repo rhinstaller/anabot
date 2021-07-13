@@ -69,12 +69,11 @@ def base_handler(element, app_node, local_node):
     default_handler(element, app_node, advanced_panel)
     return True
 
-@handle_act('/schema')
-@main_view
-def schema_handler(element, app_node, local_node):
+def schema_manipulate(element, app_node, local_node, check):
     schema = get_attr(element, "value")
     schema_node = None
     group_nodes = getnodes(local_node, "toggle button")
+    # Find schema combo box
     for group_node in group_nodes:
         shown = True
         if not group_node.checked:
@@ -90,21 +89,26 @@ def schema_handler(element, app_node, local_node):
             group_node.actions['activate'].do()
     else:
         return (False, "Couldn't find combo box for partitioning schema")
+    # Check selected schema
+    if check:
+        if schema_node.name == schema_name(schema):
+            return True
+        return (False, u"Different schema is set: %s" % schema_node.name)
+    # Select new schema
     schema_node.click()
     getnode(schema_node, "menu item", schema_name(schema)).click()
+
+
+@handle_act('/schema')
+@main_view
+def schema_handler(element, app_node, local_node):
+    schema_manipulate(element, app_node, local_node, False)
 
 @handle_chck('/schema')
 @check_action_result
 @main_view
 def schema_check(element, app_node, local_node):
-    schema = get_attr(element, "value")
-    new_install_sub = {"name": ".*", "version": ".*"}
-    new_install_text = tr("New %(name)s %(version)s Installation") % new_install_sub
-    new_install = getnode(local_node, "toggle button", new_install_text)
-    schema_node = getnode(new_install, "combo box")
-    if schema_node.name == schema_name(schema):
-        return True
-    return (False, u"Different schema is set: %s" % schema_node.name)
+    return schema_manipulate(element, app_node, local_node, True)
 
 def switch_toggle(device):
     group_node = getparent(device, "toggle button")
