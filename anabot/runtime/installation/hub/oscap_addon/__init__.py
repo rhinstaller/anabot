@@ -4,7 +4,7 @@ logger = logging.getLogger('anabot')
 import random
 import six
 
-from anabot.conditions import is_distro_version
+from anabot.conditions import is_distro_version, is_distro_version_le
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.decorators import check_action_result
 from anabot.runtime.default import default_handler, action_result
@@ -36,7 +36,9 @@ def dummy_oscap_tr(intext, drop_underscore=True):
     else:
         return intext
 
-SPOKE_SELECTOR="Security Policy"
+SPOKE_SELECTOR="Security Profile"
+if is_distro_version('rhel', 8):
+    SPOKE_SELECTOR="Security Policy"
 if is_distro_version('rhel', 7):
     SPOKE_SELECTOR="SECURITY POLICY"
 
@@ -55,8 +57,12 @@ def base_handler(element, app_node, local_node):
     except TimeoutError:
         return SPOKE_SELECTOR_NF
     try:
-        oscap_addon_label = getnode(app_node, "label",
-                                    oscap_tr("SECURITY POLICY"))
+        if is_distro_version_le('rhel', 8):
+            oscap_addon_label = getnode(app_node, "label",
+                                        oscap_tr("SECURITY POLICY"))
+        else:
+            oscap_addon_label = getnode(app_node, "label",
+                                        oscap_tr("SECURITY PROFILE"))
     except TimeoutError:
         return SECURITY_POLICY_LABEL_NF
     try:
@@ -227,14 +233,16 @@ def select_check(element, app_node, local_node):
         result = Pass()
     return result
 
-CHANGE_CONTENT_BUTTON_NF = NotFound("\"_Change content\" button",
+CHANGE_CONTENT_BUTTON = "_Change content"
+CHANGE_CONTENT_BUTTON_NF = NotFound('"%s" button' % CHANGE_CONTENT_BUTTON,
                                     "button_not_found")
-SCAP_SECURITY_GUIDE_BUTTON_NF = NotFound("\"Use SCAP Security Guide\" button",
+SCAP_SECURITY_GUIDE_BUTTON = "_Use SCAP Security Guide"
+SCAP_SECURITY_GUIDE_BUTTON_NF = NotFound('"%s" button' % SCAP_SECURITY_GUIDE_BUTTON,
                                          "button_not_found")
 def change_content_manipulate(element, app_node, local_node, dryrun):
     try:
         change_button = getnode(local_node, "push button",
-                                oscap_tr("_Change content"))
+                                oscap_tr(CHANGE_CONTENT_BUTTON))
     except TimeoutError:
         if dryrun:
             try:
@@ -328,7 +336,7 @@ def change_content_fetch_check(element, app_node, local_node):
                           " Please check that network is setup and "
                           "working."): 'network_error'}
     try:
-        getnode(local_node, "push button", oscap_tr("_Change content"))
+        getnode(local_node, "push button", oscap_tr(CHANGE_CONTENT_BUTTON))
         return Pass()
         _selected_profile = None
     except TimeoutError:
