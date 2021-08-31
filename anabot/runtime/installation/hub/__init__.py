@@ -26,11 +26,19 @@ def _wait_for_depsolve(initial=True):
         # Installation is not kickstart and repo is not configured on cmdline, initial depsolving shouldn't be happening.
         return
     reporter.log_info("Waiting for package depsolving. Timeout is 10 minutes")
+
+    filename = '/tmp/packaging.log'
     waitline = ".*DEBUG yum.verbose.YumBase: Depsolve time:.*"
+
     # Temporary change to also support Fedora 34.
     if is_distro_version_ge('rhel', 8) or is_distro_version_ge('fedora', 34):
         waitline = '.* INF packaging: checking dependencies: success'
-    if wait_for_line('/tmp/packaging.log', waitline, 600):
+
+    if is_distro_version_ge('fedora', 35):
+        filename = '/tmp/anaconda.log'
+        waitline = '.*software_selection: The selection has been checked.*'
+
+    if wait_for_line(filename, waitline, 600):
         reporter.log_info("Depsolving finished, nothing should block anaconda main thread now (GTK/ATK) now")
     else:
         reporter.log_info("Depsolving _NOT_ finished, it may happen, that anaconda main thread (GTK/ATK) will be blocked in future and prevent anabot working properly.")
