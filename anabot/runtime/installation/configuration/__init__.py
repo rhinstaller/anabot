@@ -36,7 +36,7 @@ def base_handler(element, app_node, local_node):
     if get_variable('profile') in ("anaconda", "anaconda_installer"):
         reporter.log_info("Waiting for yum transaction. Timeout is 10 minutes")
         waitline = ".* INFO packaging:  running transaction"
-        if is_distro_version_ge('rhel', 8):
+        if is_distro_version_ge('rhel', 8) or is_distro_version_ge('fedora', 35):
             waitline = '.* INF dnf: Running transaction'
         wait_for_line(
             '/tmp/packaging.log',
