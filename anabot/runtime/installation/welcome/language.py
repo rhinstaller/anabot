@@ -22,7 +22,7 @@ def language_check_7(element, app_node, local_node):
     gui_lang = getnode(local_node, "table cell", lang)
     return gui_lang.selected
 
-@handle_chck('', cond=is_distro_version_ge('rhel', 8))
+@handle_chck('', cond=is_distro_version_ge('rhel', 8) or is_distro_version_ge('fedora', 35))
 def language_check_8(element, app_node, local_node):
     lang = get_attr(element, "value")
     gui_lang = getnode(local_node, "table cell", lang).parent
