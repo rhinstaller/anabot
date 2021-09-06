@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import sys
 import time
 import logging
 logger = logging.getLogger('anabot')
@@ -137,3 +138,4 @@ def reboot_handler(element, app_node, local_node):
     run_posthooks()
     reporter.test_end()
     reboot_button.click()
+    sys.exit(0)
