@@ -26,7 +26,9 @@ def base_handler(element, app_node, local_node):
 
 @handle_chck('')
 def base_check(element, app_node, local_node):
-    amount = get_attr(element, 'amount')
+    min_amount = get_attr(element, 'minAmount')
+    max_amount = get_attr(element, 'maxAmount')
+    amount = get_attr(element, 'amount', '-1' if min_amount or max_amount else None )
     if amount is None:
         amount = len(element.xpathEval('./subscription'))
     else:
@@ -37,16 +39,20 @@ def base_check(element, app_node, local_node):
     except TimeoutError:
         subscription_items = []
     subscription_count = math.ceil(len(subscription_items)/2)
-    if subscription_count != amount:
+    if amount != -1 and subscription_count != amount:
         return Fail("Number of subscriptions displayed (%d) doesn't match expectance (%d)" % (subscription_count, amount))
+    if min_amount is not None and subscription_count < int(min_amount):
+        return Fail("Number of subscriptions displayed (%d) is lower than minAmount (%d)" % (subscription_count, min_amount))
+    if max_amount is not None and subscription_count > int(max_amount):
+        return Fail("Number of subscriptions displayed (%d) is higher than manAmount (%d)" % (subscription_count, max_amount))
     subscriptions_label = getsibling(local_node, -1, "label")
-    if amount == 0:
+    if subscription_count == 0:
         expected_text = "No subscriptions are attached to the system"
-    elif amount == 1:
+    elif subscription_count == 1:
         expected_text = "1 subscription attached to the system"
     else:
-        expected_text = "%d subscriptions attached to the system" % amount
-    return ale(subscriptions_label, expected_text, "Ammount of subscriptions")
+        expected_text = "%d subscriptions attached to the system" % subscription_count
+    return ale(subscriptions_label, expected_text, "Amount of subscriptions")
 
 def find_subscription(local_node, pattern):
     try:
