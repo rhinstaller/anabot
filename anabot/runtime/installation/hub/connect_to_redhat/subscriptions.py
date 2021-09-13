@@ -26,26 +26,26 @@ def base_handler(element, app_node, local_node):
 
 @handle_chck('')
 def base_check(element, app_node, local_node):
-    ammount = get_attr(element, 'ammount')
-    if ammount is None:
-        ammount = len(element.xpathEval('./subscription'))
+    amount = get_attr(element, 'amount')
+    if amount is None:
+        amount = len(element.xpathEval('./subscription'))
     else:
-        ammount = int(ammount)
+        amount = int(amount)
     local_node = getnode(local_node, "scroll pane")
     try:
         subscription_items = getnodes(local_node, "list item")
     except TimeoutError:
         subscription_items = []
     subscription_count = math.ceil(len(subscription_items)/2)
-    if subscription_count != ammount:
-        return Fail("Number of subscriptions displayed (%d) doesn't match expectance (%d)" % (subscription_count, ammount))
+    if subscription_count != amount:
+        return Fail("Number of subscriptions displayed (%d) doesn't match expectance (%d)" % (subscription_count, amount))
     subscriptions_label = getsibling(local_node, -1, "label")
-    if ammount == 0:
+    if amount == 0:
         expected_text = "No subscriptions are attached to the system"
-    elif ammount == 1:
+    elif amount == 1:
         expected_text = "1 subscription attached to the system"
     else:
-        expected_text = "%d subscriptions attached to the system" % ammount
+        expected_text = "%d subscriptions attached to the system" % amount
     return ale(subscriptions_label, expected_text, "Ammount of subscriptions")
 
 def find_subscription(local_node, pattern):
