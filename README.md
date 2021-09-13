@@ -13,6 +13,10 @@ Prepare updates.img containing anabot:
 
     $ ./make_updates.sh ~/public_html/anabot.tar.gz
 
+If the updates.img is going to be used in beaker task:
+
+    $ BEAKER_HUB_HOSTNAME=beaker.example.com ./make_updates.sh ~/public_html/anabot.tar.gz
+
 Prepare anabot recipe (xml) and make it available on http/ftp. There are some
 examples in git.
 
