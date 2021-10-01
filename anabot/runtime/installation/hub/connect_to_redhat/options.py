@@ -186,3 +186,37 @@ def custom_base_url_check(element, app_node, local_node):
     if input_text.text != value:
         return Fail("Present text '%s' doesn't match expectation: '%s'" % (input_text.text, value))
     return PASS
+
+@handle_act('/use_satellite_url')
+def use_satellite_url_handler(element, app_node, local_node):
+
+    checkbox = getnode(local_node, "check box", tr("Satellite URL"))
+    return handle_checkbox(checkbox, element)
+
+@handle_chck('/use_satellite_url')
+@check_action_result
+def use_satellite_url_check(element, app_node, local_node):
+    checkbox = getnode(local_node, "check box", tr("Satellite URL"))
+    return check_checkbox(checkbox, element, 'Satellite URL')
+
+@handle_act('/satellite_url')
+def satellite_url_handler(element, app_node, local_node):
+    value = get_attr(element, 'value')
+    # UGLY HACK
+    checkbox = getnode(local_node, "check box", tr("Satellite URL"))
+    panel = getsibling(checkbox, 1, 'panel', visible=None, sensitive=None)
+    input_text = getnode(panel, 'text')
+    input_text.typeText(value)
+    return PASS
+
+@handle_chck('/satellite_url')
+@check_action_result
+def satellite_url_check(element, app_node, local_node):
+    value = get_attr(element, 'value')
+    # UGLY HACK
+    checkbox = getnode(local_node, "check box", tr("Satellite URL"))
+    panel = getsibling(checkbox, 1, 'panel', visible=None, sensitive=None)
+    input_text = getnode(panel, 'text')
+    if input_text.text != value:
+        return Fail("Present text '%s' doesn't match expectation: '%s'" % (input_text.text, value))
+    return PASS
