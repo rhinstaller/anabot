@@ -18,7 +18,8 @@ watched_files = [
     '/tmp/packaging.log',
     '/tmp/program.log',
     '/tmp/storage.log',
-    '/tmp/syslog',
+# Disable syslog due to issues with Teres Beaker handler
+#    '/tmp/syslog',
 ]
 globfiles = [
     '/tmp/anaconda-tb-*',
