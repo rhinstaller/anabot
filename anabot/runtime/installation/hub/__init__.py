@@ -15,7 +15,7 @@ from anabot.runtime.workarounds import wait_for_line
 from anabot.runtime.translate import tr
 
 # submodules
-from . import connect_to_redhat, datetime, keyboard, partitioning, software_selection, oscap_addon, language, system_purpose, installation_source
+from . import connect_to_redhat, datetime, keyboard, partitioning, software_selection, oscap_addon, language, system_purpose, installation_source, kdump_addon
 
 def _wait_for_depsolve(initial=True):
     if initial and is_distro_version_ge('rhel', 8) and get_variable('interactive_kickstart', '0') == '1':
