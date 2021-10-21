@@ -107,7 +107,7 @@ EOF
     fi
 
     # install restraint harness
-    yum install -y restraint-rhts
+    yum install -y restraint-rhts.$(uname -m)
 
     # create restraint config with task logs offsets
     mkdir -p /var/lib/restraint
