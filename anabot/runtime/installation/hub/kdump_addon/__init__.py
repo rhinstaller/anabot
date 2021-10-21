@@ -7,7 +7,7 @@ from anabot.runtime.decorators import handle_action, handle_check, check_action_
 from anabot.runtime.default import default_handler
 from anabot.runtime.functions import disappeared, getnode, getnode_scroll, getparents
 from anabot.runtime.translate import tr
-from anabot.runtime.actionresult import NotFoundResult as NotFound
+from anabot.runtime.actionresult import NotFoundResult as NotFound, ActionResultFail as Fail
 from anabot.runtime.errors import TimeoutError
 from anabot.runtime.installation.common import done_handler
 
