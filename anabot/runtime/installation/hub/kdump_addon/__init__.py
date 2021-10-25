@@ -47,19 +47,3 @@ def kdump_check(element, app_node, local_node):
         return True
     except TimeoutError:
         return Fail("KDUMP spoke is still visible.")
-
-@handle_act('/enable')
-def kdump_enable_handler(element, app_node, local_node):
-    raise NotImplementedError("Kdump spoke functionality has not been implemented yet.")
-
-@handle_chck('/enable')
-def kdump_enable_check(element, app_node, local_node):
-    return False
-
-@handle_act('/memory_reservation')
-def memory_reservation_handler(element, app_node, local_node):
-    raise NotImplementedError("Kdump spoke functionality has not been implemented yet.")
-
-@handle_chck('/memory_reservation')
-def memory_reservation_check(element, app_node, local_node):
-    return False
