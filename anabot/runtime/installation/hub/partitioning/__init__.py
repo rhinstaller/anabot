@@ -85,6 +85,8 @@ def disk_manipulate(element, app_node, local_node, dryrun):
     # Filter those, that match name attribute
     disks = [disk for disk in disks if fnmatchcase(disk_name(disk), name)]
     logger.debug("Filtered disks: %s", ",".join([disk_name(d) for d in disks]))
+    if not disks:
+        return (False, "No disk with name '%s' is available in GUI." % name)
     for disk in disks:
         if dryrun:
             # report warning
