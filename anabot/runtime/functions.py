@@ -289,7 +289,8 @@ def log_screenshot(wait=None, progress_only=False):
 
     if last_progress_sum != new_sum:
         logger.debug('Sending "progress" screenshot')
-        reporter.send_file(target_path, progress_name)
+        flags = {teres.bkr_handlers.REUPLOAD: True}
+        reporter.send_file(target_path, progress_name, flags=flags)
     if progress_only:
         return
 
