@@ -135,3 +135,12 @@ def has_feature_hub_config():
     if is_distro('rhel') and is_anaconda_version_ge('33.16.3'):
         return True
     return False
+
+def is_liveimg_install():
+    if os.path.exists('/run/install/ks.cfg'):
+        with open('/run/install/ks.cfg', 'r') as ks:
+            for line in ks.readlines():
+                if re.search("\s*liveimg.*\s+--url", line):
+                    return True
+    return False
+
