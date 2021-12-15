@@ -1,6 +1,6 @@
 [submodule "bundled/teres"]
 	path = bundled/teres
-	url = https://github.com/tlamer/teres.git
+	url = https://github.com/rhinstaller/teres.git
 [submodule "modules/animated_progress/pngs2apng"]
 	path = modules/animated_progress/pngs2apng
 	url = https://github.com/pholica/pngs2apng.git
