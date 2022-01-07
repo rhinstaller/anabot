@@ -13,6 +13,7 @@ from anabot.runtime.actionresult import ActionResultPass as Pass
 from anabot.runtime.actionresult import ActionResultFail as Fail
 from anabot.runtime.actionresult import NotFoundResult as NotFound
 from anabot.runtime.asserts import assertLabelEquals as ale
+from anabot.runtime.asserts import assertLabelIn as ali
 from anabot.runtime.asserts import assertTextInputEquals as atie
 from anabot.runtime.asserts import assertPasswordTextInputEquals as aptie
 from anabot.runtime.installation.common import done_handler
@@ -298,7 +299,10 @@ register_phases = [
     "Registering...",
     "Attaching subscription..."
 ]
-registered = "Registered."
+registered = [
+        "Registered.",
+        "Registered to Satellite."
+]
 reg_loop_delay = 5
 
 @handle_act('/wait_until_registered')
@@ -324,7 +328,8 @@ def wait_until_registered_handler(element, app_node, local_node):
         time.sleep(1)
     reporter.log_info("Registration status is: %s" % status_label.name)
     # TODO: probably wait for yum transaction
-    return ale(status_label, tr(registered), "Registration status")
+    tr_registered = [tr(reg_text) for reg_text in registered]
+    return ali(status_label, tr_registered, "Registration status")
 
 @handle_act('/unregister')
 def unregister_handler(element, app_node, local_node):
