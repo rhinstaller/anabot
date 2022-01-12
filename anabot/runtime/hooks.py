@@ -102,6 +102,7 @@ def _run_executable_hook(executable=None, chroot=None, preexec_fn=None):
             if preexec_fn is not None:
                 preexec_fn()
             os.chroot(chroot)
+            os.chdir('/')
         preexec = tmp_preexec
     hook = executable
     os.chmod(executable, stat.S_IEXEC)
