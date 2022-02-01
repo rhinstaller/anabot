@@ -119,6 +119,7 @@ def user_require_passwd_handler(element, app_node, local_node):
     checkbox = getnode(local_node, "check box", tr(strings['require_password'], context="GUI|User"))
     handle_checkbox(checkbox, element)
 
+@handle_chck_hub('/require_password')
 @handle_chck('/require_password')
 def user_require_passwd_check(element, app_node, local_node):
     checkbox = getnode(local_node, "check box", tr(strings['require_password'], context="GUI|User"))
