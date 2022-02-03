@@ -64,8 +64,9 @@ def wait_until_complete_handler(element, app_node, local_node):
         stable_counter = 0
         while stable_counter < 5:
             time.sleep(1)
-            reporter.log_info("Progress value: %r" % progress.value)
-            if progress.value and progress.value >= 1:
+            progress_value = progress.value
+            reporter.log_info("Progress value: %r" % progress_value)
+            if progress_value and progress_value >= 1:
                 stable_counter += 1
             else:
                 stable_counter = 0
