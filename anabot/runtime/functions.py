@@ -21,6 +21,7 @@ import logging
 logger = logging.getLogger('anabot')
 
 import teres
+import teres.bkr_handlers
 reporter = teres.Reporter.get_reporter()
 
 _DEFAULT_TIMEOUT = 7
