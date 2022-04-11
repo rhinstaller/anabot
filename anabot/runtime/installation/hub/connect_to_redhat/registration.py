@@ -38,6 +38,12 @@ def registration_info_panel(local_node):
     sibling_filler = getparent(unreg_button, 'filler')
     return getsibling(sibling_filler, 1, "panel")
 
+handle_act('/account_organization', default_handler)
+@handle_chck('/account_organization')
+def organization_check(element, app_node, local_node):
+    org = get_attr(element, "value")
+    return ale(getnode(local_node, "label", "Organization:.*"), ("Organization: %s" % org), "Organization")
+
 handle_act('/method', default_handler)
 @handle_chck('/method')
 def method_check(element, app_node, local_node):
