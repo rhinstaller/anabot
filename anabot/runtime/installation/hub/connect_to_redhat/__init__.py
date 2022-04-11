@@ -152,6 +152,32 @@ def password_check(element, app_node, local_node):
     # Password input is the first password in the credentials panel
     return aptie(getnode(local_node, 'password text'), value, 'Account')
 
+def combo_str(value):
+    if value is None:
+        return tr('Not Specified')
+    return value
+
+# This defines combo box that appears for user in multiple organizations
+@handle_act('/account_organization')
+def account_organization_combo_handler(element, app_node, local_node):
+    org = combo_str(get_attr(element, 'value'))
+    org_combo = getnodes(local_node, 'combo box')[0]
+    if org_combo.name != org:
+        org_combo.click()
+        combo_window = getnode(app_node, "window")
+        getnode(combo_window, "menu item", org).click()
+    return PASS
+
+@handle_chck('/account_organization')
+@check_action_result
+def account_organization_combo_check(element, app_node, local_node):
+    value = combo_str(get_attr(element, 'value'))
+    combobox = getnodes(local_node, 'combo box')[0]
+    if combobox.name != value:
+        return Fail('Different value was present: "%s". Expected: "%s".' % (combobox.name, value))
+    return PASS
+
+# This is for registation using an Activation Key
 def rhsm_activation_panel(local_node):
     # DIRTY HACK
     # Panel with organization and activation key is the second one before 'Authentication' label
@@ -217,11 +243,6 @@ def system_purpose_check(element, app_node, local_node):
     if set_purpose is not None and checkbox.checked != (set_purpose == 'yes'):
         return Fail('"Set System Purpose" checkbox is not in desired state.')
     return PASS
-
-def combo_str(value):
-    if value is None:
-        return tr('Not Specified')
-    return value
 
 def purpose_combo_handler(element, app_node, local_node, index, name):
     role = combo_str(get_attr(element, 'value'))
