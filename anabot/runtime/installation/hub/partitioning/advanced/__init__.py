@@ -43,7 +43,7 @@ def __initialize_toggles(devices_node):
 def check_partitioning_error(app_node):
     try:
         error_bar = getnode(app_node, "info bar", tr("Error"))
-        warn_icon = getnode(error_bar, "icon", tr("Warnings"))
+        warn_icon = getnode(error_bar, "icon", tr("Warning"))
         warn_text = getsibling(warn_icon, 1, "label")
         return (False, warn_text.text)
     except TimeoutError:
