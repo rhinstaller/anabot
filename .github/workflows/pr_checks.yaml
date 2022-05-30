@@ -1,0 +1,85 @@
+name: Pull request checks
+
+on:
+  pull_request:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  centos7:
+    runs-on: ubuntu-latest
+    container:
+      image: quay.io/centos/centos:centos7
+      env:
+        PYLINT: pylint-2
+    steps:
+      - name: Enable EPEL and install pylint and dependencies
+        run: |
+          yum install -y epel-release
+          yum install -y python2-pylint libxml2-python git
+
+      - name: Checkout change
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+          path: anabot
+
+      - name: Build base test
+        run: |
+          pushd $GITHUB_WORKSPACE/anabot/tests
+          ./run_suite.sh
+          popd
+
+  centos_stream8:
+    runs-on: ubuntu-latest
+    container:
+      image: quay.io/centos/centos:stream8
+      env:
+        PYLINT: pylint-3
+    steps:
+      - name: Enable EPEL and install pylint and dependencies
+        run: |
+          dnf config-manager --set-enabled powertools
+          dnf install -y epel-release epel-next-release
+          dnf install -y python3-pylint python3-libxml2 git
+
+      - name: Checkout change
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+          path: anabot
+
+      - name: Build base test
+        run: |
+          pushd $GITHUB_WORKSPACE/anabot/tests
+          ./run_suite.sh
+          popd
+
+  centos_stream9:
+    runs-on: ubuntu-latest
+    container:
+      image: quay.io/centos/centos:stream9
+      env:
+        PYLINT: pylint-3
+    steps:
+      - name: Enable EPEL and install pylint
+        run: |
+          dnf install -y 'dnf-command(config-manager)'
+          dnf config-manager --set-enabled crb
+          dnf install -y epel-release epel-next-release
+          dnf install -y python3-pylint python3-libxml2 git
+
+      - name: Checkout change
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+          path: anabot
+
+      - name: Build base test
+        run: |
+          pushd $GITHUB_WORKSPACE/anabot/tests
+          ./run_suite.sh
+          popd
