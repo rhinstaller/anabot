@@ -1,0 +1,50 @@
+name: Deploy push
+
+on: push
+
+permissions:
+  contents: read
+
+jobs:
+  secrets-check:
+    name: Check if some secrets are set
+    runs-on: ubuntu-latest
+    outputs:
+      push_ftp_url_available: ${{ steps.push_ftp_check.outputs.push_ftp_url_available }}
+    steps:
+      - name: Check if PUSH_FTP_URL is set
+        id: push_ftp_check
+        run: |
+            echo "::set-output name=push_ftp_url_available::${{ secrets.PUSH_FTP_URL != '' }}"
+
+  deploy-image:
+    needs: [secrets-check]
+    runs-on: [self-hosted, kstest]
+    if: needs.secrets-check.outputs.push_ftp_url_available == 'true'
+    steps:
+      - name: Checkout change
+        uses: actions/checkout@v3
+        with:
+          path: anabot
+
+      - name: start container
+        run:
+          podman run --name anabot --rm -it --detach -v $GITHUB_WORKSPACE:/root/workspace:rw,Z quay.io/centos/centos:stream9 sleep 300
+
+      - name: install dependencies needed for build and push
+        run: |
+          podman exec -it anabot dnf -y install tar gzip lftp
+
+      - name: build image
+        run: |
+          podman exec -it -w /root/workspace/anabot -e BEAKER_HUB_HOSTNAME="${{ secrets.BEAKER_HUB_HOSTNAME }}" anabot ./make_updates.sh ../anabot-${{ github.ref_name }}-${{ github.ref_name }}.tar.gz
+
+      - name: publish image
+        run: |
+          podman exec -it -w /root/workspace anabot lftp -e "put anabot-${{ github.ref_name }}-${{ github.ref_name }}.tar.gz; exit" ${{ secrets.PUSH_FTP_URL }} &> /dev/null
+
+      - name: cleanup container
+        if: always()
+        run: |
+          podman kill anabot
+          podman image rm quay.io/centos/centos:stream9
