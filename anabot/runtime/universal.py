@@ -41,7 +41,7 @@ def script_handler(element, app_node, local_node):
     if log_name is not None:
         log_name = "script-%s.log" % log_name
         log_path = os.path.join('/var/run/anabot', log_name)
-        log_file = file(log_path, 'w')
+        log_file = open(log_path, 'w')
         logger.debug('Going to log script output in file named: %s', log_name)
         stdout = log_file
         stderr = subprocess.STDOUT
