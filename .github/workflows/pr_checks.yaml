@@ -10,6 +10,8 @@ permissions:
 
 jobs:
   centos7:
+    # git >= 2.18 is needed for submodules checkout, disable for now
+    if: false
     runs-on: ubuntu-latest
     container:
       image: quay.io/centos/centos:centos7
