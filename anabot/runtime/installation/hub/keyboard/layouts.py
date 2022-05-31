@@ -105,6 +105,7 @@ def layout_name(intext, default=None):
     return Layouts.get_instance().get(intext, default)
 
 def layout_id(outtext, default=None):
+    # pylint: disable=E1133
     for layout_id, layout_name in Layouts.get_instance():
         if layout_name == outtext:
             return layout_id
