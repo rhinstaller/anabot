@@ -214,6 +214,7 @@ def layout_handler(element, app_node, local_node):
     global __last_selected_layout
     name_pattern = get_attr(element, "name")
     matched = False
+    # pylint: disable=E1133
     for layout_id, layout_name in Layouts.get_instance():
         if not fnmatch.fnmatchcase(layout_id, name_pattern):
             continue
@@ -244,6 +245,7 @@ def layout_check(element, app_node, local_node):
     name_pattern = get_attr(element, "name")
     matched = False
     logger.debug("Removed layouts: %s", __removed_layouts)
+    # pylint: disable=E1133
     for layout_id, layout_name in Layouts.get_instance():
         if not fnmatch.fnmatchcase(layout_id, name_pattern):
             continue
