@@ -369,7 +369,7 @@ def change_content_fetch_check(element, app_node, local_node):
                         "in info bar (%s)" % (error_label.text, error),
             "inconsistent_messages")
 
-        for msg, fail_type in FAIL_MSG.iteritems():
+        for msg, fail_type in FAIL_MSG.items():
             if re.match(msg, six.u(error)):
                 break
         else:
