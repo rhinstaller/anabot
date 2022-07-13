@@ -1,5 +1,5 @@
 [Unit]
-Description=Anaconda 
+Description=Anabot
 #After=anaconda-direct.service
 # copied from anaconda-direct
 ConditionArchitecture=|s390
