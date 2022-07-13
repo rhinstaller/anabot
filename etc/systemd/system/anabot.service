@@ -1,5 +1,5 @@
 [Unit]
-Description=Anaconda 
+Description=Anabot
 After=anaconda.service
 ConditionArchitecture=!s390
 ConditionArchitecture=!s390x
