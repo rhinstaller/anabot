@@ -16,15 +16,18 @@ from anabot.variables import set_variable
 
 _local_path = '/installation/hub/partitioning/luks_dialog'
 _local_advanced_path = '/installation/hub/partitioning/advanced/luks_dialog'
+_hub_path = '/installation/hub/luks_dialog'
 def handle_act(path):
     def decorator(func):
         handle_action(_local_path + path, func)
+        handle_action(_hub_path + path, func)
         return handle_action(_local_advanced_path + path, func)
     return decorator
 
 def handle_chck(path):
     def decorator(func):
         handle_check(_local_path + path, func)
+        handle_check(_hub_path + path, func)
         return handle_check(_local_advanced_path + path, func)
     return decorator
 
