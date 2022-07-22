@@ -60,7 +60,9 @@ def base_handler(element, app_node, local_node):
 
     spoke_selector.click()
     try:
-        spoke_label = getnode(app_node, "label", tr("SOFTWARE SELECTION"))
+        # Wait for up to 5 minutes -- when using CDN as installation source, it can take quite
+        # a long time for group metadat download to complete
+        spoke_label = getnode(app_node, "label", tr("SOFTWARE SELECTION"), 5*60)
         local_node = getparent(spoke_label, "filler")
     except TimeoutError:
         return (False, 'Couldn\'t find software selection spoke.')
