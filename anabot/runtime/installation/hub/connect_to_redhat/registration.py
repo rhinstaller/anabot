@@ -19,7 +19,7 @@ handle_chck = make_prefixed_handle_check(_local_path)
 PASS = Pass()
 
 def unregister_button(local_node):
-    return getnode(local_node, "push button", tr("_Unregister", context="GUI|subscription|Unregister"))
+    return getnode(local_node, "push button", tr("_Unregister", context="GUI|subscription|Unregister"), 60)
 
 @handle_act('')
 def base_handler(element, app_node, local_node):
