@@ -11,6 +11,9 @@ handle_chck = make_prefixed_handle_check(_local_path)
 def language_handler(element, app_node, local_node):
     lang = get_attr(element, "value")
     gui_lang_search = getnode(local_node, node_type="text")
+    # the whole application seems to be out of focus under some unknown circumstances, so clicking
+    # into the input field first ensures that the text will be entered properly
+    gui_lang_search.click()
     gui_lang_search.typeText(lang)
     gui_lang = getnode(local_node, "table cell", lang)
     gui_lang.click()
