@@ -18,7 +18,7 @@ from anabot.runtime.actionresult import ActionResultPass as Pass, ActionResultFa
 from anabot.runtime.installation.common import done_handler
 
 # submodules
-from . import advanced, luks_dialog
+from . import advanced, luks_dialog, specialized_disks
 
 _local_path = '/installation/hub/partitioning'
 def handle_act(path, *args, **kwargs):
@@ -114,6 +114,29 @@ def disk_handler(element, app_node, local_node):
 @handle_chck('/disk')
 def disk_check(element, app_node, local_node):
     return disk_manipulate(element, app_node, local_node, True)
+
+def add_specialized_disk_manipulate(element, app_node, local_node, dryrun):
+    try:
+        add_button = getnode(local_node, "push button", tr("Add Specialized Disk"))
+    except TimeoutError:
+        return NotFound("clickable button for adding specialized / network disks")
+    if not dryrun:
+        add_button.click()
+        try:
+            tab = getnode(app_node, "page tab", tr("Searc_h", context="GUI|Installation Destination|Filter"))
+            spec_disk_panel = getparent(tab, "panel")
+        except TimeoutError:
+            return NotFound("specialized disk page tab or panel")
+        default_handler(element, app_node, spec_disk_panel)
+    return Pass()
+
+@handle_act('/add_specialized_disk')
+def add_specialized_disk_handler(element, app_node, local_node):
+    add_specialized_disk_manipulate(element, app_node, local_node, False)
+
+@handle_chck('/add_specialized_disk')
+def add_specialized_disk_check(element, app_node, local_node):
+    return add_specialized_disk_manipulate(element, app_node, local_node, True)
 
 # RHEL-7
 def mode_manipulate(element, app_node, local_node, dryrun):
