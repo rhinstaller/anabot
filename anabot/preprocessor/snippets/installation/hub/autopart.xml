@@ -1,4 +1,8 @@
 <partitioning>
+  <add_specialized_disk>
+    <select name="*" />
+    <done />
+  </add_specialized_disk>
   <disk name="*" action="select" />
   <mode mode="automatic" />
   <additional_space action="enable" />

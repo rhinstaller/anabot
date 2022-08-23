@@ -10,6 +10,7 @@ from anabot.runtime.functions import get_attr, getnode, getnodes, getsibling
 from anabot.runtime.errors import TimeoutError
 from anabot.runtime.translate import tr
 from anabot.runtime.actionresult import NotFoundResult as NotFound, ActionResultPass as Pass, ActionResultFail as Fail
+from anabot.variables import set_variable
 
 _local_path = '/installation/hub/partitioning/add_specialized_disk'
 def handle_act(path, *args, **kwargs):
@@ -43,6 +44,10 @@ def select_manipulate(element, app_node, local_node, dryrun):
         for c in cells[1::column_count]
         if fnmatchcase(c.name, name)
     ]
+    # we need to know if there are any specialized disks to also select all
+    # of the regular disks by default in such a case - see RTT-4385
+    if len(name_cells):
+        set_variable('specialized_disks_present', '1')
     checkbox_cells = [
         getsibling(c, -1, "table cell")
         for c in name_cells
