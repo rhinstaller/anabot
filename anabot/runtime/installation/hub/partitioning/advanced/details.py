@@ -339,7 +339,7 @@ def vg_devices(element, app_node, local_node):
 #    pass
 
 @handle_vg_act('/raid')
-def vg_raid(element, app_node, local_node):
+def vg_raid_act(element, app_node, local_node):
     raid_level = raid_name(get_attr(element, "select"))
     raid_label = getnode(local_node, "label", tr("RAID Level:"))
     raid_combo = getsibling(raid_label, 1, "combo box")
@@ -347,6 +347,16 @@ def vg_raid(element, app_node, local_node):
     combo_selection = getnode(app_node, "window")
     combo_target = getnode(combo_selection, "menu item", raid_level)
     combo_target.click()
+
+@handle_vg_chck('/raid')
+def vg_raid_check(element, app_node, local_node):
+    raid_level = raid_name(get_attr(element, "select"))
+    raid_label = getnode(local_node, "label", tr("RAID Level:"))
+    raid_combo = getsibling(raid_label, 1, "combo box")
+    if raid_combo.name == raid_level:
+        return Pass()
+    return Fail("Selected RAID level '%s' doesn't match expected level '%s'" %
+        (raid_combo.name, raid_label))
 
 @handle_vg_act('/encrypt')
 def vg_encrypt(element, app_node, local_node):
