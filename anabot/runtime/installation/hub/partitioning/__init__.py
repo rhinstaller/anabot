@@ -9,13 +9,15 @@ from fnmatch import fnmatchcase
 from anabot.conditions import is_distro_version, is_distro_version_ge
 from anabot.runtime.decorators import handle_action, handle_check, check_action_result
 from anabot.runtime.default import default_handler, action_result
-from anabot.runtime.functions import get_attr, getnode, getnodes, getnode_scroll, scrollto, getparent
+from anabot.runtime.functions import get_attr, getnode, getnodes, getnode_scroll, scrollto, getparent, getsibling
 from anabot.runtime.errors import NonexistentError, TimeoutError
 from anabot.runtime.translate import tr
 from anabot.variables import get_variable
 from anabot.runtime.actionresult import NotFoundResult as NotFound
 from anabot.runtime.actionresult import ActionResultPass as Pass, ActionResultFail as Fail
 from anabot.runtime.installation.common import done_handler
+from anabot.runtime.errors import TimeoutError
+from anabot.runtime.actionresult import NotFoundResult as NotFound
 
 # submodules
 from . import advanced, luks_dialog, specialized_disks
@@ -67,7 +69,12 @@ def disk_manipulate(element, app_node, local_node, dryrun):
         return node.children[0].children[3].text
     name = get_attr(element, "name")
     action = get_attr(element, "action", "select")
-    disks = getnodes(local_node, node_type="disk overview", visible=None)
+    try:
+        local_disks_label = getnode(local_node, "label", tr("Local Standard Disks"))
+        disks_pane = getsibling(local_disks_label, 1, "scroll pane")
+        disks = getnodes(disks_pane, node_type="disk overview", visible=None)
+    except TimeoutError:
+        return NotFound("'Local Standard Disks' label, disks scroll pane or disk overview")
     # Expected behaviour is, that when there is only one disk, it's selected.
     # When there are more disks, they are not selected.
     # This doesn't apply for interactive kickstart installation where all
@@ -76,7 +83,8 @@ def disk_manipulate(element, app_node, local_node, dryrun):
     if len(__disk_selection) == 0:
         d_names = [disk_name(d) for d in disks]
         logger.debug("Found disks: %s", ",".join(d_names))
-        if len(d_names) == 1 or get_variable('interactive_kickstart', '0') == '1':
+        if len(d_names) == 1 and get_variable('specialized_disks_present', '0') == '0' \
+        or get_variable('interactive_kickstart', '0') == '1':
             for d_name in d_names:
                 __disk_selection[d_name] = True
         else:
