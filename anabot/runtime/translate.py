@@ -5,6 +5,7 @@ import six
 import gettext
 import langtable # pylint: disable=import-error
 from .comps import get_comps
+import logging
 __translate = None
 __translate_keyboard = None
 __translate_lang = None
@@ -14,6 +15,7 @@ __oscap_translate = None
 __gtk_translate = None
 __locality = None
 __locality_re = re.compile(r"(?P<lang>[^(]*) (?:\((?P<loc>[^)]*)\))?")
+logger = logging.getLogger('anabot')
 
 def active_languages():
     return __languages
@@ -21,7 +23,18 @@ def active_languages():
 def set_languages_by_name(locality):
     match = __locality_re.match(locality)
     lang = match.group("lang")
-    set_languages([langtable.languageId(locality),
+    locality_language_id = langtable.languageId(locality)
+
+    # Chinese language id is reported as zh_XXXX_YY, but for the translation we can only use zh_YY (e. g. zh_CN)
+    chinese = re.match("(zh).*(..)", locality_language_id)
+    if chinese:
+        updated_locality_language_id = "_".join(chinese.groups())
+        logger.info("Chinese was selected, using '%s' instead of '%s." %
+            (updated_locality_language_id, locality_language_id)
+        )
+        locality_language_id = updated_locality_language_id
+
+    set_languages([locality_language_id,
                    langtable.languageId(lang),
                    "en"])
 
