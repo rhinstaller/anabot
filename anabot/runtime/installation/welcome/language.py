@@ -1,5 +1,5 @@
 from anabot.runtime.decorators import make_prefixed_handle_action, make_prefixed_handle_check
-from anabot.runtime.functions import getnode, get_attr
+from anabot.runtime.functions import getnode, get_attr, clear_text
 from anabot.conditions import is_distro_version, is_distro_version_ge
 from .common import set_language
 
@@ -14,6 +14,7 @@ def language_handler(element, app_node, local_node):
     # the whole application seems to be out of focus under some unknown circumstances, so clicking
     # into the input field first ensures that the text will be entered properly
     gui_lang_search.click()
+    clear_text(gui_lang_search)
     gui_lang_search.typeText(lang)
     gui_lang = getnode(local_node, "table cell", lang)
     gui_lang.click()
