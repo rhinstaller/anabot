@@ -26,19 +26,9 @@ handle_chck = lambda x: handle_check(_local_path + x)
 _chosen_profile = None
 _selected_profile = None
 
-# Temporary workaround for broken translation of the Security Policy
-# spoke selector (historically there were many untranslated strings
-# in OSCAP addon). The dummy function must be replaced
-# with oscap_tr once the translation is fixed. Also see BZ1602043.
-def dummy_oscap_tr(intext, drop_underscore=True):
-    if drop_underscore:
-        return intext.replace("_", "")
-    else:
-        return intext
-
-SPOKE_SELECTOR="Security Profile"
+SPOKE_SELECTOR="_Security Profile"
 if is_distro_version('rhel', 8):
-    SPOKE_SELECTOR="Security Policy"
+    SPOKE_SELECTOR="_Security Policy"
 if is_distro_version('rhel', 7):
     SPOKE_SELECTOR="SECURITY POLICY"
 
@@ -52,7 +42,7 @@ OSCAP_SPOKE_NF = NotFound("OSCAP addon panel", "spoke_not_found")
 def base_handler(element, app_node, local_node):
     try:
         oscap_addon = getnode_scroll(app_node, "spoke selector",
-                                     dummy_oscap_tr(SPOKE_SELECTOR))
+                                     oscap_tr(SPOKE_SELECTOR))
         oscap_addon.click()
     except TimeoutError:
         return SPOKE_SELECTOR_NF
@@ -94,7 +84,7 @@ def base_check(element, app_node, local_node):
 
     try:
         oscap_addon_selector = getnode_scroll(app_node, "spoke selector",
-                                              dummy_oscap_tr(SPOKE_SELECTOR))
+                                              oscap_tr(SPOKE_SELECTOR))
     except TimeoutError:
         return SPOKE_SELECTOR_NF
     try:
@@ -246,7 +236,7 @@ def change_content_manipulate(element, app_node, local_node, dryrun):
     except TimeoutError:
         if dryrun:
             try:
-                getnode_scroll(app_node, "spoke selector", dummy_oscap_tr("SECURITY POLICY"))
+                getnode_scroll(app_node, "spoke selector", oscap_tr("SECURITY POLICY"))
                 logger.info("Detected that hub is active.")
                 return Pass()
             except TimeoutError:
@@ -644,7 +634,7 @@ def done_handler_wrap(element, app_node, local_node):
 @check_action_result
 def done_check(element, app_node, local_node):
     try:
-        getnode_scroll(app_node, "spoke selector", dummy_oscap_tr(SPOKE_SELECTOR))
+        getnode_scroll(app_node, "spoke selector", oscap_tr(SPOKE_SELECTOR))
     except TimeoutError:
         return SPOKE_SELECTOR_NF
     return Pass()
