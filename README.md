@@ -48,3 +48,9 @@ There's also `TARGET_BRANCH` for pull requests where `TARGET_BRANCH` specifies t
 installation is complete. This may be required for other tests to run after
 anabot task is complete. Beakerlib is installed, if the value is not equal 0.
 Default is 0.
+
+Documentation
+-------------
+The documentation is located in [`/doc`](./doc) directory and is created using python-sphinx. You can generate the documentation in HTML format running command:
+
+    $ cd doc && make html
