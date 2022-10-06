@@ -1,0 +1,303 @@
+==========
+Anabot 101
+==========
+
+.. role:: xml(code)
+   :language: xml
+
+.. highlight:: xml
+
+.. toctree::
+   :maxdepth: 1
+
+What is anabot
+==============
+Anabot is framework for automated GUI testing. It takes xml recipe with
+instructions what actions should be taken step-by-step and how the results
+of the actions should be interpreted.
+
+Some XML basics
+===============
+
+.. _DFS: https://en.wikipedia.org/wiki/Depth-first_search
+
+XML is text format for encoding tree structure. The XML document always has
+root element, which can contain attributes, elements and/or text content.
+
+.. code-block:: xml
+
+  <hello>
+    <!-- comment here -->
+    <world really="yes" />
+    <world really="no" />
+    <message>Life is great!</message>
+  </hello>
+
+Here's a tree representation of the XML with names used in XML terminology
+in parentheses.
+
+.. code-block:: text
+
+  hello (element)
+   |- "comment here" (comment)
+   |- world (element)
+   |  `- really="yes" (attribute)
+   |- world (element)
+   |  `- really="no" (attribute)
+   `- message (element)
+      `- "Life is great!" (text content)
+
+There's another term used in XML: "tag" which is used for the name of the
+element. In mentioned case, there are 3 tags: "hello", "world" and "message",
+but there are 4 elements.
+
+Comments are ignored while processing XML and are meant solely for people.
+
+There are several ways how to process XML document. The one used in anabot is
+`DFS`_. In layman's terms, the XML document is processed sequentially
+in the order from beginning to the end of the recipe.
+
+All elements have their beginning and end. The element begins with
+e.g. `<hello>` and ends with `</hello>`. If the element has no content
+(meaning no element or text content), there's shortcut for `<world></world>`
+which is: `<world />` or `<world/>`. Element only with attributes is shown in
+the example above.
+
+Anabot recipe example
+=====================
+
+Recipe
+------
+
+Following example is default installation in anaconda using autopart:
+
+.. code-block:: xml
+
+  <?xml version="1.0"?>
+  <installation>
+    <welcome>
+      <continue />
+      <beta_dialog policy="should_fail" />
+    </welcome>
+    <hub>
+      <partitioning>
+        <disk name="*" action="select" />
+        <mode mode="automatic" />
+        <additional_space action="enable" />
+        <done />
+        <reclaim>
+          <delete_all />
+        </reclaim>
+      </partitioning>
+      <begin_installation />
+    </hub>
+    <configuration>
+      <root_password>
+        <password value="fo0m4nchU1" />
+        <confirm_password value="fo0m4nchU1" />
+        <done />
+      </root_password>
+      <wait_until_complete />
+      <reboot />
+    </configuration>
+  </installation>
+
+
+Commented recipe
+----------------
+
+The same recipe with comments describing what is anabot instructed to do:
+
+.. code-block:: xml
+
+  <?xml version="1.0"?>
+  <installation> <!-- root element - entry point, initialization -->
+    <welcome> <!-- expect welcome dialog to be present -->
+      <continue /> <!-- click continue button -->
+      <beta_dialog policy="should_fail" />
+      <!--
+        Wait for beta dialog to show up. Expect that there is no beta dialog,
+        but in case if it's shown, accept it (default dialog action) and report
+        unexpected state.
+      -->
+    </welcome> <!-- leaving welcome screen, wait for it to diappear -->
+    <hub> <!-- expect anaconda hub screen -->
+      <partitioning> <!--
+          enter partitioning spoke (click on "Installation destination" spoke
+          selector) and wait for partitioning spoke to appear.
+        -->
+        <disk name="*" action="select" /> <!-- select all unselected disks -->
+        <mode mode="automatic" /> <!--
+          click on "Automatically configure partitioning" radio button
+          if not already selected
+        -->
+        <additional_space action="enable" /> <!--
+          enable "I would like to make additional space available" checkbox
+          if not enabled.
+        -->
+        <done /> <!-- click on done button -->
+        <reclaim> <!--
+            wait for reclaim space dialog to show up and once all actions are
+            taken in the dialog (e.g. following delete_all), accept it (default)
+          -->
+          <delete_all /> <!-- click on "Delete all" button -->
+        </reclaim> <!--
+          All of the reclaim dialog actions has been processed, so accept it,
+          and wait for the reclaim dialog to disappear.
+        -->
+      </partitioning> <!--
+        leaving partitioning spoke, wait for it to disappear
+      -->
+      <begin_installation /> <!-- click on "Begin installation" button -->
+    </hub> <!-- leaving hub screen, wait for it to disappear -->
+    <configuration> <!-- expect configuration screen -->
+      <root_password> <!--
+          enter root password spoke (same way as in case of paritioning)
+        -->
+        <password value="fo0m4nchU1" /> <!--
+          type text into "password" input and expect that corresponding number
+          of "black circles" is shown.
+        -->
+        <confirm_password value="fo0m4nchU1" /> <!--
+          the same as in password
+        -->
+        <done /> <!-- click on done button -->
+      </root_password> <!--
+        leaving root password spoke, wait for it to disappear
+      -->
+      <wait_until_complete /> <!--
+        This element doesn't denote any action to be taken except waiting
+        for the progress bar to finish (and stay stable, since it can jump
+        again to beginning due to "additional configuration" progress).
+      -->
+      <reboot /> <!--
+        Click on reboot button.
+
+        This one is very special, since it's needed to send final logs and
+        overall result report to beaker, fix bootorder and other "post script"
+        stuff. This is actually done just before actually clicking on the
+        reboot button, and nothing is reported from that point.
+      -->
+    </configuration> <!--
+      In case of anaconda, system is being rebooted at this point, so
+      no action/check can be taken.
+    -->
+  </installation>
+
+General rules
+-------------
+
+The general rules for recipe processing are:
+ * Element denotes action to be taken and checks that the result matches
+   expectations. (There are some elements that only check state, e.g. content
+   of some message.)
+ * When there are more actions that could be done with corresponding GUI
+   element, the action is specified by attribute.
+ * radio button has default action "select"
+ * checkbox has default action "enable"
+ * dialog has default action "accept"
+
+policy attribute
+================
+
+For purposes of testing, there is also need to specify, if the requested
+action should succeed, fail or if no action should be taken and only state
+should be checked. For this purpose, each element has policy attribute.
+
+When processing the element, we need to define following terms:
+ * `action` - The action that is done in the GUI
+ * `desired state` - State of the GUI after the action
+
+Possible values of policy attribute are:
+ * should_pass (default)
+    `action` is successful resulting in `desired state`
+ * should_fail
+    `action` is unsuccessful or doesn't result in `desired state`
+ * may_fail
+    Try to perform `action` and don't care about `desired state` or the action
+    itself.
+ * just_check
+    No `action` is performed, only check the `desired state`
+ * just_check_fail
+    No `action` is performed, only check that GUI is not in `desired state`
+
+Examples
+--------
+
+For example, in case of :xml:`<checkbox action="enable" />` on "unchecked"
+and "clickable" (not greyed-out) checkbox:
+ * `action` - clicking on the checkbox
+ * `desired state` - checkbox is "checked"
+
+In this case (action="enable"), checkbox that is already checked is not
+clicked on because it's already in `desired state`. Clicking on it would make
+the checkbox not checked which wasn't requested.
+
+Another example is: :xml:`<checkbox action="disable" policy="just_check" />`:
+ * `action` is not performed, see `policy="just_check"`
+ * `desired state` - checkbox is not "checked", see `action="disable"`
+
+Examples of `actions`:
+ * click on button
+ * enter spoke
+ * type text into input field
+
+Examples of unsuccessful `actions`:
+ * button/checkbox/anything is not found, or not visible
+ * button/checkbox/anything is not clickable (greyed-out)
+ * button/checkbox/anything is behind dialog which blocks interaction
+
+Examples of `desired state`:
+ * specified text is present in input field
+ * checkbox is checked
+ * radio button is selected
+ * specified combo box value is selected
+ * spoke is not present (this is desired state because all actions were
+   performed in the spoke including pushing done button)
+ * dialog is not present (this is desired state because the dialog should have
+   been accepted or rejected)
+
+.. _result-report:
+
+
+Additional attributes
+=====================
+Additional attributes, that are not known by anabot are not processed and
+are silently ignored. This may change in future, but for now, they are
+just ignored. There are special attributes starting with underscore which can
+be added by anabot and is meant as additional information required for
+debugging/reporting.
+
+
+Result report
+=============
+
+The overall result of anabot test is one of:
+ * `WARN` - something went wrong in anabot, result of test is most
+   probably invalid, anabot (recipe or beaker job) needs to be fixed.
+ * `FAIL` - anabot found some discrepancy while processing the recipe
+ * `PASS` - everything went according to the instructions given in the recipe
+
+There are numerous situations when anabot can end in `WARN` state. Here is
+list of possible situations that could have happend and actions you should
+take. If the description doesn't match your situation, please contact anabot
+developer.
+
+ * pane is dead
+    Anaconda crashed, look for anaconda logs
+ * :code:`Processing: /installation` not present in `testout.log`
+    Anaconda started in text mode.
+ * :code:`Unhandled element:` in `testout.log`
+    Anabot recipe contains unknown element, or there's some missing code in
+    anabot.
+ * :code:`Unhandled check for element::` in `testout.log`
+    Anabot recipe contains unknown element with `policy=just_check` or
+    `policy=just_check_fail` or there's some missing code in anabot.
+ * :code:`Check didn't return any result for:` in `testout.log`
+    Some code is wrong in anabot.
+ * :code:`Hook raised exception:` in `testout.log`:
+    Some code is wrong in anabot.
+ * There's `traceback.dump` and/or `traceback.log` file
+    Some traceback occured in anabot itself. This may be caused by some old
+    code not expecting some situation in the GUI and crashes. In such case,
+    the test result is most probably FAIL and also anabot needs to be fixed.
