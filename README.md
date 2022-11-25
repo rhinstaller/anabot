@@ -51,6 +51,5 @@ Default is 0.
 
 Documentation
 -------------
-The documentation is located in [`/doc`](./doc) directory and is created using python-sphinx. You can generate the documentation in HTML format running command:
+The documentation can be found at https://anabot.readthedocs.io.
 
-    $ cd doc && make html
