@@ -5,7 +5,8 @@ logger = logging.getLogger('anabot')
 from anabot.conditions import is_distro_version
 from anabot.runtime.decorators import handle_action, handle_check, check_action_result
 from anabot.runtime.default import default_handler, action_result
-from anabot.runtime.functions import get_attr, getnode, getparent, getsibling, clear_text
+from anabot.runtime.functions import get_attr, getnode, getparent, getsibling, clear_text, handle_checkbox, \
+    check_checkbox
 from anabot.runtime.errors import TimeoutError, NonexistentError
 from anabot.runtime.translate import tr, gtk_tr
 from anabot.runtime.hooks import run_posthooks
@@ -128,3 +129,15 @@ handle_act_hub('/done')(done_handler)
 @check_action_result
 def root_password_done_check(element, app_node, local_node):
     return check_rootpw_error(local_node)
+
+
+@handle_act_hub('/lock_root_account')
+def lock_root_account_handler(element, app_node, local_node):
+    checkbox = getnode(local_node, "check box", tr("Lock root account", context="GUI|Root Password|Lock root account"))
+    handle_checkbox(checkbox, element)
+
+@handle_chck_hub('/lock_root_account')
+@check_action_result
+def lock_root_account_check(element, app_node, local_node):
+    checkbox = getnode(local_node, "check box", tr("Lock root account", context="GUI|Root Password|Lock root account"))
+    return check_checkbox(checkbox, element, "Lock root account")
