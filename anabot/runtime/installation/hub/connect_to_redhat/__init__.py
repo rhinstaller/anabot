@@ -324,7 +324,7 @@ registered = [
         "Registered.",
         "Registered to Satellite."
 ]
-reg_loop_delay = 20
+reg_loop_delay = 30
 
 @handle_act('/wait_until_registered')
 def wait_until_registered_handler(element, app_node, local_node):
