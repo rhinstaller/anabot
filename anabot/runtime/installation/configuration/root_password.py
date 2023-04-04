@@ -141,3 +141,20 @@ def lock_root_account_handler(element, app_node, local_node):
 def lock_root_account_check(element, app_node, local_node):
     checkbox = getnode(local_node, "check box", tr("Lock root account", context="GUI|Root Password|Lock root account"))
     return check_checkbox(checkbox, element, "Lock root account")
+
+@handle_act_hub('/allow_root_ssh_login_with_password')
+def allow_root_ssh_login_with_password_handler(element, app_node, local_node):
+    checkbox = getnode(local_node,
+                       "check box",
+                       tr("Allow root SSH login with password",
+                          context="GUI|Root Password|Allow root SSH login with password"))
+    handle_checkbox(checkbox, element)
+
+@handle_chck_hub('/allow_root_ssh_login_with_password')
+@check_action_result
+def allow_root_ssh_login_with_password_check(element, app_node, local_node):
+    checkbox = getnode(local_node,
+                       "check box",
+                       tr("Allow root SSH login with password",
+                          context="GUI|Root Password|Allow root SSH login with password"))
+    return check_checkbox(checkbox, element, "Lock root account")
