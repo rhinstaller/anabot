@@ -11,7 +11,10 @@ def schema_name(schema=None):
         'lvm thinp' : tr("LVM Thin Provisioning")
     }
     if schema is not None:
-        return SCHEMAS[schema]
+        try:
+            return SCHEMAS[schema]
+        except KeyError as exc:
+            raise ValueError(f"Unsupported schema name: '{schema}'") from exc
     return SCHEMAS.values()
 
 def raid_name(raid_level=None, drop_span=True):
