@@ -93,7 +93,10 @@ def schema_manipulate(element, app_node, local_node, check):
     if check:
         if schema_node.name == schema_name(schema):
             return True
-        return (False, u"Different schema is set: %s" % schema_node.name)
+        return (
+            False,
+            u"Schema '%s' not found, different schema is set: %s" % (schema, schema_node.name)
+        )
     # Select new schema
     schema_node.click()
     try:
@@ -101,7 +104,7 @@ def schema_manipulate(element, app_node, local_node, check):
     except TimeoutError:
         # If schema name is valid but not found in the dropdown menu (e.g.
         # 'btfrs' in RHEL), getnode raises TimeoutError.
-        pass
+        return (False, "Schema '%s' not found" % schema_node.name)
 
 
 @handle_act('/schema')
