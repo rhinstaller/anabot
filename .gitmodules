@@ -3,7 +3,7 @@
 	url = https://github.com/rhinstaller/teres.git
 [submodule "modules/animated_progress/pngs2apng"]
 	path = modules/animated_progress/pngs2apng
-	url = https://github.com/pholica/pngs2apng.git
+	url = https://github.com/rhinstaller/pngs2apng.git
 [submodule "bundled/dogtail"]
 	path = bundled/dogtail
 	url = https://gitlab.com/dogtail/dogtail.git
