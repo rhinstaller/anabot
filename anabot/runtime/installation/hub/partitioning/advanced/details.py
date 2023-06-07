@@ -11,7 +11,7 @@ from fnmatch import fnmatchcase
 from anabot.conditions import is_distro_version_ge
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.default import default_handler
-from anabot.runtime.functions import get_attr, getnode, getnodes, getparent, getparents, getsibling, hold_key, release_key, clear_text
+from anabot.runtime.functions import get_attr, getnode, getnodes, getparent, getparents, getsibling, hold_key, press_key, release_key, clear_text
 from anabot.runtime.errors import TimeoutError
 from anabot.runtime.translate import tr
 from anabot.runtime.installation.hub.partitioning.advanced.common import schema_name, raid_name
@@ -66,7 +66,20 @@ def filesystem_handler(element, app_node, local_node):
     filesystem_label = getnode(local_node, "label", tr("File S_ystem:", context="GUI|Custom Partitioning|Configure"))
     filesystem = getsibling(filesystem_label, 1, "combo box")
     filesystem.click()
-    getnode(filesystem, "menu item", fstype).click()
+    try:
+        getnode(filesystem, "menu item", fstype).click()
+    except TimeoutError:
+        press_key('esc')
+        return (False, u"Filesystem type '%s' not found" % fstype)
+
+@handle_chck('/filesystem')
+def filesystem_check(element, app_node, local_node):
+    fstype = get_attr(element, "select")
+    filesystem_label = getnode(local_node, "label", tr("File S_ystem:", context="GUI|Custom Partitioning|Configure"))
+    filesystem = getsibling(filesystem_label, 1, "combo box")
+    if filesystem.name == fstype:
+        return True
+    return (False, u"Filesystem type doesn't match, expected: '%s', found: '%s'" % (fstype, filesystem.name))
 
 @handle_act('/size')
 def size_handler(element, app_node, local_node):
@@ -126,7 +139,11 @@ def device_type_handler(element, app_node, local_node):
     device_type_label = getnode(local_node, "label", tr("Device _Type:", context="GUI|Custom Partitioning|Configure"))
     device_type = getsibling(device_type_label, 1, "combo box")
     device_type.click()
-    getnode(device_type, "menu item", schema_name(dev_type)).click()
+    try:
+        getnode(device_type, "menu item", schema_name(dev_type)).click()
+    except TimeoutError:
+        press_key('esc')
+        return (False, u"Device type '%s' not found" % dev_type)
 
 @handle_chck('/device_type')
 def device_type_check(element, app_node, local_node):
