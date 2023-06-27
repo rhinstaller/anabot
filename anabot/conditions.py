@@ -51,7 +51,7 @@ def _anaconda_version():
 
     try:
         with open('/root/lorax-packages.log') as lorax_packages_log:
-            match = re.search(r'^(anaconda)-([0-9]+\.[0-9]+(\.[0-9]+)?)',
+            match = re.search(r'^(anaconda)-([0-9]+(\.[0-9]+)*)',
                               lorax_packages_log.read(),
                               re.MULTILINE)
             version = match.group(2)
