@@ -1,5 +1,5 @@
 <ez:installation xmlns:ez="http://fedoraproject.org/anaconda/anabot/recipe/tiny/1">
-  <configuration>
+  <ez:hub>
     <ez:root password="fo0m4nchU" />
     <create_user>
         <full_name value="Full Name" />
@@ -17,6 +17,7 @@
             <uid value="1112" />
             <manual_gid checked="yes" />
             <gid value="1113" />
+            <!-- groups check is missing - see https://github.com/rhinstaller/anabot/issues/35 -->
             <groups value="zombies,undead" />
             <!-- to cancel advanced config
             <cancel />
@@ -28,5 +29,5 @@
         <done policy="should_fail" />
         <done />
     </create_user>
-  </configuration>
+  </ez:hub>
 </ez:installation>

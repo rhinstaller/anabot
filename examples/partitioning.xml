@@ -6,99 +6,99 @@
       <mode mode="manual" />
       <done />
       <advanced>
-	<schema value="native" />
-	<select device="*">
-	  <remove dialog="reject">
-	    <also_related /> <!-- value="yes" || value="no" -->
-	    <also_related value="no" />
-	  </remove>
-	</select>
-	<select device="*">
-	  <remove />
-	</select>
-	<add>
-	  <mountpoint value="/" />
-	  <size value="20G" />
-	</add>
-	<rescan dialog="reject" />
-	<rescan>
-	  <push_rescan />
-	</rescan>
+        <schema value="native" />
+        <select device="*">
+          <remove dialog="reject">
+            <also_related /> <!-- value="yes" || value="no" -->
+            <also_related value="no" />
+          </remove>
+        </select>
+        <select device="*">
+          <remove />
+        </select>
+        <add>
+          <mountpoint value="/" />
+          <size value="20G" />
+        </add>
+        <rescan dialog="reject" />
+        <rescan>
+          <push_rescan />
+        </rescan>
       </advanced>
       <done />
       <advanced>
-	<schema value="native" />
-	<select device="*">
-	  <remove dialog="reject">
-	    <remove_related /> <!-- value="yes" || value="no" -->
-	  </remove>
-	  <remove dialog="accept" />
-	</select>
-	<schema value="native" />
-	<autopart />
-	<done />
-	<summary dialog="reject" />
-	<select device="*">
-	  <remove dialog="no dialog" />
-	</select>
-	<add>
-	  <mountpoint value="swap" />
-	  <size value="1G" />
-	</add>
-	<details>
-	  <name value="swap_ahoj" />
-	  <update />
-	</details>
-	<debug_stop />
-	<details>
-	  <new_volume_group dialog="reject">
-	    <name value="anabot_vg" />
-	    <raid select="None" />
-	    <raid select="RAID0" />
-	    <size_policy select="fixed" />
-	    <size value="30G" />
-	    <size_policy select="grow" />
-	    <size_policy select="automatic" />
-	    <encrypt value="yes" />
-	    <encrypt value="no" />
-	    <raid select="None" />
-	  </new_volume_group>
-	  <debug_stop />
-	</details>
-	<add>
-	  <mountpoint value="/boot" />
-	  <size value="1G" />
-	</add>
-	<details>
-	  <label value="boot_label" />
-	  <update />
-	</details>
-	<add>
-	  <mountpoint value="/" />
-	</add>
-	<details>
-	  <mountpoint value="/foo" />
-	  <update />
-	  <mountpoint value="/" />
-	  <filesystem select="ext4" />
-	  <size value="10G" />
-	  <device_type select="native" /> <!-- native, lvm, raid, lvm_thinp, btrfs-->
-	  <devices dialog="reject">
-	    <deselect device="*" />
-	    <select device="vda" />
-	  </devices>
-	  <devices dialog="accept">
-	    <deselect device="*" />
-	    <select device="vdb" />
-	  </devices>
-	  <update />
-	  <!--
-	      volume group
-	      volume group dialog
-	  -->
-	</details>
-	<done />
-	<summary />
+        <schema value="native" />
+        <select device="*">
+          <remove dialog="reject">
+            <remove_related /> <!-- value="yes" || value="no" -->
+          </remove>
+          <remove dialog="accept" />
+        </select>
+        <schema value="native" />
+        <autopart />
+        <done />
+        <summary dialog="reject" />
+        <select device="*">
+          <remove dialog="no dialog" />
+        </select>
+        <add>
+          <mountpoint value="swap" />
+          <size value="1G" />
+        </add>
+        <details>
+          <name value="swap_ahoj" />
+          <update />
+        </details>
+        <debug_stop />
+        <details>
+          <new_volume_group dialog="reject">
+            <name value="anabot_vg" />
+            <raid select="None" />
+            <raid select="RAID0" />
+            <size_policy select="fixed" />
+            <size value="30G" />
+            <size_policy select="grow" />
+            <size_policy select="automatic" />
+            <encrypt value="yes" />
+            <encrypt value="no" />
+            <raid select="None" />
+          </new_volume_group>
+          <debug_stop />
+        </details>
+        <add>
+          <mountpoint value="/boot" />
+          <size value="1G" />
+        </add>
+        <details>
+          <label value="boot_label" />
+          <update />
+        </details>
+        <add>
+          <mountpoint value="/" />
+        </add>
+        <details>
+          <mountpoint value="/foo" />
+          <update />
+          <mountpoint value="/" />
+          <filesystem select="ext4" />
+          <size value="10G" />
+          <device_type select="native" /> <!-- native, lvm, raid, lvm_thinp, btrfs-->
+          <devices dialog="reject">
+            <deselect device="*" />
+            <select device="vda" />
+          </devices>
+          <devices dialog="accept">
+            <deselect device="*" />
+            <select device="vdb" />
+          </devices>
+          <update />
+          <!--
+              volume group
+              volume group dialog
+          -->
+        </details>
+        <done />
+        <summary />
       </advanced>
     </partitioning>
     <begin_installation />

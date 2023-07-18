@@ -2,6 +2,9 @@
   <!--
       When running preprocessor manually:
       ./preprocessor.py examples/sub.xml - profile_name lang=English
+
+      At this point, there isn't any useful option implemented to pass the parameters
+      for substitution (the plan is to pass the parameters via kernel command line).
   -->
   <ez:welcome>
     <ez:sub ez:name="language" value="{lang}" />

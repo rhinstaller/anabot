@@ -1,3 +1,5 @@
+<!-- this example is only for legacy purposes, as the functionality is not present
+    in current RHEL releases, the handler for Done button seems to be broken -->
 <ez:installation xmlns:ez="http://fedoraproject.org/anaconda/anabot/recipe/tiny/1">
   <ez:hub>
     <syspurpose>

@@ -5,35 +5,37 @@
       <mode mode="manual" />
       <done />
       <advanced>
-	<select device="*">
-	  <remove dialog="accept">
+        <select device="*">
+          <remove dialog="accept">
             <!-- temporarily disable due to https://bugzilla.redhat.com/show_bug.cgi?id=1624805
             <also_related value="yes" />
             -->
-	  </remove>
-	</select>
-	<autopart />
-	<details>
-	  <edit_volume_group>
+          </remove>
+        </select>
+        <autopart />
+        <details>
+          <edit_volume_group>
         <encrypt />
         <luks_version value="luks1" />
-	  </edit_volume_group>
-	  <edit_volume_group>
+          </edit_volume_group>
+          <edit_volume_group>
         <encrypt value="no" />
-	  </edit_volume_group>
-	  <edit_volume_group>
+          </edit_volume_group>
+          <edit_volume_group>
         <encrypt />
         <luks_version value="luks2" />
-	  </edit_volume_group>
-	</details>
-	<done />
+          </edit_volume_group>
+        </details>
+        <done />
     <luks_dialog>
       <password value="fo0m4nchU1" />
       <confirm_password value="fo0m4nchU1" />
       <save />
     </luks_dialog>
-	<summary />
+        <summary />
       </advanced>
     </partitioning>
+    <!-- it's necessary to visit the kdump spoke to acknowledge the warning it displays -->
+    <kdump />
   </ez:hub>
 </ez:installation>

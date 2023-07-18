@@ -1,10 +1,10 @@
 <ez:installation xmlns:ez="http://fedoraproject.org/anaconda/anabot/recipe/tiny/1">
   <ez:hub>
     <software_selection>
-      <environment id="compute-node-environment" />
-      <addon id="directory-client" action="select" />
-      <addon id="N/A" action="select" />
-      <addon id="*" action="select" />
+      <environment id="minimal-environment" />
+      <addon id="development" action="select" /> <!-- valid -->
+      <addon id="N/A" action="select" /> <!-- invalid -->
+      <addon id="*-tools" action="select" /> <!-- wildcard -->
     </software_selection>
   </ez:hub>
 </ez:installation>

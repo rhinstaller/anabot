@@ -2,10 +2,10 @@
      Example OSCAP addon-specific XML
  -->
 <ez:installation xmlns:ez="http://fedoraproject.org/anaconda/anabot/recipe/tiny/1">
-    <welcome fail_type="should_be_ignored">
+<!--    <welcome fail_type="should_be_ignored">
         <language value="Čeština" />
         <locality value="Česká republika" />
-    </welcome>
+    </welcome> -->
     <ez:hub>
         <!-- Main element for entering the OSCAP addon spoke.
              Optional attributes are:
@@ -73,13 +73,13 @@
         </oscap_addon>
 
         <oscap_addon>
-            <choose profile="Default" />
+            <choose profile="ANSSI-BP-028 (minimal)" />
             <select />
             <done />
         </oscap_addon>
 
         <oscap_addon>
-            <choose profile="Default" policy="just_check" />
+            <choose profile="ANSSI-BP-028 (minimal)" policy="just_check" />
             <done />
         </oscap_addon>
 
@@ -154,8 +154,4 @@
             <done />
         </oscap_addon>
     </ez:hub>
-    <!--<configuration>-->
-        <!--<ez:root password="fo0m4nchU" />-->
-        <!--<ez:user fullname="Justin Time" password="fo0m4nchU" />-->
-    <!--</configuration>-->
 </ez:installation>

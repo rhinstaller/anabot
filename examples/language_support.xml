@@ -32,11 +32,4 @@
         </language>
     </language_spoke>
   </ez:hub>
-<!--
-  <ez:configuration>
-     <wait_until_complete />
-     <debug_stop />
-     <reboot />
-   </ez:configuration>
--->
 </ez:installation>

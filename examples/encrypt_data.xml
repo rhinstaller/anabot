@@ -8,7 +8,7 @@
       <advanced>
         <select device="*">
           <remove dialog="accept">
-            <!-- temporarily disable due to https://bugzilla.redhat.com/show_bug.cgi?id=1624805
+            <!-- disabled due to https://bugzilla.redhat.com/show_bug.cgi?id=1624805
             <also_related value="yes" />
             -->
           </remove>
@@ -24,5 +24,7 @@
         <summary />
       </advanced>
     </partitioning>
+    <!-- entering kdump spoke is necessary as it displays a warning message when using storage encryption -->
+    <kdump />
   </ez:hub>
 </ez:installation>
