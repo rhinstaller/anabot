@@ -226,8 +226,8 @@ Examples
 
 For example, in case of :xml:`<checkbox action="enable" />` on "unchecked"
 and "clickable" (not greyed-out) checkbox:
- * `action` - clicking on the checkbox
- * `desired state` - checkbox is "checked"
+* `action` - clicking on the checkbox
+* `desired state` - checkbox is "checked"
 
 In this case (action="enable"), checkbox that is already checked is not
 clicked on because it's already in `desired state`. Clicking on it would make
