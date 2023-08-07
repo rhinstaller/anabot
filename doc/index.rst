@@ -52,6 +52,7 @@ Contents
    decorators
    history
    debugging
+   recipe_elements/index
 
 
 Indices and tables

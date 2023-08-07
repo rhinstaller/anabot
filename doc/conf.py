@@ -33,6 +33,7 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.coverage',
     'sphinx.ext.mathjax',
+    'sphinx.ext.autosectionlabel'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -263,3 +264,6 @@ texinfo_documents = [
 #texinfo_no_detailmenu = False
 
 sys.path.append("../")
+
+# Make sure the target is unique
+autosectionlabel_prefix_document = True
