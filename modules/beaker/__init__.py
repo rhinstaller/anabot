@@ -25,6 +25,7 @@ from anabot.exceptions import UnrelatedException
 from anabot.variables import set_variable, get_variable
 
 BEAKER = "https://%s" % get_variable('beaker_hub_hostname')
+EXTERNAL_VAR_PREFIX = "ANABOT_SUB_"
 with open('/proc/cmdline', 'r') as proc_cmdline:
     cmdline = proc_cmdline.read()
 
@@ -204,3 +205,23 @@ if beta != "0":
     set_variable("beta", "1")
 else:
     rep.log_debug("BETA task param not found, empty or zero in beaker recipe")
+
+# get all parameter names for the current Beaker task
+def get_param_names():
+    param_xpath = '/job/recipeSet/recipe/task[@id="%s"]/params/param/@name' % task_id
+    param_names = [name.content for name in xml.xpathEval(param_xpath)]
+    if len(param_names) > 0:
+        rep.log_debug("Current Beaker task parameters: %s" % param_names)
+    else:
+        rep.log_debug("No parameters for current Beaker task '%s' found!" % task_id)
+    return param_names
+
+# use all task parameters beginning with EXTERNAL_VAR_PREFIX as Anabot variables,
+# the variable name will be parameter name stripped from prefix and converted to lowercase
+for param_name in [n for n in get_param_names() if n.startswith(EXTERNAL_VAR_PREFIX)]:
+    var_name = param_name[len(EXTERNAL_VAR_PREFIX):].lower()
+    var_value = param_value(param_name)
+    rep.log_debug("Setting internal variable based on task parameter: %s = '%s'" %
+        (var_name, var_value))
+    set_variable(var_name, var_value)
+
