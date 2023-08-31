@@ -1,0 +1,24 @@
+<ez:installation xmlns:ez="http://fedoraproject.org/anaconda/anabot/recipe/tiny/1">
+  <!--
+      When running preprocessor manually:
+      ./preprocessor.py examples/sub.xml - profile_name lang=English full_name="Justin Time" ...
+
+      When using external variables, those have to be defined either
+      on kernel command line (anabot.lang=English anabot.full_name="Justin Time" ...)
+      or in Beaker task parameter with 'ANABOT_SUB_' prefix
+      (<param name="ANABOT_SUB_LANG" value='English' />
+      <param name="ANABOT_SUB_FULL_NAME" value='Justin Time' /> ...).
+  -->
+  <ez:welcome>
+    <ez:sub ez:name="language" value="{lang}" />
+  </ez:welcome>
+  <ez:hub>
+    <create_user>
+      <ez:sub ez:name="full_name" value="{full_name}" />
+      <ez:sub ez:name="username" value="{username}" />
+      <ez:sub ez:name="password" value="{password}" />
+      <ez:sub ez:name="confirm_password" value="{password}" />
+      <done />
+    </create_user>
+  </ez:hub>
+</ez:installation>

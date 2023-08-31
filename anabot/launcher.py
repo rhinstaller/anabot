@@ -5,6 +5,9 @@ import logging
 from logging.handlers import SysLogHandler
 from anabot import config
 from anabot.variables import set_variable, get_variable, set_env_variable
+import shlex
+
+CMDLINE_VAR_PREFIX = "anabot."
 
 def show_help(arg0):
     print('%s profile_name [recipe_url] [varname=value[,varname=value]]' % sys.argv[0])
@@ -106,6 +109,25 @@ def main(*args):
     # run preexec_hooks
     logger.debug('Running preexec hooks')
     run_preexechooks()
+
+    # import variables from kernel command line after removing CMDLINE_VAR_PREFIX
+    with open("/proc/cmdline", "r") as c:
+        cmdline = c.read()
+    cmdline_params = shlex.split(cmdline)
+    var_params = [p for p in cmdline_params if p.startswith(CMDLINE_VAR_PREFIX)]
+    for param in var_params:
+        var_pair = param.split("=")
+        var_name = var_pair[0][len(CMDLINE_VAR_PREFIX):] # get rid of prefix
+        var_value = var_pair[1]
+        if get_variable(var_name, None):
+            var_message = "Redefining internal variable '%s' from command line "\
+                "to '%s' (originally set to '%s')!" % \
+                (var_name, var_value, get_variable(var_name))
+        else:
+            var_message = "Setting internal variable from command line: %s = '%s'" % \
+                (var_name, var_value)
+        set_variable(var_name, var_value)
+        logger.info(var_message)
 
     # check recipe
     if not os.path.exists("/var/run/anabot/raw-recipe.xml"):

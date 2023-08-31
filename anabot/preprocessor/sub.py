@@ -11,4 +11,7 @@ def sub_element(element):
     element.setName(name)
     element.unsetNsProp(element.ns(), "name")
     for attribute in element.xpathEval("@*"):
-        attribute.setContent(attribute.content.format(**get_variables()))
+        try:
+            attribute.setContent(attribute.content.format(**get_variables()))
+        except KeyError as e:
+            raise Exception("Undefined variable for substitution in Anabot recipe: %s" % e.args[0])
