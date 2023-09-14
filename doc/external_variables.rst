@@ -64,6 +64,8 @@ a substitution for an element specified by its ``ez:name`` attribute.
     It's necessary to use the ``sub`` element with the ``ez`` namespace specified,
     otherwise it won't be recognized and Anabot will end up with an error.
     The same notice is valid for the ``name`` attribute.
+    Also note that the substitutions can only be used within attribute values
+    (not for elements content).
 
 It is strongly advised to use only **lowercase** placeholder names, since variable
 names originating from Beaker parameters always get converted to lowercase.
