@@ -30,10 +30,7 @@ initial_repos = {}
 _repolist_without_removed_repo = []
 
 def get_repolist(local_node, return_nodes=False, check=lambda x: True):
-    try:
-        repo_table = getnode(local_node, "table")
-    except TimeoutError:
-        return NotFound("repo or table cells")
+    repo_table = getnode(local_node, "table")
     try:
         cell_nodes = getnodes(repo_table, "table cell")
     except TimeoutError:
@@ -58,7 +55,7 @@ def additional_repo_check(element, app_node, local_node):
 @handle_act('/select')
 def select_handler(element, app_node, local_node):
     name = get_attr(element, "name")
-    enabled = get_attr(element, "enabled")
+    enabled = get_attr_bool(element, "enabled")
 
     def check(cell):
         matches = True
@@ -68,11 +65,16 @@ def select_handler(element, app_node, local_node):
             matches = getsibling(cell, -1).checked == enabled
         return matches
 
-    for repo in get_repolist(local_node, return_nodes=True, check=check):
+    repolist_nodes = get_repolist(local_node, return_nodes=True, check=check)
+    for repo in repolist_nodes:
         repo.click()
         default_handler(element, app_node, local_node)
 
-    return PASS
+    if len(repolist_nodes) > 0:
+        result = PASS
+    else:
+        result = Fail("No repo entries matching '%s' found." % name)
+    return result
 
 @handle_chck('/select')
 def select_check(element, app_node, local_node):
