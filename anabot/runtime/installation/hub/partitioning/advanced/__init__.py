@@ -10,7 +10,7 @@ from fnmatch import fnmatchcase
 from anabot.conditions import is_distro_version, is_distro_version_ge
 from anabot.runtime.decorators import handle_action, handle_check, check_action_result
 from anabot.runtime.default import default_handler, action_result
-from anabot.runtime.functions import get_attr, getnode, getnode_scroll, getnodes, getparent, getsibling, press_key, scrollto, dump
+from anabot.runtime.functions import get_attr, get_attr_bool, getnode, getnode_scroll, getnodes, getparent, getsibling, press_key, scrollto, dump
 from anabot.runtime.errors import TimeoutError
 from anabot.runtime.translate import tr, gtk_tr
 from anabot.runtime.installation.common import done_handler
@@ -125,7 +125,7 @@ def switch_toggle(device):
 @handle_act('/select')
 def select_handler(element, app_node, local_node):
     global _current_selection
-    def devs(parent, device=None, mountpoint=None):
+    def devs(parent, device=None, mountpoint=None, invert_match=False):
         def dname(icon):
             return icon.parent.children[0].name
         def mpoint(icon):
@@ -136,7 +136,8 @@ def select_handler(element, app_node, local_node):
                 matches = fnmatchcase(dname(icon), device)
             if matches and mountpoint is not None:
                 matches = fnmatchcase(mpoint(icon), mountpoint)
-            return matches
+            # invert match if invert_match == True
+            return matches ^ invert_match
         try:
             return [icon.parent.parent
                     for icon in getnodes(parent, "icon", visible=None)
@@ -147,6 +148,7 @@ def select_handler(element, app_node, local_node):
         return getnode(device_panel, "label", visible=None).name
     fndevice = get_attr(element, "device", None)
     mountpoint = get_attr(element, "mountpoint", None)
+    invert_selection = get_attr_bool(element, "invert_selection", False)
     devices_node = getnodes(local_node, "scroll pane")[1]
     device_required = get_attr(element, "required", "no") == "yes"
     processed = [] # remember ATK nodes instead of device names
@@ -156,7 +158,7 @@ def select_handler(element, app_node, local_node):
     #__initialize_toggles(devices_node) - this is hopefully no longer needed
     while not done:
         done = True
-        for device in devs(devices_node, fndevice, mountpoint):
+        for device in devs(devices_node, fndevice, mountpoint, invert_selection):
             # Get mountpoint name of selected device
             device_label = getnodes(device, "label")[2].name
             device_group = getparent(device, "toggle button").name
