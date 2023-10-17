@@ -9,7 +9,7 @@ import random
 from fnmatch import fnmatchcase
 
 from anabot.conditions import is_distro_version
-from anabot.runtime.decorators import make_prefixed_handle_action, make_prefixed_handle_check
+from anabot.runtime.decorators import make_prefixed_handle_action, make_prefixed_handle_check, check_action_result
 from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.functions import get_attr, getnode, getnode_scroll, getnodes, getparent, getsibling, disappeared, scrollto
 from anabot.runtime.comps import reload_comps, get_comps
@@ -17,6 +17,7 @@ from anabot.runtime.hooks import register_post_hook
 from anabot.runtime.errors import TimeoutError
 from anabot.runtime.translate import tr, comps_tr_env, comps_tr_group, comps_tr_env_desc, comps_tr_group_rev, comps_tr_group_desc, comps_tr_env_rev
 from anabot.runtime.installation.common import done_handler
+from anabot.runtime.actionresult import NotFoundResult, ActionResultPass, ActionResultFail
 
 _local_path = '/installation/hub/software_selection'
 handle_act = make_prefixed_handle_action(_local_path)
@@ -30,6 +31,12 @@ __selected_environment = None
 __selected_addons = None
 
 PACKAGE_SELECTION_STORE = '/mnt/sysimage/root/anabot-packageset.txt'
+DEFAULT_KERNEL_OPTION = "4k"
+kernel_options = {
+    "4k": "4k\nMore efficient memory usage in smaller environments",
+    "64k": "64k\nSystem performance gains for memory-intensive workloads",
+}
+
 @register_post_hook(None)
 def record_package_selection():
     if __selected_environment is None and __selected_addons is None:
@@ -216,3 +223,46 @@ def addon_check(element, app_node, local_node):
     if action_result(element)[0] == False:
         return action_result(element)
     return addon_handler_manipulate(element, app_node, local_node, True)
+@handle_act('/kernel_options')
+def kernel_options_handler(element, app_node, local_node):
+    desired_kernel_option = get_attr(element, "value")
+    if desired_kernel_option is None:
+        return ActionResultFail("No kernel options specified in the anabot recipe.")
+    try:
+        kernel_combo_box = getnode(local_node, "combo box", tr(DEFAULT_KERNEL_OPTION))
+    except TimeoutError:
+        return NotFoundResult(f"Kernel Options combo box named {DEFAULT_KERNEL_OPTION}",
+                              where="Software Selection Spoke.")
+    # Open the combo box window by clicking on the combo box
+    kernel_combo_box.click()
+    try:
+        kernel_option_window = getnode(app_node, "window")
+    except TimeoutError:
+        return NotFoundResult("the opened 'Kernel Options' window", where="Software Selection Spoke.")
+    # The wanted kernel option node is specified by its full name, so we need to get it in order for anabot to find it
+    kernel_option_full_name = kernel_options.get(desired_kernel_option, None)
+    if kernel_option_full_name is None:
+        return ActionResultFail(f"Desired kernel option {desired_kernel_option} is not valid, please check the documentation.")
+    # Translate the full name of the kernel option to the current language in order to function across languages
+    kernel_name, kernel_description = kernel_option_full_name.split("\n")
+    kernel_name_translated = tr(kernel_name)
+    kernel_description_translated = tr(kernel_description)
+    kernel_option_full_name_translated = f"{kernel_name_translated}\n{kernel_description_translated}"
+    try:
+        kernel_option_menu_item = getnode(kernel_option_window, "menu item", kernel_option_full_name_translated)
+    except TimeoutError:
+        return NotFoundResult(kernel_option_full_name_translated, where="Kernel Options combo box")
+    kernel_option_menu_item.click()
+    return ActionResultPass()
+
+@handle_chck('/kernel_options')
+@check_action_result
+def kernel_options_check(element, app_node, local_node):
+    desired_kernel_option = get_attr(element, "value")
+    try:
+        # The combo box has the name of the chosen option, so we can use it to check which is selected
+        # We do not need to use the found combo box
+        _ = getnode(local_node, "combo box", tr(desired_kernel_option))
+    except TimeoutError:
+        return ActionResultFail(f"{desired_kernel_option} kernel option is not selected")
+    return ActionResultPass()
