@@ -2,3 +2,4 @@
 *.pyo
 *~
 /[Mm]akefile
+.idea/*
