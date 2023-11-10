@@ -165,6 +165,18 @@ Attributes:
 
 * ``value``
 
+/installation/hub/partitioning/advanced/details/luks_unlock
+===========================================================
+Handles unlocking of a selected LUKS device by (optionally) entering
+a provided password in the passphrase field and clicking on Unlock button.
+
+Attributes:
+
+* ``password`` (optional) - LUKS password. If password is not specified,
+  Anabot will only click on the Unlock button, without entering any
+  password. This may be useful if the password was already entered before
+  (e. g. after a disk rescan).
+
 /installation/hub/partitioning/advanced/details/mountpoint
 ==========================================================
 *Mount Point* input field in partition/LV details.

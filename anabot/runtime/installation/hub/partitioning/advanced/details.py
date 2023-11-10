@@ -7,6 +7,7 @@ reporter = teres.Reporter.get_reporter()
 import six
 
 from fnmatch import fnmatchcase
+from re import match
 
 from anabot.conditions import is_distro_version_ge
 from anabot.runtime.decorators import handle_action, handle_check
@@ -14,9 +15,10 @@ from anabot.runtime.default import default_handler, handle_step
 from anabot.runtime.functions import get_attr, getnode, getnodes, getparent, getparents, getsibling, hold_key, press_key, release_key, clear_text
 from anabot.runtime.errors import TimeoutError
 from anabot.runtime.translate import tr
-from anabot.runtime.installation.hub.partitioning.advanced.common import schema_name, raid_name
+from anabot.runtime.installation.hub.partitioning.advanced.common import schema_name, raid_name, check_partitioning_error
 from anabot.runtime.actionresult import NotFoundResult as NotFound, ActionResultPass as Pass,\
     ActionResultFail as Fail
+from anabot.variables import set_variable
 
 _local_path = '/installation/hub/partitioning/advanced/details'
 _local_select_path = '/installation/hub/partitioning/advanced/select/details'
@@ -213,6 +215,74 @@ def devices_select_handler(element, app_node, local_node):
         if not device.selected:
             device.click()
     release_key('control')
+
+@handle_act('/luks_unlock')
+def unlock_handler(element, app_node, local_node):
+    password = get_attr(element, "password")
+    try:
+        passphrase_label = getnode(local_node, "label", tr("_Passphrase:"))
+        passphrase_field = getsibling(passphrase_label, 1, "password text")
+    except TimeoutError:
+        return NotFound("Passphrase label or input field")
+    # It can be also desirable to have a possibility to just click on the Unlock button,
+    # having the passphrase already pre-filled, e. g. after unlock & disk rescan.
+    if password is not None:
+        passphrase_field.typeText(password)
+        # 'luks_password' variable is needed to properly setup automatic unlocking via crypttab
+        set_variable("luks_password", password)
+    try:
+        unlock_button = getsibling(passphrase_label, 1, "push button", "Unlock")
+    except TimeoutError:
+        return NotFound("Unlock button")
+    unlock_button.click()
+    return Pass()
+
+@handle_chck('/luks_unlock')
+def unlock_check(element, app_node, local_node):
+    # part of the following code has been borrowed from base handler for
+    # /installation/hub/partitioning/advanced
+    try:
+        manual_label = getnode(app_node, "label", tr("MANUAL PARTITIONING"))
+        # advanced partitioning panel is second child of filler which
+        # is first parent of MANUAL PARTITIONING label
+        advanced_panel = getparent(manual_label, "filler")
+    except TimeoutError:
+        return Fail("Manual partitioning panel not found")
+    except IndexError:
+        return Fail("Anaconda layout has changed, Anabot needs update")
+
+    # Unfortunately the UI behaves differently when some partitioning has already been done
+    # (the first partition in the list will be selected instead) vs. when there has been no
+    # partitioning for the new system done yet (the right pane will contain details about the
+    # unlocked device.
+    # The check may not be 100% accurate in the first case.
+    try:
+        system_label = getnode(advanced_panel, "label", tr("SYSTEM"))
+    except TimeoutError:
+        system_label = None
+    # 1. A 'SYSTEM' label is present, i. e. some partitioning design has already happened
+    if system_label:
+        logger.debug("Warning: Check for device unlocking may not be 100% accurate")
+        try:
+            # This approach is a bit crude, but it's likely the best approach we can get -
+            # i. e. have a look if there are some 'luks-UUID' labels present
+            panel_labels = [n.name for n in getnodes(advanced_panel, "label", visible=None)]
+            luks_devices_found = any(map(lambda x: match("luks-([0-9a-f]+-){4}[0-9a-f]+", x), panel_labels))
+            if not luks_devices_found:
+                return Fail("No 'luks-UUID' devices found, unlocking likely failed.")
+        except TimeoutError:
+            return Fail("Couldn't find any labels in devices panel, something very unexpected happened.")
+    # 2. No new partitioning so far
+    else:
+        try:
+            # We can't use the original 'local_node' as the current one ('page tab') has changed.
+            tab_list = getnode(app_node, "page tab list")
+            local_node = getnode(tab_list, "page tab", sensitive=None)[0]
+            # Unlocking takes a while, so a bigger timeout value is desirable.
+            getnode(local_node, "label", tr("LUKS Version:"), 30)
+        except TimeoutError:
+            return Fail("Partition unlocking failed - couldn't find 'LUKS Version:' label")
+    return check_partitioning_error(app_node)
 
 @handle_act('/update')
 def update_handler(element, app_node, local_node):
