@@ -10,7 +10,7 @@ from fnmatch import fnmatchcase
 
 from anabot.conditions import is_distro_version_ge
 from anabot.runtime.decorators import handle_action, handle_check
-from anabot.runtime.default import default_handler
+from anabot.runtime.default import default_handler, handle_step
 from anabot.runtime.functions import get_attr, getnode, getnodes, getparent, getparents, getsibling, hold_key, press_key, release_key, clear_text
 from anabot.runtime.errors import TimeoutError
 from anabot.runtime.translate import tr
@@ -36,7 +36,14 @@ def handle_chck(path):
 def base_handler(element, app_node, local_node):
     details_node = getnode(local_node, "page tab list")
     details_node = getnodes(details_node, "page tab", sensitive=None)[0]
-    default_handler(element, app_node, details_node)
+    # local_node may become invalid (e. g. after LUKS device unlock), thus we need to
+    # check it's valid for every invoked handler/check and potentially find a new one;
+    # default_handler() can't be used here because it won't handle such a change properly
+    for child in element.xpathEval("./*"):
+        handle_step(child, app_node, local_node)
+        if not details_node.visible:
+            details_node = getnodes(details_node, "page tab", sensitive=None)[0]
+    return True
 
 @handle_chck('')
 def base_check(element, app_node, local_node):
