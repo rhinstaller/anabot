@@ -299,6 +299,16 @@ def rescan_handler(element, app_node, local_node):
         return (False, "Undefined state")
     getnode(rescan_dialog, "push button", button_text).click()
 
+@handle_chck('/rescan')
+def rescan_check(element, app_node, local_node):
+    try:
+        # Anaconda returns back to the 'Installation Destination' screen after confirming
+        # a successful rescan
+        getnode(app_node, "label", tr("INSTALLATION DESTINATION"))
+    except TimeoutError:
+        return Fail()
+    return Pass()
+
 @handle_act('/rescan/push_rescan')
 def rescan_push_rescan_handler(element, app_node, local_node):
     rescan_text = tr("_Rescan Disks", context="GUI|Refresh Dialog|Rescan")
@@ -308,7 +318,11 @@ def rescan_push_rescan_handler(element, app_node, local_node):
 @handle_chck('/rescan/push_rescan')
 def rescan_push_rescan_check(element, app_node, local_node):
     # check that scan was successfull
-    pass
+    try:
+        getnode(app_node, "label", tr("Disk rescan complete."))
+    except TimeoutError:
+        return Fail()
+    return Pass()
 
 @handle_act('/autopart')
 def autopart_handler(element, app_node, local_node):
