@@ -1,6 +1,8 @@
 import re
 from anabot.runtime.translate import tr
 from anabot.conditions import is_distro_version
+from anabot.runtime.functions import getnode, getsibling
+from anabot.runtime.errors import TimeoutError
 
 def schema_name(schema=None):
     SCHEMAS = {
@@ -45,3 +47,12 @@ def raid_name(raid_level=None, drop_span=True):
     if raid_level is not None:
         return LEVELS[raid_level]
     return LEVELS.values()
+
+def check_partitioning_error(app_node):
+    try:
+        error_bar = getnode(app_node, "info bar", tr("Error"))
+        warn_icon = getnode(error_bar, "icon", tr("Warning"))
+        warn_text = getsibling(warn_icon, 1, "label")
+        return (False, warn_text.text)
+    except TimeoutError:
+        return True

@@ -14,7 +14,7 @@ from anabot.runtime.functions import get_attr, get_attr_bool, getnode, getnode_s
 from anabot.runtime.errors import TimeoutError
 from anabot.runtime.translate import tr, gtk_tr
 from anabot.runtime.installation.common import done_handler
-from anabot.runtime.installation.hub.partitioning.advanced.common import schema_name
+from anabot.runtime.installation.hub.partitioning.advanced.common import schema_name, check_partitioning_error
 from anabot.runtime.actionresult import NotFoundResult as NotFound, ActionResultPass as Pass, ActionResultFail as Fail
 
 import anabot.runtime.installation.hub.partitioning.advanced.details
@@ -39,15 +39,6 @@ def __initialize_toggles(devices_node):
         time.sleep(0.5)
         toggle.actions['activate'].do()
     __initialized_toggles = True
-
-def check_partitioning_error(app_node):
-    try:
-        error_bar = getnode(app_node, "info bar", tr("Error"))
-        warn_icon = getnode(error_bar, "icon", tr("Warning"))
-        warn_text = getsibling(warn_icon, 1, "label")
-        return (False, warn_text.text)
-    except TimeoutError:
-        return True
 
 def main_view(func):
     @wraps(func)
