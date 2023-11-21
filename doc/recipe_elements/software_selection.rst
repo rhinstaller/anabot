@@ -23,3 +23,11 @@ Attributes:
 
 * ``id`` - environment id (as defined in comps file)
 * ``select`` (optional) - ``random`` (random environment selection)
+
+/installation/hub/software_selection/kernel_options
+===================================================
+Handles *Kernel Options* selection on the aarch64 architecture (RHEL-9 and higher).
+
+Attributes:
+
+* ``value`` - desired kernel option (so far ``4k`` or ``64k``)
