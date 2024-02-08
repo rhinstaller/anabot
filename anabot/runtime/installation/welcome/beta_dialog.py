@@ -22,7 +22,7 @@ def _is_button_with_dot():
 def beta_dialog_handler(element, app_node, local_node):
     dialog_action = get_attr(element, "dialog", "accept") == "accept"
     try:
-        beta_dialog = getnode(app_node, "dialog", "Beta Warn")
+        beta_dialog = getnode(app_node, "dialog", tr("Beta Warn"))  # Beta Dialog's name needs to be translated
         if dialog_action:
             button_text = "I want to _proceed." if _is_button_with_dot() else "I want to _proceed"
         else:
