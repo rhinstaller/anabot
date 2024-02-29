@@ -210,6 +210,11 @@ def additional_space_manipulate2(element, app_node, local_node, dry_run):
         "I would like to _make additional space available.",
         context="GUI|Storage",
     )
+    if is_distro_version_ge('rhel', 10):
+        checkbox_text = tr(
+            "Free up space by re_moving or shrinking existing partitions",
+            context="GUI|Storage",
+        )
     additional_checkbox = getnode_scroll(local_node, "check box", checkbox_text)
     if not dry_run:
         if (action == "enable") != additional_checkbox.checked:
