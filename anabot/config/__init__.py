@@ -1,4 +1,5 @@
 import os
+from anabot.conditions import is_distro_version_ge
 
 try: # python3
     from configparser import RawConfigParser
@@ -20,6 +21,10 @@ replacements = {
     'profile_name': None,
 }
 
+# From python3.12 RawConfigParser doesn't have readfp method, we need to use read_file instead for RHEL 10 and Fedora 40
+def use_read_file():
+    return is_distro_version_ge('rhel', 10) or is_distro_version_ge('fedora', 40)
+
 def init_config(profile_name):
     global _profile_name
     global _config
@@ -27,13 +32,19 @@ def init_config(profile_name):
     ini_path = os.path.join(profiles_path, profile_name + '.ini')
     _config = RawConfigParser(allow_no_value=True)
     defaults = open(defauls_path, 'r')
-    _config.readfp(defaults)
+    if use_read_file():
+        _config.read_file(defaults)
+    else:
+        _config.readfp(defaults)
     try:
         local_conf_path = os.environ.get(
             'ANABOT_CONF', os.path.join(os.getcwd(), 'anabot.ini')
         )
         with open(local_conf_path) as local_conf:
-            _config.readfp(local_conf)
+            if use_read_file():
+                _config.read_file(local_conf)
+            else:
+                _config.readfp(local_conf)
     except OSError:
         # couldn't find or read 'anabot.ini'
         pass

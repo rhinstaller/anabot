@@ -140,7 +140,7 @@ def is_liveimg_install():
     if os.path.exists('/run/install/ks.cfg'):
         with open('/run/install/ks.cfg', 'r') as ks:
             for line in ks.readlines():
-                if re.search("\s*liveimg.*\s+--url", line):
+                if re.search(r"\s*liveimg.*\s+--url", line):
                     return True
     return False
 

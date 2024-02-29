@@ -38,6 +38,9 @@ def _wait_for_depsolve(initial=True):
         filename = '/tmp/anaconda.log'
         waitline = '.*software_selection: The selection has been checked.*'
 
+    if is_distro_version_ge('rhel', 10):
+        waitline = '.*The software selection has been resolved.*'
+
     if wait_for_line(filename, waitline, 600):
         reporter.log_info("Depsolving finished, nothing should block anaconda main thread now (GTK/ATK) now")
     else:
