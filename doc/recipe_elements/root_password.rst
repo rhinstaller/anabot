@@ -18,6 +18,15 @@ Equivalent to `/installation/hub/root_password/done`_.
 ==================================================
 Equivalent to `/installation/hub/root_password/password`_.
 
+/installation/hub/root_password/root_account
+========================================
+Enable or disable the *Root account*. It was introduced in RHEL 10 and the new workflow demands the root account to be
+enabled first before setting the root password.
+
+Attributes:
+
+* ``value`` - ``enable`` or ``disable`` (any other value will be considered as ``disable``)
+
 /installation/hub/root_password/allow_root_ssh_login_with_password
 ==================================================================
 *Allow root SSH login with password* check box.

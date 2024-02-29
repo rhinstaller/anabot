@@ -9,6 +9,11 @@ from .functions import load_snippet, has_property, pop_property, copy_content
 from .defaults import delete_element
 from anabot.variables import get_variable
 from anabot.conditions import has_feature_hub_config
+from anabot.conditions import is_anaconda_version_ge, is_distro, is_distro_version_ge
+
+def has_new_root_psswd_spoke():
+    fedora_conditional = is_distro('fedora') and is_anaconda_version_ge('35.22.1')
+    return fedora_conditional or is_distro_version_ge('rhel', 10)
 
 @replace("/installation")
 def replace_installation(element):
@@ -75,6 +80,8 @@ def replace_hub(element, default_for=None):
         element.addChild(new)
     if len(element.xpathEval("./root_password")) == 0 and has_feature_hub_config():
         new = load_snippet("/installation/hub/root_password", default_for, tag_name="_default_for")
+        if has_new_root_psswd_spoke():
+            new = load_snippet("/installation/hub/new_root_password", default_for, tag_name="_default_for")
         element.addChild(new)
     if len(element.xpathEval('./begin_installation')) == 0:
         new = load_snippet("/installation/hub/begin_installation", default_for, tag_name="_default_for")
@@ -92,9 +99,13 @@ def replace_hub_rootpw(element):
     except IndexError:
         # no password specified, just use full preset
         new = load_snippet("/installation/hub/root_password", element)
+        if has_new_root_psswd_spoke():
+            new = load_snippet("/installation/hub/new_root_password", element)
         element.replaceNode(new)
         return
     new = load_snippet("/installation/hub/root", element)
+    if has_new_root_psswd_spoke():
+        new = load_snippet("/installation/hub/root", element)
     element.replaceNode(new)
     new.xpathEval("./password")[0].setProp("value", password)
     new.xpathEval("./confirm_password")[0].setProp("value", password)

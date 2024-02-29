@@ -1,0 +1,7 @@
+<root_password>
+  <root_account value="enable"/>
+  <password value="from /@password" />
+  <confirm_password value="from /@password" />
+  <done policy="may_fail" />
+  <done policy="may_fail" />
+</root_password>
