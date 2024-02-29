@@ -10,7 +10,7 @@ from anabot.runtime.functions import get_attr, getnode, getparent, getsibling, c
 from anabot.runtime.errors import TimeoutError, NonexistentError
 from anabot.runtime.translate import tr, gtk_tr
 from anabot.runtime.hooks import run_posthooks
-from anabot.runtime.actionresult import NotFoundResult as NotFound
+from anabot.runtime.actionresult import NotFoundResult as NotFound, ActionResultPass
 from anabot.runtime.asserts import assertPasswordTextInputEquals as aptie
 from anabot.runtime.installation.common import done_handler
 
@@ -41,6 +41,8 @@ def check_rootpw_error(parent_node):
 SPOKE_SELECTOR="_Root Password"
 if is_distro_version('rhel', 7):
     SPOKE_SELECTOR="_ROOT PASSWORD"
+elif is_distro_version('rhel', 10):
+    SPOKE_SELECTOR="_Root Account"
 
 @handle_act_hub('')
 @handle_act('')
@@ -158,3 +160,21 @@ def allow_root_ssh_login_with_password_check(element, app_node, local_node):
                        tr("Allow root SSH login with password",
                           context="GUI|Root Password|Allow root SSH login with password"))
     return check_checkbox(checkbox, element, "Lock root account")
+
+def get_root_account_radio_button(element, local_node):
+    value = get_attr(element, "value")
+    if value == "enable":
+        radio_button = getnode(local_node, "radio button", tr("_Enable root account", context="GUI|Password"))
+    else:
+        radio_button = getnode(local_node, "radio button", tr("_Disable root account", context="GUI|Password"))
+    return radio_button
+
+@handle_act_hub('/root_account')
+def root_account_handler(element, app_node, local_node):
+    radio_button = get_root_account_radio_button(element, local_node)
+    radio_button.click()
+
+@handle_chck_hub('/root_account')
+def root_account_check(element, app_node, local_node):
+    radio_button = get_root_account_radio_button(element, local_node)
+    return radio_button.checked
