@@ -12,8 +12,7 @@ from anabot.conditions import has_feature_hub_config
 from anabot.conditions import is_anaconda_version_ge, is_distro, is_distro_version_ge
 
 def has_new_root_psswd_spoke():
-    fedora_conditional = is_distro('fedora') and is_anaconda_version_ge('35.22.1')
-    return fedora_conditional or is_distro_version_ge('rhel', 10)
+    return is_anaconda_version_ge('35.22.1')
 
 @replace("/installation")
 def replace_installation(element):
@@ -105,7 +104,7 @@ def replace_hub_rootpw(element):
         return
     new = load_snippet("/installation/hub/root", element)
     if has_new_root_psswd_spoke():
-        new = load_snippet("/installation/hub/root", element)
+        new = load_snippet("/installation/hub/new_root", element)
     element.replaceNode(new)
     new.xpathEval("./password")[0].setProp("value", password)
     new.xpathEval("./confirm_password")[0].setProp("value", password)
