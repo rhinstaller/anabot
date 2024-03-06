@@ -1,5 +1,5 @@
 import os
-from anabot.conditions import is_distro_version_ge
+import sys
 
 try: # python3
     from configparser import RawConfigParser
@@ -21,9 +21,9 @@ replacements = {
     'profile_name': None,
 }
 
-# From python3.12 RawConfigParser doesn't have readfp method, we need to use read_file instead for RHEL 10 and Fedora 40
+# From python3.12 RawConfigParser doesn't have readfp method, we need to use read_file
 def use_read_file():
-    return is_distro_version_ge('rhel', 10) or is_distro_version_ge('fedora', 40)
+    return sys.version_info >= (3, 12)
 
 def init_config(profile_name):
     global _profile_name

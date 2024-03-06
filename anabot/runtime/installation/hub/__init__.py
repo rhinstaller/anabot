@@ -6,7 +6,7 @@ reporter = teres.Reporter.get_reporter()
 from fnmatch import fnmatchcase
 from time import sleep
 
-from anabot.conditions import is_distro_version_ge
+from anabot.conditions import is_distro_version_ge, is_distro_version_lt, is_distro_version
 from anabot.variables import get_variable
 from anabot.runtime.decorators import handle_action, handle_check, check_action_result
 from anabot.runtime.default import default_handler, action_result
@@ -31,14 +31,11 @@ def _wait_for_depsolve(initial=True):
     waitline = ".*DEBUG yum.verbose.YumBase: Depsolve time:.*"
 
     # Temporary change to also support Fedora 34.
-    if is_distro_version_ge('rhel', 8) or is_distro_version_ge('fedora', 34):
+    if ((is_distro_version_ge('rhel', 8) and is_distro_version_lt('rhel', 10))
+            or is_distro_version('fedora', 34)):
         waitline = '.* INF packaging: checking dependencies: success'
 
-    if is_distro_version_ge('fedora', 35):
-        filename = '/tmp/anaconda.log'
-        waitline = '.*software_selection: The selection has been checked.*'
-
-    if is_distro_version_ge('rhel', 10):
+    if is_distro_version_ge('rhel', 10) or is_distro_version_ge('fedora', 35):
         waitline = '.*The software selection has been resolved.*'
 
     if wait_for_line(filename, waitline, 600):

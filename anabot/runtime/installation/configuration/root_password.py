@@ -2,7 +2,7 @@
 import logging
 logger = logging.getLogger('anabot')
 
-from anabot.conditions import is_distro_version
+from anabot.conditions import is_distro_version, is_anaconda_version_ge
 from anabot.runtime.decorators import handle_action, handle_check, check_action_result
 from anabot.runtime.default import default_handler, action_result
 from anabot.runtime.functions import get_attr, getnode, getparent, getsibling, clear_text, handle_checkbox, \
@@ -38,10 +38,14 @@ def check_rootpw_error(parent_node):
     except NonexistentError:
         return True
 
+def has_new_root_psswd_spoke():
+    return is_anaconda_version_ge('35.22.1')
+
 SPOKE_SELECTOR="_Root Password"
 if is_distro_version('rhel', 7):
     SPOKE_SELECTOR="_ROOT PASSWORD"
-elif is_distro_version('rhel', 10):
+
+if has_new_root_psswd_spoke():
     SPOKE_SELECTOR="_Root Account"
 
 @handle_act_hub('')

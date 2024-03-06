@@ -210,7 +210,7 @@ def additional_space_manipulate2(element, app_node, local_node, dry_run):
         "I would like to _make additional space available.",
         context="GUI|Storage",
     )
-    if is_distro_version_ge('rhel', 10):
+    if is_distro_version_ge('rhel', 10) or is_distro_version_ge('fedora', 35):
         checkbox_text = tr(
             "Free up space by re_moving or shrinking existing partitions",
             context="GUI|Storage",
