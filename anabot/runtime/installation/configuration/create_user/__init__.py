@@ -2,7 +2,7 @@
 import logging
 logger = logging.getLogger('anabot')
 
-from anabot.conditions import is_distro_version, has_feature_hub_config
+from anabot.conditions import is_distro_version, has_feature_hub_config, is_anaconda_version_ge
 from anabot.runtime.decorators import handle_action, handle_check, check_action_result
 from anabot.runtime.default import default_handler
 from anabot.runtime.functions import get_attr, getnode, TimeoutError, getparent, getsibling, handle_checkbox, check_checkbox, clear_text
@@ -38,6 +38,13 @@ if has_feature_hub_config():
         'make_admin': '_Make this user administrator',
         'require_password': '_Require a password to use this account',
     })
+# The checkbox in RHEL 10 has a different annotation, so we need to update the string,
+# this anaconda version covers both RHEL10 and affected fedora versions
+if is_anaconda_version_ge('35.22.1'):
+    strings.update({
+        'make_admin': 'Add administrative privileges to this user account (wheel group membership)',
+    })
+
 
 @handle_act_hub('')
 @handle_act('')
