@@ -1,4 +1,4 @@
-from anabot.conditions import is_distro, is_anaconda_version_lt
+from anabot.conditions import is_distro, is_anaconda_version_lt, is_distro_version
 from anabot.runtime.decorators import handle_action, handle_check
 from anabot.runtime.functions import get_attr, getnode
 from anabot.runtime.translate import tr
@@ -22,7 +22,12 @@ def _is_button_with_dot():
 def beta_dialog_handler(element, app_node, local_node):
     dialog_action = get_attr(element, "dialog", "accept") == "accept"
     try:
-        beta_dialog = getnode(app_node, "dialog", tr("Beta Warn"))  # Beta Dialog's name needs to be translated
+        # Beta Dialog's name is not translated on RHEL-8
+        if is_distro_version('rhel', 8):
+            beta_dialog = getnode(app_node, "dialog", "Beta Warn")
+        else:
+            beta_dialog = getnode(app_node, "dialog", tr("Beta Warn"))
+
         if dialog_action:
             button_text = "I want to _proceed." if _is_button_with_dot() else "I want to _proceed"
         else:
