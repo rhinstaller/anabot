@@ -46,7 +46,7 @@ def _wait_for_depsolve(initial=True):
 @handle_action('/installation/hub')
 def hub_handler(element, app_node, local_node):
     _wait_for_depsolve()
-    local_node = getnode(app_node, "panel", tr("INSTALLATION SUMMARY"))
+    local_node = getnode(app_node, "panel", tr("INSTALLATION SUMMARY"), timeout=30)
     def wait_for_animation_end():
         # wait for animation end
         for i in range(50):
