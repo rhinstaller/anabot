@@ -44,6 +44,7 @@ def base_handler(element, app_node, local_node):
     for child in element.xpathEval("./*"):
         handle_step(child, app_node, local_node)
         if not details_node.visible:
+            details_node = getnode(local_node, "page tab list")
             details_node = getnodes(details_node, "page tab", sensitive=None)[0]
     return True
 
