@@ -8,12 +8,14 @@ import random
 import six
 
 from anabot.runtime.decorators import make_prefixed_handle_action, make_prefixed_handle_check
-from anabot.conditions import is_distro_version, is_distro_version_ge
+from anabot.conditions import is_distro_version, is_distro_version_ge, is_distro_version_lt
 from anabot.runtime.default import default_handler, action_result
-from anabot.runtime.functions import get_attr, getnode, getnode_scroll, getnodes, getsibling, combo_scroll, type_text, press_key
+from anabot.runtime.functions import get_attr, getnode, getnode_scroll, getnodes, getsibling, combo_scroll, \
+    type_text, press_key, getparent
 from anabot.runtime.errors import TimeoutError
 from anabot.runtime.translate import tr, datetime_tr
-from anabot.runtime.actionresult import notfound as notfound_new
+from anabot.runtime.actionresult import notfound as notfound_new, ActionResultFail as Fail, \
+    ActionResultPass as Pass, NotFoundResult as NotFound
 from anabot.runtime.installation.common import done_handler
 
 def notfound(*args, **kwargs):
@@ -153,38 +155,66 @@ def city_check(element, app_node, local_node):
         return True
     return (False, "Expected city: '%s', saw: '%s'" % (city_name, city_combo.name))
 
+def ntp_manipulate(element, app_node, local_node, dryrun):
+    ntp_state = {
+        True: "enabled",
+        False: "disabled"
+    }
+    ntp_mode = {
+        True: "automatic",
+        False: "manual"
+    }
+    enable_ntp = get_attr(element, "action", "enable") == "enable"
+
+    if is_distro_version_lt('rhel', 10) or is_distro_version_lt('fedora', 40):
+        try:
+            ntp_toggle = getnode(local_node, "toggle button", tr("Use Network Time"))
+        except TimeoutError:
+            return NotFound("toggle button", whose="NTP")
+        if ntp_toggle.checked != enable_ntp:
+            if dryrun:
+                return Fail("NTP is %s, expected: %s" %
+                    (ntp_state[ntp_toggle.checked], ntp_state[enable_ntp])
+                )
+            else:
+                ntp_toggle.click()
+    # RHEL-10+/Fedora 40+ uses radio buttons to set automatic/manual mode instead of
+    # a toggle switch
+    else:
+        if enable_ntp:
+            button_text = tr("_Automatic date & time")
+        else:
+            button_text = tr("_Manual date & time")
+
+        try:
+            radiobutton = getnode(local_node, "radio button", button_text)
+        except TimeoutError:
+            return NotFound("'%s' radio button" % button_text, where="Time & Date spoke")
+        if not radiobutton.checked:
+            if dryrun:
+                return Fail(
+                    """Date & time mode is {mode_found} (NTP {state_found}), expected {mode_expected} """
+                    """({state_expected} mode)""".format(
+                        mode_found=ntp_mode[radiobutton.checked], state_found=ntp_state[radiobutton.checked],
+                        mode_expected=ntp_mode[enable_ntp], state_expected=ntp_state[enable_ntp]
+                    )
+                )
+            else:
+                radiobutton.click()
+    return Pass()
+
 @handle_act('/ntp')
 def ntp_handler(element, app_node, local_node):
-    enable = get_attr(element, "action", "enable") == "enable"
-    try:
-        ntp_toggle = getnode(local_node, "toggle button", tr("Use Network Time"))
-    except TimeoutError:
-        return notfound("toggle button", whose="NTP")
-    if ntp_toggle.checked != enable:
-        ntp_toggle.click()
+    return ntp_manipulate(element, app_node, local_node, False)
 
 @handle_chck('/ntp')
 def ntp_check(element, app_node, local_node):
-    def act_to_name(status):
-        return status and "enabled" or "disabled"
-
-    if action_result(element)[0] == False:
-        return action_result(element)
-    enable = get_attr(element, "action", "enable") == "enable"
-    try:
-        ntp_toggle = getnode(local_node, "toggle button", tr("Use Network Time"))
-    except TimeoutError:
-        return notfound("toggle button", whose="NTP")
-    if ntp_toggle.checked != enable:
-        return (
-            False,
-            "NTP is %s, expected: %s" %
-            (act_to_name(ntp_toggle.checked), act_to_name(enable))
-         )
-    return True
+    return ntp_manipulate(element, app_node, local_node, True)
 
 @handle_act('/ntp_settings')
 def ntp_settings_handler(element, app_node, local_node):
+    if is_distro_version_ge('rhel', 10) or is_distro_version_ge('fedora', 40):
+        return Fail("NTP settings handler/check not (yet) implemented for RHEL-10+ or Fedora 40+.")
     dialog_action = get_attr(element, 'dialog', 'accept')
     if dialog_action == 'accept':
         button_name = tr('_OK', context="GUI|Date and Time|NTP")
@@ -317,8 +347,8 @@ def ntp_settings_disable_check(element, app_node, local_node):
         return action_result(element)
     return ntp_settings_enable_manipulate(element, app_node, local_node, False, True)
 
-@handle_act('/time')
-def time_handler(element, app_node, local_node):
+@handle_act('/time', cond=is_distro_version_lt('rhel', 10) or is_distro_version_lt('fedora', 40))
+def time_handler_9(element, app_node, local_node):
     try:
         datetime_node = getnode(local_node, "filler", tr("Set Date & Time"))
     except TimeoutError:
@@ -329,6 +359,26 @@ def time_handler(element, app_node, local_node):
         return notfound("panel", whose="time settings")
     default_handler(element, app_node, time_node)
     return True
+
+@handle_chck('/time', cond=is_distro_version_lt('rhel', 10) or is_distro_version_lt('fedora', 40))
+def time_check_9(element, app_node, local_node):
+    # nothing to check here
+    return Pass()
+
+@handle_act('/time', cond=is_distro_version_ge('rhel', 10) or is_distro_version_ge('fedora', 40))
+def time_handler_10(element, app_node, local_node):
+    try:
+        date_label = getnode(local_node, "label", tr("Date"))
+        datetime_panel = getparent(date_label, "panel")
+    except TimeoutError:
+        return NotFound("Date and Time panel")
+    default_handler(element, app_node, datetime_panel)
+    return Pass()
+
+@handle_chck('/time', cond=is_distro_version_ge('rhel', 10) or is_distro_version_ge('fedora', 40))
+def time_check_10(element, app_node, local_node):
+    # nothing to check here
+    return Pass()
 
 @handle_act('/time/hours')
 def time_hours_handler(element, app_node, local_node):
@@ -398,7 +448,8 @@ def time_minutes_check(element, app_node, local_node):
 
 def time_format_manipulate(element, app_node, local_node, dry_run):
     value = get_attr(element, "value")
-    local_node = getsibling(local_node, 1, "panel")
+    if is_distro_version_lt('rhel', 10) or is_distro_version_lt('fedora', 40):
+            local_node = getsibling(local_node, 1, "panel")
     if value == "24":
         wanted_text = tr("24-_hour", context="GUI|Date and Time")
     elif value == "12":
@@ -459,8 +510,8 @@ def time_ampm_check(element, app_node, local_node):
     except TimeoutError:
         return notfound("correct label for '%s'" % value)
 
-@handle_act('/date')
-def date_handler(element, app_node, local_node):
+@handle_act('/date', cond=is_distro_version_lt('rhel', 10) or is_distro_version_lt('fedora', 40))
+def date_handler_9(element, app_node, local_node):
     def get_menuitems_count(combo):
         return len(getnodes(combo, "menu item", visible=None))
     try:
@@ -473,8 +524,27 @@ def date_handler(element, app_node, local_node):
     default_handler(element, app_node, combos)
     return True
 
-@handle_act('/date/month')
-def date_month_handler(element, app_node, local_node):
+@handle_chck('/date', cond=is_distro_version_lt('rhel', 10) or is_distro_version_lt('fedora', 40))
+def date_check_9(element, app_node, local_node):
+    return Pass()
+
+@handle_act('/date', cond=is_distro_version_ge('rhel', 10) or is_distro_version_ge('fedora', 40))
+def date_handler_10(element, app_node, local_node):
+    try:
+        date_label = getnode(local_node, "label", tr("Date"))
+        datetime_panel = getparent(date_label, "panel")
+    except TimeoutError:
+        return NotFound("Date and Time panel")
+    default_handler(element, app_node, datetime_panel)
+    return Pass()
+
+@handle_chck('/date', cond=is_distro_version_ge('rhel', 10) or is_distro_version_ge('fedora', 40))
+def date_check_10(element, app_node, local_node):
+    # nothing to check here
+    return Pass()
+
+@handle_act('/date/month', cond=is_distro_version_lt('rhel', 10) or is_distro_version_lt('fedora', 40))
+def date_month_handler_9(element, app_node, local_node):
     value = get_attr(element, "value")
     month_combo = local_node[0]
     month_combo.click()
@@ -490,8 +560,8 @@ def date_month_handler(element, app_node, local_node):
     combo_scroll(item, click=1)
     return True
 
-@handle_chck('/date/month')
-def date_month_check(element, app_node, local_node):
+@handle_chck('/date/month', cond=is_distro_version_lt('rhel', 10) or is_distro_version_lt('fedora', 40))
+def date_month_check_9(element, app_node, local_node):
     if action_result(element)[0] == False:
         return action_result(element)
     value = get_attr(element, "value")
@@ -500,8 +570,34 @@ def date_month_check(element, app_node, local_node):
         return True
     return (False, "Expected month: %s, saw: %s" % (value, month_combo.name))
 
-@handle_act('/date/day')
-def date_day_handler(element, app_node, local_node):
+def handle_date(element, app_node, local_node, dryrun, combo_nr, combo_name):
+    value = get_attr(element, "value")
+    try:
+        combo = getnodes(local_node, "combo box")[combo_nr]
+        if not dryrun:
+            combo.click()
+            item = getnode(combo, "menu item", value)
+            combo_scroll(item, click=1)
+    except TimeoutError:
+        return NotFound("%s combo box or menu item" % combo_name.lower())
+    if dryrun:
+        if combo.name != value:
+            return Fail("{} value ({}) is different from expected one ({})".format(
+                combo_name.lower(), combo.name, value
+            ))
+    return Pass()
+
+@handle_act('/date/month', cond=is_distro_version_ge('rhel', 10) or is_distro_version_ge('fedora', 40))
+def date_month_handler_10(element, app_node, local_node):
+    return handle_date(element, app_node, local_node, False, 0, "Month")
+
+@handle_chck('/date/month', cond=is_distro_version_ge('rhel', 10) or is_distro_version_ge('fedora', 40))
+def date_month_check_10(element, app_node, local_node):
+    return handle_date(element, app_node, local_node, True, 0, "Month")
+
+
+@handle_act('/date/day', cond=is_distro_version_lt('rhel', 10) or is_distro_version_lt('fedora', 40))
+def date_day_handler_9(element, app_node, local_node):
     value = get_attr(element, "value")
     day_combo = local_node[1]
     day_combo.click()
@@ -517,8 +613,8 @@ def date_day_handler(element, app_node, local_node):
     combo_scroll(item, click=1)
     return True
 
-@handle_chck('/date/day')
-def date_day_check(element, app_node, local_node):
+@handle_chck('/date/day', cond=is_distro_version_lt('rhel', 10) or is_distro_version_lt('fedora', 40))
+def date_day_check_9(element, app_node, local_node):
     if action_result(element)[0] == False:
         return action_result(element)
     value = get_attr(element, "value")
@@ -527,8 +623,17 @@ def date_day_check(element, app_node, local_node):
         return True
     return (False, "Expected day: %s, saw: %s" % (value, day_combo.name))
 
-@handle_act('/date/year')
-def date_year_handler(element, app_node, local_node):
+@handle_act('/date/day', cond=is_distro_version_ge('rhel', 10) or is_distro_version_ge('fedora', 40))
+def date_day_handler_10(element, app_node, local_node):
+    return handle_date(element, app_node, local_node, False, 1, "Day")
+
+@handle_chck('/date/day', cond=is_distro_version_ge('rhel', 10) or is_distro_version_ge('fedora', 40))
+def date_day_check_10(element, app_node, local_node):
+    return handle_date(element, app_node, local_node, True, 1, "Day")
+
+
+@handle_act('/date/year', cond=is_distro_version_lt('rhel', 10) or is_distro_version_lt('fedora', 40))
+def date_year_handler_9(element, app_node, local_node):
     value = get_attr(element, "value")
     year_combo = local_node[2]
     year_combo.click()
@@ -542,8 +647,8 @@ def date_year_handler(element, app_node, local_node):
         return (False, "Specified year is not available.")
     combo_scroll(item, click=1)
 
-@handle_chck('/date/year')
-def date_year_check(element, app_node, local_node):
+@handle_chck('/date/year', cond=is_distro_version_lt('rhel', 10) or is_distro_version_lt('fedora', 40))
+def date_year_check_9(element, app_node, local_node):
     if action_result(element)[0] == False:
         return action_result(element)
     value = get_attr(element, "value")
@@ -551,3 +656,11 @@ def date_year_check(element, app_node, local_node):
     if year_combo.name == value:
         return True
     return (False, "Expected year: %s, saw: %s" % (value, year_combo.name))
+
+@handle_act('/date/year', cond=is_distro_version_ge('rhel', 10) or is_distro_version_ge('fedora', 40))
+def date_year_handler_10(element, app_node, local_node):
+    return handle_date(element, app_node, local_node, False, 2, "Year")
+
+@handle_chck('/date/year', cond=is_distro_version_ge('rhel', 10) or is_distro_version_ge('fedora', 40))
+def date_year_check_10(element, app_node, local_node):
+    return handle_date(element, app_node, local_node, True, 2, "Year")
