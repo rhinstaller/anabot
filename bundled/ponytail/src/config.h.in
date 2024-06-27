@@ -1,0 +1,6 @@
+#ifndef GPD_CONFIG_H
+#define GPD_CONFIG_H
+
+#mesondefine GPD_HAS_LIBEI
+
+#endif /* GPD_CONFIG_H */

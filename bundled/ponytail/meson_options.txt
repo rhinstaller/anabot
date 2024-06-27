@@ -1,0 +1,9 @@
+option('systemd_user_unit_dir',
+       type: 'string',
+       value: '',
+       description: 'systemd user service directory')
+option('ponytail_python',
+       type: 'boolean',
+       value: true,
+       description : 'build with python interface')
+

@@ -1,0 +1,4 @@
+[D-BUS Service]
+Name=org.gnome.Ponytail
+Exec=@libexecdir@/gnome-ponytail-daemon
+SystemdService=gnome-ponytail-daemon.service
