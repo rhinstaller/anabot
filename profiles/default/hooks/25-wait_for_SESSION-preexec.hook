@@ -1,0 +1,59 @@
+#!/bin/bash
+
+SESSION_TYPE=""
+socket_name="/tmp/.X11-unix/X${DISPLAY#:}"
+WAIT_TIMEOUT=60
+waited=0
+
+# Wait for any session to start
+# Installer with X does not start a session, so loginctl returns empty
+# Installer with Wayland starts a session with type "Wayland"
+# We test X with socket
+let waited=0
+while [ $waited -le $WAIT_TIMEOUT ]; do
+    sleep 1
+    SESSION_TYPE=$(loginctl --no-legend)
+    # non empty loginctl indicates that session started, check whether it is Wayland
+    if [ -n "$SESSION_TYPE" ]; then
+        SESSION_TYPE=$(loginctl show-session $(loginctl --no-legend | awk '{print $1}') -p Type | awk -F= '{print $2}')
+        if [ "$SESSION_TYPE" == "wayland" ]; then
+            echo "Wayland session started"
+            # Switch to the right dogtail (for Wayland)
+            mv /opt/bundled/dogtail /opt/bundled/dogtail-x11
+            mv /opt/bundled/dogtail-wayland /opt/bundled/dogtail
+            export PKG_CONFIG_PATH=/usr/lib64/
+            # Copy utils to /usr/bin, it is needed by dogtail
+            cp -r /opt/lib/utils/* /usr/bin/
+            # Copy libs
+            cp -r /opt/lib/lib/* /usr/lib/
+            cp -r /opt/lib/lib64/* /usr/lib64/
+            cp -r /opt/lib/libexec/* /usr/libexec/
+            cp -r /opt/lib/include/* /usr/include/
+            cp -r /opt/lib/share/* /usr/share/
+            # Install ponytail
+            cd /opt/bundled/ponytail && meson.pyz setup build && ninja -C build
+            mv /opt/bundled/ponytail/build/src/gnome-ponytail-daemon /usr/bin/
+            # Services
+            cp /opt/bundled/ponytail/build/src/gnome-ponytail-daemon.service /etc/systemd/user/
+            sed -i 's/ExecStart=.*$/ExecStart=\/usr\/bin\/gnome-ponytail-daemon/' /etc/systemd/user/gnome-ponytail-daemon.service
+            cp /opt/bundled/ponytail/build/src/org.gnome.Ponytail.service /usr/share/dbus-1/services/
+            sed -i 's/Exec=.*$/Exec=\/usr\/bin\/gnome-ponytail-daemon/' /usr/share/dbus-1/services/org.gnome.Ponytail.service
+            # Start ponytail service
+            systemctl --user start gnome-ponytail-daemon
+            sleep 1
+            systemctl --user status gnome-ponytail-daemon
+            exit 0
+        fi
+        echo "Session with type: $SESSION_TYPE started"
+        exit 1
+    fi
+    # If the socket exists, the X session started
+    if [ -e "$socket_name" ]; then
+        echo "X session started"
+        exit 0
+    fi
+    let waited=$waited+1
+done
+
+echo "No session started in $WAIT_TIMEOUT seconds"
+exit 1

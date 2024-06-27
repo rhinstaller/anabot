@@ -10,7 +10,11 @@ ExecStart=/opt/python_launcher.sh /opt/launcher.py anaconda_installer
 Environment="ANABOT_MODULES=/opt/anabot-modules"
 Environment="ANABOT_CONF=/opt/anabot.ini"
 Environment="TERES_PATH=/opt/teres"
-Environment="DISPLAY=:1"
+#Environment="DISPLAY=:1"
+Environment="WAYLAND_DISPLAY=wayland-0"
+Environment="XDG_SESSION_TYPE=wayland"
+Environment="DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/0/bus"
+Environment="XDG_RUNTIME_DIR=/run/user/0"
 Environment="USER=root"
 Environment="PYTHONHTTPSVERIFY=0"
 ExecReload=/bin/kill -s SIGUSR1 ${MAINPID}

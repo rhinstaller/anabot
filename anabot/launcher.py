@@ -77,7 +77,11 @@ def main(*args):
 
     options_to_export = {
         # option_name: env_variable,
-        'x_display': 'DISPLAY',
+        #'x_display': 'DISPLAY',
+        'dbus_session_bus_address': 'DBUS_SESSION_BUS_ADDRESS',
+        'xdg_runtime_dir': 'XDG_RUNTIME_DIR',
+        'xdg_session_type': 'XDG_SESSION_TYPE',
+        'wayland_display': 'WAYLAND_DISPLAY',
         'log_file': 'ANABOT_CONFIG_LOG_FILE',
         'hooks': 'ANABOT_CONFIG_HOOKS',
         'hook_update_env_file': 'ANABOT_HOOK_UPDATE_ENV',
@@ -166,7 +170,6 @@ def main(*args):
     min_children = config.get_option('atk_min_children')
 
     from anabot.runtime.run_test import run_test
-
     run_test("/var/run/anabot/final-recipe.xml", appname=app_name, children_required=min_children)
     run_postexechooks()
     if reporter.test_end() == teres.PASS:
