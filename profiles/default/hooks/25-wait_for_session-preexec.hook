@@ -1,0 +1,48 @@
+#!/bin/bash
+
+session_type=""
+socket_name="/tmp/.X11-unix/X${DISPLAY#:}"
+wait_timeout=60
+waited=0
+
+# Wait for either X or Wayland session to start
+# Installer with X does not start a session, so loginctl returns an empty string.
+# Installer with Wayland starts a session with type "Wayland".
+# Presence of an X session can be determined by an existing X socket.
+waited=0
+while [ $waited -le $wait_timeout ]; do
+    sleep 1
+    session_type=$(
+        loginctl show-session \
+        $(loginctl --no-legend | awk '/seat0/ {print $1}') \
+        -P Type
+    )
+    # non empty loginctl indicates that a session started, check whether it is Wayland
+    if [ "${session_type}" == "wayland" ]; then
+        echo "Wayland session detected."
+        # Switch to the right dogtail (for Wayland, default is x11)
+        mv /opt/bundled/dogtail /opt/bundled/dogtail-x11
+        mv /opt/bundled/dogtail-wayland /opt/bundled/dogtail
+
+        # gnome-ponytail-daemon is contained within /opt/bundled-bin and should be deployed
+        # by anabot-prepare.service at this point
+        systemctl --user start gnome-ponytail-daemon
+        break
+    # If the socket exists, the X session started
+    elif [ -e "${socket_name}" ]; then
+        echo "X session detected."
+        session_type="x11"
+        break
+    fi
+    ((waited++))
+done
+
+if [ -n "${session_type}" ]; then
+    echo "Session with type '${session_type}' found."
+    # save session type to set XDG_SESSION_TYPE accordingly in launcher.py
+    echo -n "${session_type}" > /run/anabot/session_type
+    exit 0
+else
+    echo "No session started in ${wait_timeout} seconds"
+    exit 1
+fi
