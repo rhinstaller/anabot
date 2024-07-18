@@ -1,0 +1,8 @@
+[Unit]
+Description=GNOME Ponytail daemon
+
+[Service]
+Type=dbus
+BusName=org.gnome.Ponytail
+ExecStart=/usr/libexec/gnome-ponytail-daemon
+Restart=on-failure

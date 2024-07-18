@@ -1,0 +1,10 @@
+[Unit]
+Description=GNOME Ponytail daemon
+ConditionPathExists=!/usr/bin/Xorg
+After=anabot-prepare.service
+
+[Service]
+Type=dbus
+BusName=org.gnome.Ponytail
+ExecStart=/usr/libexec/gnome-ponytail-daemon
+Restart=on-failure
