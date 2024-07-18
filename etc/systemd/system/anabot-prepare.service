@@ -1,0 +1,12 @@
+[Unit]
+Description=Deploy binaries bundled with Anabot
+ConditionPathExists=!/usr/bin/Xorg
+Before=anabot.service
+
+[Service]
+ExecStart=sh -c "cp -r /opt/bundled-bin/$(uname -m)/* /"
+Type=oneshot
+
+[Install]
+WantedBy=anabot.service
+WantedBy=anabot-direct.service
