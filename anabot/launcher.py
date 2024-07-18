@@ -6,6 +6,7 @@ from logging.handlers import SysLogHandler
 from anabot import config
 from anabot.variables import set_variable, get_variable, set_env_variable
 import shlex
+from anabot.runtime.hooks import register_preexec_hook
 
 CMDLINE_VAR_PREFIX = "anabot."
 
@@ -105,6 +106,31 @@ def main(*args):
     # import modules - also registers modules hooks
     from anabot.modules import import_modules
     import_modules()
+
+    # Manipulate session environment variables based on whether we are running
+    # on X or Wayland - detected by 25-wait_for_session-preexec.hook
+    # NOTE: It is registered as a hook to ensure the variable manipulation takes
+    # place before dogtail is invoked for the first time (otherwise Anabot would crash)!
+    @register_preexec_hook(26)
+    def set_session_env_vars():
+        try:
+            with open("/run/anabot/session_type", "r") as st:
+                session_type = st.read().strip()
+            logger.debug("Setting environment variable XDG_SESSION_TYPE='%s'" % session_type)
+            os.environ["XDG_SESSION_TYPE"] = session_type
+            # also unset WAYLAND_DISPLAY with X, as otherwise it makes dogtail crash,
+            # DBUS_SESSION_BUS_ADDRESS makes dogtail print unwanted warnings about
+            # dconf in the log
+            if session_type == "x11":
+                for env_var in ("WAYLAND_DISPLAY", "DBUS_SESSION_BUS_ADDRESS"):
+                    try:
+                        os.environ.pop(env_var)
+                        logger.debug("Running on X - unsetting environment variable '%s'" % env_var)
+                    except KeyError:
+                        pass
+        except FileNotFoundError:
+            logger.warn("/run/anabot/session_type not found, Anabot may behave unexpectedly!")
+            pass
 
     # run preexec_hooks
     logger.debug('Running preexec hooks')
