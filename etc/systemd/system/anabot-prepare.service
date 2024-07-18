@@ -1,12 +1,11 @@
 [Unit]
-Description=Deploy binaries bundled with Anabot
+Description=Deploy Wayland-related binaries and other modifications for Anabot
 ConditionPathExists=!/usr/bin/Xorg
-Before=anabot.service
+Before=anaconda.service
 
 [Service]
-ExecStart=sh -c "cp -r /opt/bundled-bin/$(uname -m)/* /"
+ExecStart=/opt/anabot-prepare.sh
 Type=oneshot
 
 [Install]
-WantedBy=anabot.service
-WantedBy=anabot-direct.service
+WantedBy=anaconda.service
