@@ -10,7 +10,15 @@ ExecStart=/opt/python_launcher.sh /opt/launcher.py anaconda_installer
 Environment="ANABOT_MODULES=/opt/anabot-modules"
 Environment="ANABOT_CONF=/opt/anabot.ini"
 Environment="TERES_PATH=/opt/teres"
+
+# $DISPLAY shouldn't hurt anything even with Wayland
 Environment="DISPLAY=:1"
+Environment="XDG_RUNTIME_DIR=/run/user/0"
+# $WAYLAND_DISPLAY and $DBUS_SESSION_BUS_ADDRESS get undefined in anabot/launcher.py if running on X
+Environment="WAYLAND_DISPLAY=wl-sysinstall-0"
+Environment="DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/0/bus"
+# $XDG_SESSION_TYPE is set automatically in anabot/launcher.py
+
 Environment="USER=root"
 Environment="PYTHONHTTPSVERIFY=0"
 ExecReload=/bin/kill -s SIGUSR1 ${MAINPID}
