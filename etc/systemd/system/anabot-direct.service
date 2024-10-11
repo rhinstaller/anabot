@@ -15,7 +15,7 @@ Environment="TERES_PATH=/opt/teres"
 Environment="DISPLAY=:1"
 Environment="XDG_RUNTIME_DIR=/run/user/0"
 # $WAYLAND_DISPLAY and $DBUS_SESSION_BUS_ADDRESS get undefined in anabot/launcher.py if running on X
-Environment="WAYLAND_DISPLAY=wayland-0"
+Environment="WAYLAND_DISPLAY=wl-sysinstall-0"
 Environment="DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/0/bus"
 # $XDG_SESSION_TYPE is set automatically in anabot/launcher.py
 
