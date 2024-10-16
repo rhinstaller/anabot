@@ -266,6 +266,8 @@ def getselected(parent, visible=True):
     return getnodes(parent, visible=visible, selected=True)
 
 def log_screenshot(wait=None, progress_only=False):
+# Temporarily disabled because of broken screenshot functionality in dogtail
+    return
     """Make screenshot. Check digest of new screenshot, if it's same as
     previous one, ignore it. Otherwise, log it
 
