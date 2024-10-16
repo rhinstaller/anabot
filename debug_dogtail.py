@@ -12,6 +12,18 @@ logger.setLevel(logging.DEBUG)
 from anabot import paths
 
 os.environ["DISPLAY"] = ":1"
+with open("/run/anabot/session_type", "r") as st:
+    if st.read() == "wayland":
+        os.environ["XDG_RUNTIME_DIR"] = "/run/user/0"
+        os.environ["WAYLAND_DISPLAY"] = "wl-sysinstall-0"
+        os.environ["DBUS_SESSION_BUS_ADDRESS"] = "unix:path=/run/user/0/bus"
+        os.environ["XDG_SESSION_TYPE"] = "wayland"
+        from subprocess import call
+        if call("systemctl --user is-active gnome-ponytail-daemon", shell="True") > 0:
+            print("gnome-ponytail-daemon user service not running, going to start it...")
+            if call("systemctl --user start gnome-ponytail-daemon", shell="True") > 0:
+                print("Couldn't start gnome-ponytail-daemon.")
+                sys.exit(1)
 
 try:
     app_name = sys.argv[1]
