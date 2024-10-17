@@ -14,7 +14,8 @@ screenshot_re = re.compile('[0-9]+-screenshot.png')
 target_name = 'progress.apng'
 target_path = os.path.join(screenshot_dir, target_name)
 
-@register_post_hook(80)
+# Temporarily disabled because of broken screenshot functionality in dogtail
+#@register_post_hook(80)
 def make_slideshow_from_screenshots():
     inputs = []
     for filename in sorted(os.listdir(screenshot_dir)):

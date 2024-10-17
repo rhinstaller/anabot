@@ -157,7 +157,10 @@ def _run_hooks(hook_type, preexec_fn=None):
             reporter.log_debug("Running hook: %s" % format_partial(hook))
             hook()
         except Exception as e:
-            reporter.log_error("Hook raised exception: %s" % e)
+            import traceback
+            reporter.log_error("Hook '%s' raised exception:\n%s" %
+                (format_partial(hook), traceback.format_exc())
+            )
     _hooks[hook_type] = hook_list
 
 def run_preexechooks():
