@@ -35,10 +35,14 @@ if has_feature_hub_config():
 def base_handler(element, app_node, local_node):
     timeout = _DEFAULT_TIMEOUT
     if get_variable('profile') in ("anaconda", "anaconda_installer") and not is_liveimg_install():
-        reporter.log_info("Waiting for yum transaction. Timeout is 10 minutes")
-        waitline = ".* INFO packaging:  running transaction"
-        if is_distro_version_ge('rhel', 8) or is_distro_version_ge('fedora', 35):
+        if is_distro_version_ge('rhel', 10) or is_distro_version_ge('fedora', 40):
+            waitline = 'INFO:dnf:Running transaction'
+        elif is_distro_version_ge('rhel', 8) or is_distro_version_ge('fedora', 35):
             waitline = '.* INF dnf: Running transaction'
+        else:
+            waitline = ".* INFO packaging:  running transaction"
+        reporter.log_info("Waiting for yum transaction. Timeout is 10 minutes. Looking for '%s' in packaging.log" %
+            waitline)
         wait_for_line(
             '/tmp/packaging.log',
             waitline,
