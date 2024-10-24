@@ -13,3 +13,16 @@ cat > /bin/gnome-kiosk << EOF
 /bin/gnome-kiosk_ "\$@" --unsafe-mode
 EOF
 chmod +x /bin/gnome-kiosk
+
+# Create Anaconda desktop file (needed for dogtail to find the window)
+cat > /usr/share/applications/anaconda.desktop << EOF
+[Desktop Entry]
+
+Name=Anaconda
+Comment=Graphical system installer
+Terminal=false
+Type=Application
+Categories=System;
+Exec=anaconda
+NoDisplay=true
+EOF
