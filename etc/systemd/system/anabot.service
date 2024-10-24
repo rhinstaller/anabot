@@ -5,7 +5,14 @@ ConditionArchitecture=!s390
 ConditionArchitecture=!s390x
 
 [Service]
-ExecStartPre=/usr/bin/sleep 30
+# Use sleep (to avoid occasional weird dogtail tracebacks) with Xorg only.
+# It's actually a workaround - the sleep can't be used here generally, i. e.
+# even with Wayland, as gnome-kiosk would fail to start - it's likely a bug in
+# the launcher script in Anaconda (run-in-new-session) or gnome-kiosk.
+# It seems the delay shouldn't be needed with Wayland (and/or with the new version
+# of dogtail). If it turns out it's not the case, we should remove the sleep
+# from here and implement it it launcher.py.
+ExecStartPre=sh -c "ps aux | grep -q gnome-kiosk || sleep 30"
 ExecStart=/opt/python_launcher.sh /opt/launcher.py anaconda_installer
 Environment="ANABOT_MODULES=/opt/anabot-modules"
 Environment="ANABOT_CONF=/opt/anabot.ini"
