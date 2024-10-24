@@ -26,3 +26,6 @@ Categories=System;
 Exec=anaconda
 NoDisplay=true
 EOF
+
+
+cp -r /opt/xfreerdp-hack/$(uname -m)/* /
