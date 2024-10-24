@@ -7,3 +7,7 @@
 [submodule "bundled/dogtail"]
 	path = bundled/dogtail
 	url = https://gitlab.com/dogtail/dogtail.git
+[submodule "bundled/dogtail-wayland"]
+	path = bundled/dogtail-wayland
+	url = https://gitlab.com/dogtail/dogtail.git
+	branch = devel/wayland

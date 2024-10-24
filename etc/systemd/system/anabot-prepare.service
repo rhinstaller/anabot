@@ -1,0 +1,11 @@
+[Unit]
+Description=Deploy Wayland-related binaries and other modifications for Anabot
+ConditionPathExists=!/usr/bin/Xorg
+Before=anaconda.service
+
+[Service]
+ExecStart=/opt/anabot-prepare.sh
+Type=oneshot
+
+[Install]
+WantedBy=anaconda.service

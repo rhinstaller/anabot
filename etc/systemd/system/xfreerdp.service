@@ -1,0 +1,14 @@
+[Unit]
+Description=xfreerdp-dummy
+After=anaconda.service
+After=anabot-prepare.service
+Before=anabot.service
+ConditionArchitecture=!s390
+ConditionArchitecture=!s390x
+
+[Service]
+ExecStart=/opt/xfreerdp.sh
+Environment=HOME=/root
+
+[Install]
+#WantedBy=anabot.service
