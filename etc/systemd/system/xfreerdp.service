@@ -1,0 +1,14 @@
+[Unit]
+Description=xfreerdp-dummy
+After=anaconda.service
+After=anabot-prepare.service
+Before=anabot.service
+Before=anabot-direct.service
+
+[Service]
+ExecStart=/opt/xfreerdp.sh
+Environment=HOME=/root
+
+[Install]
+WantedBy=anabot.service
+WantedBy=anabot-direct.service
