@@ -15,3 +15,16 @@ if [ ! -f /bin/gnome-kiosk_ ]; then
 EOF
     chmod +x /bin/gnome-kiosk
 fi
+
+# Create Anaconda desktop file (needed for dogtail to find the window)
+cat > /usr/share/applications/anaconda.desktop << EOF
+[Desktop Entry]
+
+Name=Anaconda
+Comment=Graphical system installer
+Terminal=false
+Type=Application
+Categories=System;
+Exec=anaconda
+NoDisplay=true
+EOF
