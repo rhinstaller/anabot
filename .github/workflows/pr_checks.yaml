@@ -10,8 +10,6 @@ permissions:
 
 jobs:
   centos_stream9:
-    # pylint is not available for centos_stream9, disable for now
-    if: false
     runs-on: ubuntu-latest
     container:
       image: quay.io/centos/centos:stream9
