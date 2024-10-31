@@ -42,7 +42,7 @@ def raid_name(raid_level=None, drop_span=True):
         }
     if drop_span:
         exp = re.compile(r'(.*)<span foreground=\"grey\">(.*)</span>')
-        for level in LEVELS:
+        for level in LEVELS.keys():
             LEVELS[level] = exp.sub(r"\1\2", LEVELS[level])
     if raid_level is not None:
         return LEVELS[raid_level]
