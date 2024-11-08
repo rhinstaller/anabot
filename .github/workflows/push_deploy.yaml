@@ -48,4 +48,4 @@ jobs:
         if: always()
         run: |
           podman kill anabot
-          podman image rm quay.io/centos/centos:stream9
+          podman image rm --force quay.io/centos/centos:stream9
