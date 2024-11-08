@@ -21,7 +21,8 @@ jobs:
           dnf install -y 'dnf-command(config-manager)'
           dnf config-manager --set-enabled crb
           dnf install -y epel-release epel-next-release
-          dnf install -y python3-pylint python3-libxml2 git
+          dnf install -y python3-pylint python3-libxml2 git python3-gobject-base \
+            libxklavier
 
       - name: Checkout change
         uses: actions/checkout@v3
