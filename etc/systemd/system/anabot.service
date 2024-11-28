@@ -12,7 +12,7 @@ ConditionArchitecture=!s390x
 # It seems the delay shouldn't be needed with Wayland (and/or with the new version
 # of dogtail). If it turns out it's not the case, we should remove the sleep
 # from here and implement it it launcher.py.
-ExecStartPre=sh -c "which Xorg && sleep 30"
+ExecStartPre=sh -c "which Xorg && sleep 30 || true"
 ExecStart=/opt/python_launcher.sh /opt/launcher.py anaconda_installer
 Environment="ANABOT_MODULES=/opt/anabot-modules"
 Environment="ANABOT_CONF=/opt/anabot.ini"
