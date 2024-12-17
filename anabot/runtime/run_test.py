@@ -19,6 +19,28 @@ def run_test(file_path, appname="anaconda", children_required=0):
     that this file is already processed by anabot preprocessor.
     See anabot.preprocessor package.
     """
+    from gi import require_version
+    require_version('Gdk', '3.0')
+    from gi.repository import Gdk # pylint: disable=no-name-in-module
+
+    # Workaround for a situation when a default display is missing for some reason.
+    # It is not clear at this point whether this really is a workaround and it should be
+    # fixed (potentially) in dogtail.
+    if Gdk.Display.get_default() is None:
+        import os
+        logger.debug("Default GDK display not found! Opening the display explicitly.")
+        if "WAYLAND_DISPLAY" in os.environ.keys():
+            display_name = os.environ["WAYLAND_DISPLAY"]
+        elif "DISPLAY" in os.environ.keys():
+            display_name = os.environ["DISPLAY"]
+        else:
+            logger.error("Can't find a display name to open explicitly, Anabot run may fail!")
+            # Let's assume Anaconda running on Wayland, as this is likely the only problematic
+            # configuration anyway.
+            display_name = "wl-sysinstall-0"
+        Gdk.Display.open(display_name)
+        logger.debug(f"Explicitly opened display: '{Gdk.Display.get_default().get_name()}'")
+
     import dogtail.config # pylint: disable=import-error
     dogtail.config.config.checkForA11y = False
     dogtail.config.config.typingDelay = 0.2
