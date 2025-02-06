@@ -130,13 +130,20 @@ REBOOT_BUTTON_NOT_FOUND = NotFound("\"Reboot\" button", "button_not_found")
 
 @handle_act('/reboot')
 def reboot_handler(element, app_node, local_node):
+    if has_feature_hub_config():
+        reboot_button_params = {
+            "intext": "_Continue",
+            "context": "GUI|Standalone Navigation",
+            "drop_underscore": False
+        }
+    else:
+        reboot_button_params = {
+            "intext": "_Reboot",
+            "context": "GUI|Progress"
+        }
+
     try:
-        if has_feature_hub_config():
-            reboot_button = getnode(local_node, "push button", tr("_Continue", context="GUI|Standalone Navigation", drop_underscore=False), timeout=15)
-        else:
-            reboot_button = getnode(local_node, "push button",
-                                    tr("_Reboot", context="GUI|Progress"),
-                                    timeout=15)
+        reboot_button = getnode(local_node, "push button", tr(**reboot_button_params), timeout=15)
     except NonexistentError:
         return REBOOT_BUTTON_NOT_FOUND
 
