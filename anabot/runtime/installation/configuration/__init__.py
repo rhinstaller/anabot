@@ -17,6 +17,7 @@ from anabot.runtime.hooks import run_posthooks
 from anabot.variables import get_variable
 from anabot.runtime.actionresult import NotFoundResult as NotFound, ActionResultPass as Pass
 from anabot.runtime.default import action_result
+from dbus.exceptions import DBusException
 
 _local_path = '/installation/configuration'
 handle_act = lambda x: handle_action(_local_path + x)
@@ -146,8 +147,16 @@ def reboot_handler(element, app_node, local_node):
         reboot_button = getnode(local_node, "push button", tr(**reboot_button_params), timeout=15)
     except NonexistentError:
         return REBOOT_BUTTON_NOT_FOUND
-
     run_posthooks()
+
     reporter.test_end()
-    reboot_button.click()
+
+    try:
+        reboot_button.click()
+    # last resort hack to get the machine rebooted if a DBusException occurs (unknown why)
+    except DBusException as e:
+        # this should go at least to journal, anabot logging is already closed at this point
+        print("anabot workaround: DBusException caught, rebooting via 'systemctl reboot'")
+        from os import system
+        system("systemctl reboot --no-wall")
     sys.exit(0)
