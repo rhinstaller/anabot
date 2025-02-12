@@ -14,6 +14,7 @@ from teres.bkr_handlers import QUIET_FILE
 reporter = teres.Reporter.get_reporter()
 watched_files = [
     '/tmp/anaconda.log',
+    '/tmp/dbus.pcap',
     '/tmp/ifcfg.log',
     '/tmp/packaging.log',
     '/tmp/program.log',
@@ -22,6 +23,8 @@ watched_files = [
 ]
 globfiles = [
     '/tmp/anaconda-tb-*',
+    # actual core dumps are uploaded to FTP by anabot-debug service
+    '/tmp/dump-*.info',
 ]
 
 def mainloop():

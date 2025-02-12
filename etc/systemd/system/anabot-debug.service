@@ -1,0 +1,10 @@
+[Unit]
+Description=Anabot service for debug information collection
+After=anaconda.service
+
+[Service]
+ExecStart=sh -c "which Xorg || /opt/anabot-debug.sh"
+Environment="DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/0/bus"
+
+[Install]
+WantedBy=anaconda.service

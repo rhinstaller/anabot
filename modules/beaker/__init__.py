@@ -22,7 +22,7 @@ import libxml2
 import teres
 import teres.bkr_handlers
 from anabot.exceptions import UnrelatedException
-from anabot.variables import set_variable, get_variable
+from anabot.variables import set_variable, get_variable, get_variables
 
 BEAKER = "https://%s" % get_variable('beaker_hub_hostname')
 EXTERNAL_VAR_PREFIX = "ANABOT_SUB_"
@@ -225,3 +225,18 @@ for param_name in [n for n in get_param_names() if n.startswith(EXTERNAL_VAR_PRE
         (var_name, var_value))
     set_variable(var_name, var_value)
 
+# Ensure potential core dumps will get uploaded to FTP if possible.
+# The following settings are consumed by anabot-debug service:
+ftp_settings = {v:get_variable(v) for v in get_variables() if v.startswith("ftp_")}
+if ftp_settings:
+    required_ftp_vars = ("ftp_server", "ftp_user", "ftp_password")
+    if all([v in ftp_settings.keys() for v in required_ftp_vars]):
+        rep.log_debug("Using FTP server settings for core dumps upload")
+        for ftp_variable in ftp_settings:
+            with open(f"/run/anabot/{ftp_variable}", "w") as f:
+                f.write(ftp_settings[ftp_variable])
+        # We also need the recipe id to properly name the core dump file for upload
+        with open("/run/anabot/recipeid", "w") as f:
+            f.write(get_recipe_id())
+    else:
+        rep.log_warn("Not all settings for core dumps upload via FTP have been set!")
