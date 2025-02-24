@@ -110,8 +110,8 @@ EOF
     yum install -y restraint-rhts.$(uname -m)
 
     # create restraint config with task logs offsets
-    mkdir -p /var/lib/restraint
-    cat <<-EOF > /var/lib/restraint/config.conf
+    mkdir -p /etc/restraint
+    cat <<-EOF > /etc/restraint/config.conf
 [restraint]
 recipe_url=http://${labcontroller}:8000/recipes/${recipeid}/
 
