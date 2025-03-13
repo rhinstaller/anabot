@@ -1,0 +1,5 @@
+#!/usr/bin/bash
+
+echo "Running restorecon on installed system to ensure post hooks didn't break any contexts."
+restorecon /etc/ld.so.cache
+
