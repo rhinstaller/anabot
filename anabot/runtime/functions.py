@@ -14,7 +14,6 @@ import dogtail.dump # pylint: disable=import-error
 import pyatspi # pylint: disable=import-error
 from dogtail.predicate import GenericPredicate # pylint: disable=import-error
 from anabot.paths import screenshot_executable
-from anabot.conditions import is_distro_version_ge
 
 from .errors import NonexistentError, TimeoutError
 
@@ -271,11 +270,6 @@ def log_screenshot(wait=None, progress_only=False):
     previous one, ignore it. Otherwise, log it
 
     """
-    # Temporarily disabled on RHEL-10 and Fedora 40+ because of broken screenshot
-    # functionality in dogtail - to be removed when RHEL-62420 is fixed.
-    if is_distro_version_ge('rhel', 10) or is_distro_version_ge('fedora', 40):
-        logger.info("Not taking a screenshot as the functionality is broken on Wayland")
-        return
     global _SCREENSHOT_NUM
     global _SCREENSHOT_SUM
     global _SCREENSHOT_PROGRESS_SUM
