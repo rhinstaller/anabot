@@ -14,6 +14,7 @@ import dogtail.dump # pylint: disable=import-error
 import pyatspi # pylint: disable=import-error
 from dogtail.predicate import GenericPredicate # pylint: disable=import-error
 from anabot.paths import screenshot_executable
+from anabot.conditions import is_distro_version_lt
 
 from .errors import NonexistentError, TimeoutError
 
@@ -523,6 +524,11 @@ def scrollto(node):
     logger.debug("Size: %s" % repr(node.size))
     logger.debug("Scroll direction: %s" % repr(scroll_dirs()))
 
+# on RHEL-10+/Fedora 40+, the actual y coordinates are shifted by 6 pixels upwards, so e. g.
+# with yborders(item)[1] == 394, the lower border is at 388 and the first pixel above the border
+# at 387, thus a shift by 7 instead of 1 is needed to achieve the same behaviour as before.
+YOFFSET = 1 if is_distro_version_lt("rhel", 10) or is_distro_version_lt("fedora", 40) \
+    else  7
 
 def combo_scroll(item, point=True, click=None, doubleclick=None):
     # need to import dogtail.rawinput after display is on, so this is probably
@@ -537,9 +543,9 @@ def combo_scroll(item, point=True, click=None, doubleclick=None):
     def do_actions():
         centerx = item.position[0] + item.size[0]/2
         if abs(yborders(item)[0] - yborders(menu)[0]) > abs(yborders(item)[1] - yborders(menu)[1]):
-            posy = yborders(item)[0]+1
+            posy = yborders(item)[0] + YOFFSET
         else:
-            posy = yborders(item)[1]-1
+            posy = yborders(item)[1] - YOFFSET
         # ensure that the item is fully visible by pointing at it
         if point:
             dogtail.rawinput.absoluteMotion(centerx, posy)
@@ -561,9 +567,15 @@ def combo_scroll(item, point=True, click=None, doubleclick=None):
         following = getsibling(item, 1, "menu item")
 
     while yborders(previous)[0] < miny:
-        menu.click(MOUSE_SCROLL_UP)
+        if is_distro_version_lt("rhel", 10) or is_distro_version_lt("fedora", 40):
+            menu.click(MOUSE_SCROLL_UP)
+        else:
+            menu.keyCombo('Up')
     while yborders(following)[1] > maxy:
-        menu.click(MOUSE_SCROLL_DOWN)
+        if is_distro_version_lt("rhel", 10) or is_distro_version_lt("fedora", 40):
+            menu.click(MOUSE_SCROLL_DOWN)
+        else:
+            menu.keyCombo('Down')
 
     do_actions()
 
