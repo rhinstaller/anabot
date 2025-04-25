@@ -15,6 +15,7 @@ reporter = teres.Reporter.get_reporter()
 watched_files = [
     "/tmp/anaconda.log",
     "/tmp/dbus.log",
+    '/tmp/dbus.pcap',
     "/tmp/dnf.librepo.log",
     "/tmp/hawkey.log",
     "/tmp/journal.log",
