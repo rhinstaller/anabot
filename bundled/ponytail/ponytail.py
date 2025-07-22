@@ -47,10 +47,6 @@ class Ponytail:
     def __call__(self):
         return self
 
-    def __del__(self):
-        if (self.connected):
-            self.disconnect()
-
     def _windowMatch(self, params, name, want_focus):
         # If we expect the window to be focused while it's not, ignore
         if (want_focus and not params['has-focus']):
@@ -217,7 +213,10 @@ class Ponytail:
         self.bus.remove_signal_receiver(connected, 'Connected', self.event_controller_iface)
         self.connected = monitor
 
-    def disconnect(self):
+    def disconnect(self, force=False):
+        if self.connected is None and not force:
+            return
+
         waitloop = GLib.MainLoop()
 
         def disconnected():
@@ -225,6 +224,7 @@ class Ponytail:
 
         self.bus.add_signal_receiver(disconnected, 'Disconnected', self.event_controller_iface)
         self.event_controller.Disconnect(dbus_interface=self.event_controller_iface)
-        waitloop.run()
+        if not force:
+            waitloop.run()
         self.bus.remove_signal_receiver(disconnected, 'Disconnected', self.event_controller_iface)
         self.connected = None
