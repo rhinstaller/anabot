@@ -8,6 +8,7 @@ from anabot.runtime.functions import get_attr, getnode, getselected, disappeared
 from anabot.runtime.translate import tr
 from anabot.runtime.errors import TimeoutError
 from .common import set_language
+from dogtail.rawinput import click as raw_click
 
 # submodules
 from . import language, locality, beta_dialog, storage_error_dialog
@@ -19,6 +20,9 @@ handle_chck = lambda x: handle_check(_local_path + x)
 @handle_act('')
 def base_handler(element, app_node, local_node):
     welcome = getnode(app_node, "panel", "WELCOME")
+    # It may happen that the first click (on the Continue button) doesn't do anything,
+    # so let's do a dummy click before a meaningful one.
+    raw_click(1, 1)
     set_language(welcome)
     default_handler(element, app_node, welcome)
 
