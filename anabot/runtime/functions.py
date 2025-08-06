@@ -16,6 +16,10 @@ from dogtail.predicate import GenericPredicate # pylint: disable=import-error
 from anabot.paths import screenshot_executable
 from anabot.conditions import is_distro_version_lt
 
+from gi import require_version
+require_version('Atspi', '2.0')
+from gi.repository import Atspi # pylint: disable=no-name-in-module
+
 from .errors import NonexistentError, TimeoutError
 
 import logging
@@ -32,6 +36,27 @@ _SCREENSHOT_NUM = 0
 _SCREENSHOT_SUM = None
 _SCREENSHOT_PROGRESS_SUM = None
 
+# The rebase to at-spi2-atk-2.56.1-1.el10 brought a change in button node type
+# from 'push button' to 'button'. To retain backward compatibility (RHEL-9
+# and RHEL-10 prior to this change), we need to ensure the calls to functions
+# handling button node discoveries will use the proper node type.
+if "BUTTON" in dir(Atspi.Role):
+    logger.warn("'push button' node type will be translated to 'button'.")
+    BUTTON_NODE_TYPE = "button"
+else:
+    BUTTON_NODE_TYPE = "push button"
+
+def translate_node_type(node_type):
+    """
+    Translate node type to match the current form of the node type string
+    ("push button" is named just "button" in new versions of at-spi2).
+    """
+
+    if node_type == "push button":
+        return BUTTON_NODE_TYPE
+    return node_type
+
+
 class AnabotPredicate(GenericPredicate):
     def __init__(self, node_type=None, name=None, **kwargs):
         self.attrs = copy.deepcopy(kwargs)
@@ -41,7 +66,7 @@ class AnabotPredicate(GenericPredicate):
             )
             self.attrs['showing'] = self.attrs['visible']
             del self.attrs['visible']
-        super(AnabotPredicate, self).__init__(name, node_type)
+        super(AnabotPredicate, self).__init__(name, translate_node_type(node_type))
 
     def _genCompareFunc(self):
         orig_satisfiedByNode = super(AnabotPredicate, self)._genCompareFunc()
@@ -149,6 +174,7 @@ def wait_until_disappear(node, predicate, timeout=_DEFAULT_TIMEOUT,
 
 def disappeared(parent, node_type=None, node_name=None,
                 timeout=_DEFAULT_TIMEOUT, recursive=True):
+    node_type = translate_node_type(node_type)
     predicate = GenericPredicate(roleName=node_type, name=node_name)
     try:
         wait_until_disappear(parent, predicate, timeout, recursive=recursive)
@@ -203,6 +229,7 @@ def getnode_scroll(parent, node_type=None, node_name=None,
     return node
 
 def getparent(child, node_type=None, node_name=None):
+    node_type = translate_node_type(node_type)
     predicate = GenericPredicate(roleName=node_type, name=node_name)
     return child.findAncestor(predicate)
 
@@ -236,6 +263,7 @@ def findsibling(items, item, distance, criteria=lambda x: True):
 @_check_existence
 def nodematching(node, node_type=None, node_name=None, visible=True,
                sensitive=True):
+    node_type = translate_node_type(node_type)
     if node_type is not None and node.roleName != node_type:
         return False
     if node_name is not None and node.name != node_name:
