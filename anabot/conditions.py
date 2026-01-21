@@ -72,6 +72,12 @@ def _anaconda_version():
         logger.debug('Cannot determine anaconda version from rpm')
         logger.debug(e)
 
+    try:
+        from pyanaconda import version
+        return version.__version__
+    except ModuleNotFoundError:
+        logger.debug('Cannot determine anaconda version from from pyanaconda')
+
     logger.error('Could not determine anaconda version')
 
 _cache['distro'] = _distro()
