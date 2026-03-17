@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if [ -z "$ANABOT_VAR_CA_CERTIFICATE_URL" ]; then
+    echo "ANABOT_VAR_CA_CERTIFICATE_URL env variable is not set."
+    exit 0
+fi
+
+curl -kfLo /etc/pki/ca-trust/source/anchors/custom_CA.pem "$ANABOT_VAR_CA_CERTIFICATE_URL" && update-ca-trust extract
