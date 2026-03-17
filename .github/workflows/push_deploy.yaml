@@ -38,7 +38,11 @@ jobs:
 
       - name: build image
         run: |
-          podman exec -it -w /root/workspace/anabot -e BEAKER_HUB_HOSTNAME="${{ secrets.BEAKER_HUB_HOSTNAME }}" anabot ./make_updates.sh ../anabot-${{ github.ref_name }}-${{ github.ref_name }}.tar.gz
+          podman exec -it \
+            -w /root/workspace/anabot \
+            -e BEAKER_HUB_HOSTNAME="${{ secrets.BEAKER_HUB_HOSTNAME }}" \
+            -e CA_CERTIFICATE_URL="${{ secrets.CA_CERTIFICATE_URL }}" \
+            anabot ./make_updates.sh ../anabot-${{ github.ref_name }}-${{ github.ref_name }}.tar.gz
 
       - name: publish image
         run: |
