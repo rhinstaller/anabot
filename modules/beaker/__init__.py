@@ -5,6 +5,7 @@ Reporter instance."""
 
 import os
 import re
+import sys
 import subprocess
 import socket
 try:
@@ -113,6 +114,38 @@ def get_task_id(beaker_recipe):
     xpath = '/job/recipeSet/recipe/task[@status="Running" or @status="Waiting"]/@id'
     return beaker_recipe.xpathEval(xpath)[0].content
 
+def get_task_name(beaker_recipe, task_id):
+    xpath = f'/job/recipeSet/recipe/task[@id="{task_id}"]/@name'
+    return beaker_recipe.xpathEval(xpath)[0].content
+
+def validate_beaker_task_config(cmdline, task_id, task_name,
+                                interactive_kickstart, anabot_recipe_url):
+    provisioning_install = ('inst.ks=' in cmdline and 'recipeid=' not in cmdline)
+    if not provisioning_install:
+        errmsg = None
+    elif 'anabot' not in task_name:
+        errmsg = (
+            f"Anabot is running during provisioning but the current Beaker task is "
+            f"'{task_name}' (id {task_id}), not an anabot task."
+        )
+    elif not anabot_recipe_url:
+        errmsg = (
+            f"ANABOT_RECIPE_URL is not set on Beaker task '{task_name}' (id {task_id}). "
+            f"Ensure the current Running/Waiting task is an anabot task with "
+            f"ANABOT_RECIPE_URL configured."
+        )
+    elif interactive_kickstart in (None, '', '0'):
+        errmsg = (
+            f"Anabot is running during provisioning, but Beaker task '{task_name}' "
+            f"(id {task_id}) has no INTERACTIVE_KICKSTART parameter or it's set to 0. "
+            f"Fix your recipe to either set INTERACTIVE_KICKSTART=1 or run Anabot in "
+            f"a separate task (not during provisioning)."
+        )
+    else:
+        errmsg = None
+
+    return errmsg
+
 beaker_recipe_id = get_recipe_id()
 os.environ['BEAKER_RECIPE_ID'] = beaker_recipe_id
 
@@ -124,6 +157,7 @@ os.environ["BEAKER_LAB_CONTROLLER"] = beaker_lab_controller
 
 # Set up beaker handler
 beaker_lab_controller_url = "http://" + beaker_lab_controller + ":8000/"
+print(f"Beaker lab controller URL: {beaker_lab_controller_url}")
 
 rep = teres.Reporter.get_reporter()
 hnd = teres.bkr_handlers.ThinBkrHandler(
@@ -146,7 +180,6 @@ flags = {
     teres.bkr_handlers.SUBTASK_RESULT:"./reinstall/anabot",
     teres.bkr_handlers.DEFAULT_LOG_DEST:True
 }
-rep.log_pass("Anabot started", flags=flags)
 
 # Parse anabot recipe url from beaker recipe.
 beaker_recipe_url = "http://" + beaker_lab_controller + ":8000/recipes/" + str(beaker_recipe_id) + "/"
@@ -164,9 +197,20 @@ def param_value(name, default=None, empty_default=True):
     except IndexError:
         return default
 
+task_name = get_task_name(xml, task_id)
 anabot_recipe_url = param_value("ANABOT_RECIPE_URL")
+interactive_kickstart = param_value("INTERACTIVE_KICKSTART", "0")
 
-rep.log_debug("Anabot recipe url is: {}".format(anabot_recipe_url))
+config_error = validate_beaker_task_config(
+    cmdline, task_id, task_name, interactive_kickstart, anabot_recipe_url
+)
+if config_error is not None:
+    rep.log_fail(config_error, flags=flags)
+    rep.test_end()
+    sys.exit(2)
+
+rep.log_pass("Anabot started", flags=flags)
+rep.log_debug(f"Anabot recipe url is: {anabot_recipe_url}")
 
 # Store anabot recipe in correct place.
 anabot_recipe_dir = "/var/run/anabot/"
