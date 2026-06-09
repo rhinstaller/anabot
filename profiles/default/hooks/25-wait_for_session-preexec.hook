@@ -5,6 +5,13 @@ socket_name="/tmp/.X11-unix/X${DISPLAY#:}"
 wait_timeout=60
 waited=0
 
+dbus_name_owned() {
+    dbus-send --session --print-reply \
+        --dest=org.freedesktop.DBus /org/freedesktop/DBus \
+        org.freedesktop.DBus.NameHasOwner "string:${1}" 2>/dev/null \
+        | grep -q "boolean true"
+}
+
 # Wait for either X or Wayland session to start
 # Installer with X does not start a session, so loginctl returns an empty string.
 # Installer with Wayland starts a session with type "Wayland".
@@ -23,6 +30,23 @@ while [ $waited -le $wait_timeout ]; do
         # Switch to the right dogtail (for Wayland, default is x11)
         mv /opt/bundled/dogtail /opt/bundled/dogtail-x11
         mv /opt/bundled/dogtail-wayland /opt/bundled/dogtail
+
+        # wait for gnome-kiosk and Mutter APIs before starting gnome-ponytail-daemon
+        kiosk_waited=0
+        while [ $kiosk_waited -lt $wait_timeout ]; do
+            if pidof gnome-kiosk_ gnome-kiosk >/dev/null 2>&1 \
+                && dbus_name_owned org.gnome.Mutter.RemoteDesktop \
+                && dbus_name_owned org.gnome.Mutter.ScreenCast; then
+                break
+            fi
+            echo "waiting for gnome-kiosk and Mutter D-Bus APIs..."
+            sleep 1
+            ((kiosk_waited++))
+        done
+        if [ $kiosk_waited -ge $wait_timeout ]; then
+            echo "gnome-kiosk / Mutter not ready within ${wait_timeout} seconds"
+            exit 1
+        fi
 
         # gnome-ponytail-daemon is contained within /opt/bundled-bin and should be deployed
         # by anabot-prepare.service at this point
