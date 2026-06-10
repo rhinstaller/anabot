@@ -30,6 +30,7 @@ with open('/proc/cmdline', 'r') as proc_cmdline:
     cmdline = proc_cmdline.read()
 
 def http_get(url):
+    print(f"Getting URL: {url}")
     urllib_obj = urlopen(url)
     if urllib_obj.getcode() != 200:
         print("Couldn't get URL:", url)
@@ -85,6 +86,11 @@ def get_hostname(localhosts=("localhost", "localhost.localdomain"), retries=10):
         ip = s.getsockname()[0]
         s.close()
         hostname = socket.gethostbyaddr(ip)[0]
+    if not re.match(r'^[^.]+\.[^.]+', hostname):
+        raise Exception(
+            f"Resolved hostname '{hostname}' is not a FQDN; "
+            f"Beaker hub lookup requires a fully qualified hostname."
+        )
     return hostname
 
 def get_recipe_id():
