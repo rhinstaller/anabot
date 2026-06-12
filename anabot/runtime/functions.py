@@ -568,13 +568,39 @@ def combo_scroll(item, point=True, click=None, doubleclick=None):
         return i.position[1], i.position[1] + i.size[1]
     menu = getparent(item, "menu")
 
-    def do_actions():
-        centerx = item.position[0] + item.size[0]/2
+    def scroll_up():
+        logger.debug("Scrolling up")
+        if is_distro_version_lt("rhel", 10) or is_distro_version_lt("fedora", 40):
+            menu.click(MOUSE_SCROLL_UP)
+        else:
+            menu.keyCombo('Up')
+
+    def scroll_down():
+        logger.debug("Scrolling down")
+        if is_distro_version_lt("rhel", 10) or is_distro_version_lt("fedora", 40):
+            menu.click(MOUSE_SCROLL_DOWN)
+        else:
+            menu.keyCombo('Down')
+
+    def item_in_menu_viewport():
+        item_miny, item_maxy = yborders(item)
+        return item_miny > miny and item_maxy < maxy
+
+    def click_position():
+        logger.debug("Getting click position")
+        centerx = item.position[0] + item.size[0] / 2
         if abs(yborders(item)[0] - yborders(menu)[0]) > abs(yborders(item)[1] - yborders(menu)[1]):
             posy = yborders(item)[0] + YOFFSET
         else:
             posy = yborders(item)[1] - YOFFSET
-        # ensure that the item is fully visible by pointing at it
+        return centerx, posy
+
+    def coords_safe_for_rawinput():
+        centerx, posy = click_position()
+        return centerx >= 0 and posy >= 0 and item_in_menu_viewport()
+
+    def do_raw_actions():
+        centerx, posy = click_position()
         if point:
             dogtail.rawinput.absoluteMotion(centerx, posy)
         if click is not None:
@@ -582,30 +608,44 @@ def combo_scroll(item, point=True, click=None, doubleclick=None):
         if doubleclick is not None:
             dogtail.rawinput.doubleClick(centerx, posy, doubleclick)
 
+    def do_fallback_actions():
+        if doubleclick is not None:
+            item.doubleClick()
+        else:
+            item.click()
+
+    def perform_actions():
+        if coords_safe_for_rawinput():
+            do_raw_actions()
+        else:
+            # Fallback is used if the item is in the viewport, but may not be fully visible.
+            # It may still fail if doubleclick is set (uses rawinput() internally) or classic
+            # dogtail is involved (RHEL-9) or the center X/Y coordinates are negative.
+            do_fallback_actions()
+
     miny, maxy = yborders(menu)
-    # item should be inside of menu borders, so don't scroll
-    if yborders(item)[0] > miny and yborders(item)[1] < maxy:
-        do_actions()
+    if item_in_menu_viewport():
+        perform_actions()
         return
 
-    previous, following = item, item
-    if getnode(menu, "menu item") != item: # item is not first
-        previous = getsibling(item, -1, "menu item")
-    if getnodes(menu, "menu item")[-1] != item: # item is not last
-        following = getsibling(item, 1, "menu item")
+    max_steps = len(getnodes(menu, "menu item", visible=None))
+    steps = 0
+    while yborders(item)[0] < miny and steps < max_steps:
+        scroll_up()
+        steps += 1
 
-    while yborders(previous)[0] < miny:
-        if is_distro_version_lt("rhel", 10) or is_distro_version_lt("fedora", 40):
-            menu.click(MOUSE_SCROLL_UP)
-        else:
-            menu.keyCombo('Up')
-    while yborders(following)[1] > maxy:
-        if is_distro_version_lt("rhel", 10) or is_distro_version_lt("fedora", 40):
-            menu.click(MOUSE_SCROLL_DOWN)
-        else:
-            menu.keyCombo('Down')
+    steps = 0
+    while yborders(item)[1] > maxy and steps < max_steps:
+        scroll_down()
+        steps += 1
 
-    do_actions()
+    if not item_in_menu_viewport():
+        raise TimeoutError(
+            "Menu item '%s' still off-screen after scrolling" % item.name,
+            locals()
+        )
+
+    perform_actions()
 
 @_check_existence
 def handle_checkbox(node, element):
