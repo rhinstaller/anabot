@@ -590,9 +590,9 @@ def combo_scroll(item, point=True, click=None, doubleclick=None):
 
     previous, following = item, item
     if getnode(menu, "menu item") != item: # item is not first
-        previous = getsibling(item, -1, "menu item")
+        previous = getsibling(item, -1, "menu item", visible=None)
     if getnodes(menu, "menu item")[-1] != item: # item is not last
-        following = getsibling(item, 1, "menu item")
+        following = getsibling(item, 1, "menu item", visible=None)
 
     while yborders(previous)[0] < miny:
         if is_distro_version_lt("rhel", 10) or is_distro_version_lt("fedora", 40):
