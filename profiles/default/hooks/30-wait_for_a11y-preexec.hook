@@ -1,0 +1,72 @@
+#!/bin/bash
+
+#
+# Pre-exec hook to wait for accessibility framework
+#
+# The hook is based on "probe" that will check that the accessibility
+# framework is accessible.
+#
+# This is to deal with flakiness of the AT-SPI interface that appears on
+# machines (reportedly, more on VM's) and can cause a11y (and thus
+# dogtail) appear as functional, but then fail when trying to talk to it.
+#
+# The hook uses an in-line script that will try to enable accessibility
+# functions and dump tree of objects as seen by dogtail.  If this is
+# successful, the hook exits with zero status.
+#
+# If the check fails, the hook will re-try after 30 seconds.  This repeats
+# for 40 attempts---if it's not successful, the hook will exit with non-zero
+# status.
+#
+
+warn() {
+    #
+    # Print lines $@ to stderr
+    #
+    local self=${0##*/}
+    for line in "$@"; do
+        echo "$self:$line" >&2
+    done
+
+}
+
+mkpy() {
+    #
+    # Print Python code for dogtail probe
+    #
+    echo 'import dogtail.utils'
+    echo 'dogtail.utils.enableA11y()'
+    echo 'import dogtail.tree'
+    echo 'dogtail.tree.root.dump()'
+}
+
+verify() {
+    #
+    # True if dogtail data is available
+    #
+    PYTHONPATH="$PYTHONPATH:/opt/bundled/dogtail" \
+        /usr/libexec/platform-python -c "$(mkpy)" \
+     || return 3
+}
+
+main() {
+    local attempts=40   # max number of attempts
+    local delay=30      # delay between attempts
+    local togo          # leftover number of attempts
+    togo=$attempts
+    while true; do
+        warn "checking for dogtail data, attempt #$((attempts - togo + 1))"
+        verify && {
+            warn "...success!"
+            return 0
+        }
+        ((togo--))
+        test "$togo" -gt 0 || break
+        warn "sleeping before next attempt: $delay, remaining attempts $togo/$attempts" 
+        sleep "$delay"
+    done
+    warn "ran out of attempts, giving up"
+    exit 1
+}
+
+main "$@"
