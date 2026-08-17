@@ -120,7 +120,7 @@ The same recipe with comments describing what is anabot instructed to do:
         but in case if it's shown, accept it (default dialog action) and report
         unexpected state.
       -->
-    </welcome> <!-- leaving welcome screen, wait for it to diappear -->
+    </welcome> <!-- leaving welcome screen, wait for it to disappear -->
     <hub> <!-- expect anaconda hub screen -->
       <partitioning> <!--
           enter partitioning spoke (click on "Installation destination" spoke
@@ -152,7 +152,7 @@ The same recipe with comments describing what is anabot instructed to do:
     </hub> <!-- leaving hub screen, wait for it to disappear -->
     <configuration> <!-- expect configuration screen -->
       <root_password> <!--
-          enter root password spoke (same way as in case of paritioning)
+          enter root password spoke (same way as in case of partitioning)
         -->
         <password value="fo0m4nchU1" /> <!--
           type text into "password" input and expect that corresponding number
@@ -279,7 +279,7 @@ The overall result of anabot test is one of:
  * `PASS` - everything went according to the instructions given in the recipe
 
 There are numerous situations when anabot can end in `WARN` state. Here is
-list of possible situations that could have happend and actions you should
+list of possible situations that could have happened and actions you should
 take. If the description doesn't match your situation, please contact anabot
 developer.
 
@@ -298,6 +298,6 @@ developer.
  * :code:`Hook raised exception:` in `testout.log`:
     Some code is wrong in anabot.
  * There's `traceback.dump` and/or `traceback.log` file
-    Some traceback occured in anabot itself. This may be caused by some old
+    Some traceback occurred in anabot itself. This may be caused by some old
     code not expecting some situation in the GUI and crashes. In such case,
     the test result is most probably FAIL and also anabot needs to be fixed.
