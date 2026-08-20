@@ -245,7 +245,7 @@ handle_act('/done')(done_handler)
 def done_check(element, app_node, local_node):
     try:
         warning_bar = getnode(local_node, 'info bar', tr('Warnings'))
-        return (False, "Error occured")
+        return (False, "Error occurred")
     except NonexistentError:
         return True
 

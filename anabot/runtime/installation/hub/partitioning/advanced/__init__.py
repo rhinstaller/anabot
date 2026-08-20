@@ -308,7 +308,7 @@ def rescan_push_rescan_handler(element, app_node, local_node):
 
 @handle_chck('/rescan/push_rescan')
 def rescan_push_rescan_check(element, app_node, local_node):
-    # check that scan was successfull
+    # check that scan was successful
     try:
         getnode(app_node, "label", tr("Disk rescan complete."))
     except TimeoutError:
@@ -400,7 +400,7 @@ def done_handler_wrap(element, app_node, local_node):
 def done_check(element, app_node, local_node):
     try:
         warning_bar = getnode(local_node, 'info bar', gtk_tr('Warning'))
-        return (False, "Error occured")
+        return (False, "Error occurred")
     except TimeoutError:
         return True
     return True
