@@ -59,5 +59,5 @@ def attach_button_chck(element, app_node, local_node):
         result_label = getnode(local_node, 'label', tr('Registration with Red Hat Subscription Management is Done!'))
     except TimeoutError:
         return (False, "Cannot find success message.")
-    return (True, 'Registration was successfull.')
+    return (True, 'Registration was successful.')
 
