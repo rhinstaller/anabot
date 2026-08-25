@@ -15,7 +15,11 @@ Prepare updates.img containing anabot:
 
 If the updates.img is going to be used in beaker task:
 
-    $ BEAKER_HUB_HOSTNAME=beaker.example.com ./make_updates.sh ~/public_html/anabot.tar.gz
+    $ BEAKER_HUB_HOSTNAME=beakerpy3.example.com:8443 BEAKER_SERVER_HOSTNAME=beaker.example.com ./make_updates.sh ~/public_html/anabot.tar.gz
+
+`BEAKER_HUB_HOSTNAME` is the Beaker API (the `HUB_URL` from `/etc/beaker/client.conf`,
+including the port if needed), while `BEAKER_SERVER_HOSTNAME` is the Beaker server
+hosting `/repos/` and `/harness/` content.
 
 Prepare anabot recipe (xml) and make it available on http/ftp. There are some
 examples in git.

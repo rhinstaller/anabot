@@ -13,8 +13,9 @@ main() {
     local -r hostname="$(hostname)"
     local labcontroller=$BEAKER_LAB_CONTROLLER
     local beaker_hub_hostname=${ANABOT_VAR_BEAKER_HUB_HOSTNAME}
+    local beaker_server_hostname=${ANABOT_VAR_BEAKER_SERVER_HOSTNAME}
     local beaker_hub_url="https://${beaker_hub_hostname}/"
-    local beaker_tasks_repo="http://${beaker_hub_hostname}/repos/${recipeid}"
+    local beaker_tasks_repo="http://${beaker_server_hostname}/repos/${recipeid}"
     local harness_baseurl family major_version
 
     . /etc/os-release
@@ -29,7 +30,7 @@ main() {
             echo "Unknown OS"
     esac
     major_version=${VERSION_ID%%.*}
-    harness_baseurl="http://${beaker_hub_hostname}/harness/${family}${major_version}/"
+    harness_baseurl="http://${beaker_server_hostname}/harness/${family}${major_version}/"
 
     # Bail out if there is no recipe id.
     [[ -z "$recipeid" ]] && exit 0
