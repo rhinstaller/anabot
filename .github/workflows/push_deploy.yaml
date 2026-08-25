@@ -41,6 +41,7 @@ jobs:
           podman exec -it \
             -w /root/workspace/anabot \
             -e BEAKER_HUB_HOSTNAME="${{ secrets.BEAKER_HUB_HOSTNAME }}" \
+            -e BEAKER_SERVER_HOSTNAME="${{ secrets.BEAKER_SERVER_HOSTNAME }}" \
             -e CA_CERTIFICATE_URL="${{ secrets.CA_CERTIFICATE_URL }}" \
             anabot ./make_updates.sh ../anabot-${{ github.ref_name }}-${{ github.ref_name }}.tar.gz
 
