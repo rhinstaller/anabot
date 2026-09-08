@@ -5,6 +5,17 @@ After=anabot-prepare.service
 Before=anabot.service
 Before=anabot-direct.service
 
+# Only start the dummy RDP client in an RDP installation. Xvfb makes Mesa
+# enumerate /dev/dri/card*, and opening a primary DRM node takes DRM master.
+# In a local graphical installation that races gnome-kiosk's KMS setup and
+# kills the installation with:
+#     Failed to open gpu '/dev/dri/card1': ... EBUSY
+#     /bin/gnome-kiosk_: Setup failed: No GPUs found
+# Note: this matches the boot option only. RDP requested by the kickstart
+# 'rdp' command or chosen interactively in text mode will not start the
+# dummy client.
+ConditionKernelCommandLine=inst.rdp
+
 [Service]
 ExecStart=/opt/xfreerdp.sh
 Environment=HOME=/root
