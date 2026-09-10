@@ -1,0 +1,47 @@
+#!/usr/libexec/platform-python
+# Wait for an RDP-based monitor with expected resolution to appear.
+# This approach seems somewhat better than a plain sleep, but doesn't
+# completely fix the issue (a proper fix might come with RHEL-64694).
+
+import sys
+import os
+from time import sleep
+from dasbus.error import DBusError
+
+os.environ["DBUS_SESSION_BUS_ADDRESS"] = "unix:path=/run/user/0/bus"
+os.environ["XDG_SESSION_TYPE"] = "wayland"
+
+from dasbus.connection import SessionMessageBus
+
+def main(expected_resolution, timeout):
+    bus = SessionMessageBus()
+    proxy = bus.get_proxy(
+        "org.gnome.Mutter.DisplayConfig",
+        "/org/gnome/Mutter/DisplayConfig"
+    )
+    print(f"Waiting for RDP monitor with expected resolution {expected_resolution} to appear.")
+
+    for t in range(timeout, 0, -1):
+        sleep(1)
+        try:
+            serial, monitors, logical_monitors, _props = proxy.GetCurrentState()
+            resolution = monitors[0][1][0][1:3]
+            if resolution == expected_resolution:
+                print(f"RDP monitor with expected resolution found.")
+                return 0
+            print(f"Found RDP monitor with resolution {resolution}, {t} attempts remaining.")
+        except (DBusError, IndexError):
+            print(f"No expected RDP monitor found yet, {t} attempts remaining.")
+            pass
+    else:
+        print(f"Unable to find RDP monitor with expected resolution {expected_resolution}!")
+        return 1
+
+
+expected_resolution = (1024, 768)
+timeout = 300
+
+with open("/proc/cmdline", "r") as f:
+    cmdline = f.read()
+    if "inst.rdp" in cmdline:
+        sys.exit(main(expected_resolution, timeout))
