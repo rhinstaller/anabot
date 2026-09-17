@@ -11,7 +11,7 @@ from .common import set_language
 from dogtail.rawinput import click as raw_click
 
 # submodules
-from . import language, locality, beta_dialog, storage_error_dialog
+from . import language, locality, beta_dialog, storage_error_dialog, os_name
 
 _local_path = '/installation/welcome'
 handle_act = lambda x: handle_action(_local_path + x)
