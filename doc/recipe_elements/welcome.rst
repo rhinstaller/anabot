@@ -30,6 +30,19 @@ Attributes:
 
 * ``value``
 
+/installation/welcome/os_name
+=============================
+Checks that the operating system name is shown on the welcome screen. The
+``value`` is expected in two labels: the ``WELCOME TO ...`` label and the
+``... INSTALLATION`` label. The product name is matched upper-cased (anaconda
+upper-cases it in these labels) and the version is ignored. The check passes
+only when the name is found in both labels.
+
+Attributes:
+
+* ``value`` - the operating system name expected on the welcome screen
+    (e. g. ``Red Hat Enterprise Linux``)
+
 /installation/welcome/storage_error_dialog
 ==========================================
 Handles storage error dialogs that appears in case of storage state issue
