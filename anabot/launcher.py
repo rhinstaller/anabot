@@ -193,8 +193,18 @@ def main(*args):
 
     from anabot.runtime.run_test import run_test
 
-    run_test("/var/run/anabot/final-recipe.xml", appname=app_name, children_required=min_children)
-    run_postexechooks()
+    try:
+        run_test("/var/run/anabot/final-recipe.xml", appname=app_name, children_required=min_children)
+        run_postexechooks()
+    finally:
+        # Upload whatever the installer logged since the last periodic sync,
+        # also when the test died with an exception (e.g. Anaconda crashed).
+        logfiles_module = sys.modules.get("anaconda_logfiles")
+        if logfiles_module is not None:
+            try:
+                logfiles_module.sync_once()
+            except Exception as e:
+                reporter.log_error("Final log upload failed: %s" % e)
     if reporter.test_end() == teres.PASS:
         return 0
     return 1

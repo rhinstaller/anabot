@@ -38,17 +38,23 @@ globfiles = [
     '/tmp/dump-*.info',
 ]
 
-def mainloop():
-    time.sleep(5) # FIXME: should be enough time for beaker handler to show up
-    changes = {k: None for k in watched_files}
-    while True:
+changes = {k: None for k in watched_files}
+sync_lock = threading.Lock()
+
+def sync_once():
+    """
+    Send all watched files that changed since they were last sent. Used by the
+    periodic thread and also called from the launcher for a final upload when
+    the test dies with an exception.
+    """
+    with sync_lock:
         # add globfiles to changes (watched_files)
         for globfile in globfiles:
             for path in glob.glob(globfile):
                 if path not in changes:
                     changes[path] = None
 
-        for path, last_changed in changes.items():
+        for path, last_changed in list(changes.items()):
             if not os.path.exists(path):
                 continue
             changed = os.stat(path).st_mtime
@@ -58,6 +64,11 @@ def mainloop():
             reporter.send_file(path, flags={QUIET_FILE:True})
             reporter.log_debug("Sending updated file: %s" % path)
             changes[path] = changed
+
+def mainloop():
+    time.sleep(5) # FIXME: should be enough time for beaker handler to show up
+    while True:
+        sync_once()
         time.sleep(5)
 
 watch_thread = threading.Thread(target=mainloop)
