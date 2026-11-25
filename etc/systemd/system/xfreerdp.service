@@ -1,6 +1,13 @@
 [Unit]
 Description=xfreerdp-dummy
-After=anaconda.service
+# Note: there is deliberately no After=anaconda.service here. On s390x z/VM
+# systems anaconda runs as a foreground oneshot in anaconda-direct.service
+# (pulled in via the /sys/hypervisor/s390 condition) and anaconda.service,
+# ordered after anaconda.target, only starts once the installation has
+# already finished. Ordering this unit after anaconda.service would therefore
+# prevent the dummy RDP client (and anabot behind it) from ever starting
+# during the installation on z/VM. The script synchronizes with the GUI on
+# its own by polling for gnome-kiosk and the anaconda window.
 After=anabot-prepare.service
 Before=anabot.service
 Before=anabot-direct.service

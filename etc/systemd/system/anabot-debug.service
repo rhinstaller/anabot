@@ -1,6 +1,11 @@
 [Unit]
 Description=Anabot service for debug information collection
-After=anaconda.service
+# Note: no After=anaconda.service here - it would prevent this unit from
+# starting during the installation on s390x z/VM systems, where anaconda
+# runs as a foreground oneshot in anaconda-direct.service and
+# anaconda.service only starts once the installation has finished. The
+# script waits for the session bus on its own.
+After=anabot-prepare.service
 
 [Service]
 ExecStart=sh -c "which Xorg || /opt/anabot-debug.sh"
